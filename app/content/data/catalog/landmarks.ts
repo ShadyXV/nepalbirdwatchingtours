@@ -1,0 +1,587 @@
+import type { ImageAsset, Landmark, Likelihood, Month, Observation, Sighting } from "~/content/types";
+
+/**
+ * Seed places: cities, parks, ranges, peaks and one-off points of interest. Coordinates and
+ * elevations are real (rounded); photos are shot-list placeholders for Krishna's own.
+ */
+
+const PH = {
+  plain: "/media/placeholder.svg",
+  forest: "/media/placeholder-forest.svg",
+  ridge: "/media/placeholder-ridge.svg",
+  snow: "/media/placeholder-snow.svg",
+} as const;
+
+const shot = (src: string, alt: string, observation: Observation): ImageAsset => ({ kind: "image", src, alt, observation });
+
+const seen = (likelihood: Likelihood, ids: string[], months?: Month[]): Sighting[] =>
+  ids.map((speciesId) => ({ speciesId, likelihood, ...(months ? { months } : {}) }));
+
+const one = (speciesId: string, likelihood: Likelihood, months?: Month[], note?: string): Sighting => ({
+  speciesId,
+  likelihood,
+  ...(months ? { months } : {}),
+  ...(note ? { note } : {}),
+});
+
+export const landmarks = [
+  /* ------------------------------------------------------------------ cities */
+  {
+    id: "kathmandu",
+    name: "Kathmandu",
+    kind: "city",
+    coords: [85.324, 27.7172],
+    elevationM: 1400,
+    labelTier: 1,
+    blurb: "Nepal's busy, beautiful capital sits in a bowl of green hills, and Krishna's favourite birding mountains are less than an hour from its streets.",
+    media: [
+      shot(PH.ridge, "Wide shot: Kathmandu Valley at dawn from the rim, rooftops and temple spires under thin mist, the Himalaya beyond", { landmarkId: "kathmandu", place: "Kathmandu Valley", altitudeM: 1400, date: "2025-11", note: "clear morning from the valley rim" }),
+      shot(PH.plain, "Landscape: Egyptian Vultures and Black Kites circling above the Bagmati river at Pashupatinath at dusk", { speciesIds: ["egyptian-vulture", "black-kite"], landmarkId: "kathmandu", place: "Pashupatinath, Kathmandu", altitudeM: 1300, date: "2025-11", note: "birds above the river, 16:30" }),
+    ],
+    sightings: [
+      ...seen("common", ["black-kite", "large-billed-crow", "common-myna", "oriental-magpie-robin", "red-vented-bulbul", "spotted-dove"]),
+      ...seen("likely", ["himalayan-bulbul", "eurasian-kestrel", "egyptian-vulture", "grey-wagtail"]),
+    ],
+    nearbyTripSlugs: ["phulchowki-birding-day"],
+  },
+  {
+    id: "pokhara",
+    name: "Pokhara",
+    kind: "city",
+    coords: [83.9856, 28.2096],
+    elevationM: 820,
+    labelTier: 1,
+    blurb: "A lakeside town with the Annapurna range floating above it, the gateway to the Annapurna trails and a very good place for a first morning of birding.",
+    media: [
+      shot(PH.ridge, "Wide shot: Machhapuchhre reflected in Phewa Lake from Lakeside at dawn, painted boats in the foreground", { landmarkId: "machhapuchhre", place: "Phewa Lake, Pokhara", altitudeM: 800, date: "2025-04", note: "dawn reflection" }),
+      shot(PH.plain, "Landscape: Himalayan Griffons circling over the Pokhara valley at midday, paragliders far below", { speciesIds: ["himalayan-griffon"], landmarkId: "pokhara", place: "Pokhara valley", altitudeM: 1500, date: "2025-11", note: "griffons in a thermal" }),
+    ],
+    sightings: [
+      ...seen("common", ["black-kite", "little-cormorant", "indian-pond-heron", "red-vented-bulbul", "white-throated-kingfisher"]),
+      ...seen("likely", ["himalayan-griffon", "pied-kingfisher", "himalayan-bulbul", "oriental-magpie-robin"]),
+    ],
+    nearbyTripSlugs: ["annapurna-birding-trek"],
+  },
+
+  /* ------------------------------------------------------------------- parks */
+  {
+    id: "chitwan-national-park",
+    name: "Chitwan National Park",
+    kind: "park",
+    coords: [84.35, 27.5],
+    elevationM: 150,
+    labelTier: 1,
+    blurb: "Nepal's first national park is a world of sal forest, tall grass and braided rivers, home to rhinoceros, gharial, tiger and more than five hundred kinds of birds.",
+    media: [
+      shot(PH.forest, "Wide shot: Greater One-horned Rhinoceros in tall grass at sunrise, Chitwan, mist on the river behind", { speciesIds: ["greater-one-horned-rhinoceros"], landmarkId: "chitwan-national-park", place: "Chitwan National Park", altitudeM: 150, date: "2026-02", note: "grazing, 07:10" }),
+      shot(PH.forest, "Landscape: Great Hornbill on a bare sal branch in morning light, Chitwan", { speciesIds: ["great-hornbill"], landmarkId: "chitwan-national-park", place: "Chitwan National Park", altitudeM: 150, date: "2026-02", note: "adult perched at canopy top" }),
+      shot(PH.plain, "Landscape: dugout canoe drifting past a Gharial on a sandbar on the Rapti River at dawn", { speciesIds: ["gharial"], landmarkId: "chitwan-national-park", place: "Rapti River, Chitwan", altitudeM: 150, date: "2026-02", note: "canoe drift, 07:00" }),
+    ],
+    sightings: [
+      ...seen("common", ["chital", "indian-peafowl", "red-junglefowl", "pied-kingfisher"]),
+      ...seen("likely", ["greater-one-horned-rhinoceros", "gharial", "mugger-crocodile", "oriental-pied-hornbill", "asian-elephant"]),
+      ...seen("possible", ["great-hornbill", "gaur"]),
+      one("bengal-florican", "possible", [3, 4, 5]),
+      one("bengal-tiger", "rare"),
+      one("sal", "common"),
+    ],
+    nearbyTripSlugs: ["chitwan-wildlife-safari"],
+  },
+  {
+    id: "bardia-national-park",
+    name: "Bardia National Park",
+    kind: "park",
+    coords: [81.5, 28.35],
+    elevationM: 200,
+    labelTier: 2,
+    blurb: "A wilder, quieter cousin of Chitwan in far western Nepal, with tigers, elephants, and a long, lovely stretch of the Karnali River.",
+    media: [
+      shot(PH.forest, "Wide shot: open sal forest and grassland in Bardia National Park at golden hour, a herd of Spotted Deer in the open", { speciesIds: ["chital"], landmarkId: "bardia-national-park", place: "Bardia National Park", altitudeM: 200, date: "2026-02", note: "herd at golden hour" }),
+      shot(PH.plain, "Landscape: Asian Elephant crossing a river in Bardia, forest behind", { speciesIds: ["asian-elephant"], landmarkId: "bardia-national-park", place: "Bardia National Park", altitudeM: 200, date: "2026-03", note: "river crossing, morning" }),
+    ],
+    sightings: [
+      ...seen("likely", ["chital", "indian-peafowl", "red-junglefowl", "gharial", "mugger-crocodile", "oriental-pied-hornbill", "greater-one-horned-rhinoceros"]),
+      ...seen("possible", ["asian-elephant", "great-hornbill", "black-necked-stork", "lesser-adjutant", "ganges-river-dolphin", "smooth-coated-otter"]),
+      one("bengal-tiger", "rare"),
+    ],
+  },
+  {
+    id: "annapurna-conservation-area",
+    name: "Annapurna Conservation Area",
+    kind: "park",
+    coords: [83.95, 28.38],
+    labelTier: 2,
+    blurb: "Nepal's largest protected area, from subtropical river valleys to the high snows around the Annapurna Sanctuary, with trails, villages and extraordinary birds.",
+    media: [
+      shot(PH.forest, "Wide shot: rhododendron forest in bloom on the Ghorepani trail, a trekker small on the path, mountains in the mist", { speciesIds: ["rhododendron-arboreum"], landmarkId: "annapurna-conservation-area", place: "Ghorepani, Annapurna", altitudeM: 2860, date: "2025-04", note: "peak bloom, morning mist" }),
+      shot(PH.plain, "Close: Himalayan Monal male in early light on a mossy ridge, Annapurna region", { speciesIds: ["himalayan-monal"], landmarkId: "annapurna-conservation-area", place: "Tadapani, Annapurna", altitudeM: 2630, date: "2025-04", note: "male on ridge, 06:40" }),
+    ],
+    sightings: [
+      ...seen("likely", ["himalayan-monal", "great-parrotbill", "fire-tailed-sunbird", "lammergeier", "himalayan-langur"]),
+      ...seen("possible", ["satyr-tragopan", "snow-pigeon", "himalayan-tahr", "blue-sheep", "yellow-throated-marten"]),
+      one("rhododendron-arboreum", "common", [3, 4]),
+    ],
+    nearbyTripSlugs: ["annapurna-birding-trek"],
+  },
+  {
+    id: "shivapuri-nagarjun-national-park",
+    name: "Shivapuri Nagarjun National Park",
+    kind: "park",
+    coords: [85.39, 27.795],
+    elevationM: 2732,
+    labelTier: 2,
+    blurb: "A forested ridge on the northern rim of the Kathmandu Valley, with oak and rhododendron woods, monasteries and a good day list of mountain birds.",
+    media: [
+      shot(PH.forest, "Wide shot: oak–rhododendron forest on the Shivapuri ridge in mist, a Buddhist prayer-flag line across the trail", { landmarkId: "shivapuri-nagarjun-national-park", place: "Shivapuri, Kathmandu", altitudeM: 2200, date: "2025-11", note: "misty ridge walk" }),
+      shot(PH.plain, "Landscape: Kalij Pheasant at the edge of the Shivapuri forest trail", { speciesIds: ["kalij-pheasant"], landmarkId: "shivapuri-nagarjun-national-park", place: "Shivapuri, Kathmandu", altitudeM: 2000, date: "2025-11", note: "male on forest trail, 07:00" }),
+    ],
+    sightings: [
+      ...seen("likely", ["kalij-pheasant", "great-barbet", "rufous-sibia", "whiskered-yuhina", "blue-whistling-thrush", "himalayan-bulbul", "spotted-nutcracker"]),
+      ...seen("possible", ["mountain-hawk-eagle", "yellow-throated-marten", "barking-deer", "himalayan-black-bear"]),
+      one("rhododendron-arboreum", "common", [3, 4]),
+    ],
+    nearbyTripSlugs: ["phulchowki-birding-day"],
+  },
+  {
+    id: "langtang-national-park",
+    name: "Langtang National Park",
+    kind: "park",
+    coords: [85.45, 28.16],
+    labelTier: 2,
+    blurb: "A deep, forested valley beneath Langtang Lirung, close to Kathmandu, with red pandas in the bamboo and monals in the high oak forest.",
+    media: [
+      shot(PH.snow, "Wide shot: the Langtang valley in morning light with Langtang Lirung above the yak pastures", { landmarkId: "langtang-lirung", place: "Langtang valley", altitudeM: 3500, date: "2025-10", note: "clear autumn morning" }),
+      shot(PH.forest, "Landscape: oak–rhododendron forest above Lama Hotel in mist, Langtang", { landmarkId: "langtang-national-park", place: "Lama Hotel, Langtang", altitudeM: 2470, date: "2025-10", note: "mossy forest" }),
+    ],
+    sightings: [
+      ...seen("likely", ["himalayan-monal", "white-capped-redstart", "brown-dipper", "fire-tailed-sunbird", "rufous-breasted-accentor", "himalayan-griffon"]),
+      ...seen("possible", ["blood-pheasant", "lammergeier", "himalayan-tahr", "himalayan-black-bear", "red-panda"]),
+      one("rhododendron-campanulatum", "possible", [4, 5]),
+    ],
+  },
+
+  /* ------------------------------------------------------------------ ranges */
+  {
+    id: "annapurna-himal",
+    name: "Annapurna Himal",
+    kind: "range",
+    coords: [83.98, 28.57],
+    labelTier: 2,
+    blurb: "A long, dramatic wall of snow peaks above Pokhara, holding Annapurna I and the fishtail of Machhapuchhre, ringing the Annapurna Sanctuary like an amphitheatre.",
+    media: [
+      shot(PH.snow, "Wide shot: the full Annapurna range from Annapurna South to Machhapuchhre at dawn from Poon Hill", { landmarkId: "annapurna-himal", place: "Poon Hill, Annapurna", altitudeM: 3210, date: "2025-04", note: "dawn panorama" }),
+      shot(PH.ridge, "Landscape: sunset on the Annapurna range from Sarangkot above Pokhara, thin cloud bands", { landmarkId: "annapurna-himal", place: "Sarangkot, Pokhara", altitudeM: 1600, date: "2025-11", note: "last light, 17:20" }),
+    ],
+    sightings: [
+      ...seen("likely", ["lammergeier", "himalayan-griffon", "himalayan-monal", "snow-pigeon"]),
+      ...seen("possible", ["golden-eagle", "blue-sheep", "himalayan-tahr", "alpine-accentor"]),
+    ],
+    nearbyTripSlugs: ["annapurna-birding-trek"],
+  },
+  {
+    id: "langtang-himal",
+    name: "Langtang Himal",
+    kind: "range",
+    coords: [85.65, 28.3],
+    labelTier: 2,
+    blurb: "The snowy range just north of Kathmandu, dominated by Langtang Lirung, and visible on clear days from the Kathmandu hills.",
+    media: [
+      shot(PH.snow, "Wide shot: the Langtang Himal seen from the Phulchowki summit on a clear winter morning, valley haze below", { landmarkId: "langtang-himal", place: "Phulchowki summit", altitudeM: 2782, date: "2025-11", note: "clear, 08:30" }),
+      shot(PH.ridge, "Landscape: Langtang Lirung and the Langtang range in alpenglow from the Langtang valley", { landmarkId: "langtang-lirung", place: "Langtang valley", altitudeM: 3500, date: "2025-10", note: "alpenglow, 17:30" }),
+    ],
+    sightings: [
+      ...seen("likely", ["lammergeier", "himalayan-monal", "yellow-billed-chough"]),
+      ...seen("possible", ["blood-pheasant", "red-panda", "himalayan-tahr", "golden-eagle", "plain-mountain-finch"]),
+    ],
+    nearbyTripSlugs: ["phulchowki-birding-day"],
+  },
+  {
+    id: "mahalangur-himal",
+    name: "Mahalangur Himal (Everest region)",
+    kind: "range",
+    coords: [86.85, 28.06],
+    labelTier: 2,
+    blurb: "The great range of the Khumbu, holding Everest, Lhotse, Makalu and Cho Oyu, with Sherpa villages, monasteries and the high pastures of Sagarmatha National Park below.",
+    media: [
+      shot(PH.snow, "Wide shot: Everest, Lhotse and Nuptse above the Khumbu valley at dawn, prayer flags in the foreground", { landmarkId: "mahalangur-himal", place: "Khumbu, Sagarmatha", altitudeM: 3800, date: "2025-04", note: "morning clear" }),
+      shot(PH.forest, "Landscape: Himalayan Monal male on a rhododendron slope in the Khumbu, snow peak behind", { speciesIds: ["himalayan-monal"], landmarkId: "mahalangur-himal", place: "Khumbu, Sagarmatha", altitudeM: 3500, date: "2025-04", note: "male on slope, morning" }),
+    ],
+    sightings: [
+      ...seen("likely", ["himalayan-monal", "yellow-billed-chough", "red-billed-chough", "lammergeier", "himalayan-tahr", "alpine-accentor"]),
+      ...seen("possible", ["blood-pheasant", "himalayan-snowcock", "water-pipit", "grandala"]),
+    ],
+  },
+  {
+    id: "dhaulagiri-himal",
+    name: "Dhaulagiri Himal",
+    kind: "range",
+    coords: [83.4, 28.73],
+    labelTier: 2,
+    blurb: "A remote white wall west of the Kali Gandaki gorge, dominated by Dhaulagiri I, and seen from Poon Hill.",
+    media: [
+      shot(PH.snow, "Wide shot: Dhaulagiri range at sunrise from Poon Hill, with rhododendron silhouettes in the foreground", { landmarkId: "dhaulagiri-himal", place: "Poon Hill, Annapurna", altitudeM: 3210, date: "2025-04", note: "sunrise, 05:55" }),
+      shot(PH.ridge, "Landscape: the Dhaulagiri range seen across the Kali Gandaki valley in the afternoon, layered ridges", { landmarkId: "dhaulagiri-himal", place: "Kali Gandaki valley", altitudeM: 2500, date: "2025-11", note: "afternoon haze, layered ridges" }),
+    ],
+    sightings: [
+      ...seen("likely", ["lammergeier", "himalayan-griffon"]),
+      ...seen("possible", ["himalayan-snowcock", "blue-sheep", "himalayan-tahr", "golden-eagle", "snow-pigeon"]),
+    ],
+    nearbyTripSlugs: ["annapurna-birding-trek"],
+  },
+  {
+    id: "mansiri-himal",
+    name: "Mansiri Himal (Manaslu)",
+    kind: "range",
+    coords: [84.72, 28.65],
+    labelTier: 2,
+    blurb: "A wild range of high snow peaks and deep valleys around Manaslu, with Gurung and Tibetan-influenced villages and wonderful, little-visited forest.",
+    media: [
+      shot(PH.snow, "Wide shot: Manaslu and the Mansiri range at dawn from the Budhi Gandaki valley", { landmarkId: "mansiri-himal", place: "Budhi Gandaki valley", altitudeM: 3000, date: "2025-10", note: "sunrise glow" }),
+      shot(PH.forest, "Landscape: bamboo-and-rhododendron forest in the Manaslu foothills in cloud", { landmarkId: "mansiri-himal", place: "Manaslu foothills", altitudeM: 2400, date: "2025-10", note: "damp forest" }),
+    ],
+    sightings: [
+      ...seen("likely", ["lammergeier", "himalayan-griffon", "himalayan-monal"]),
+      ...seen("possible", ["blue-sheep", "himalayan-tahr", "golden-eagle", "snow-pigeon", "yellow-billed-chough"]),
+    ],
+  },
+  {
+    id: "kanchenjunga-himal",
+    name: "Kanchenjunga Himal",
+    kind: "range",
+    coords: [88.05, 27.8],
+    labelTier: 2,
+    blurb: "Nepal's far eastern giants, wrapped in wet rhododendron forest below the third-highest mountain on earth.",
+    media: [
+      shot(PH.snow, "Wide shot: Kanchenjunga at sunrise from the Kanchenjunga region, five summits lit pink above a sea of cloud", { landmarkId: "kanchenjunga", place: "Kanchenjunga region", altitudeM: 4000, date: "2025-04", note: "sunrise above cloud" }),
+      shot(PH.forest, "Landscape: rhododendron forest in the Kanchenjunga foothills in spring bloom, mist and moss", { landmarkId: "kanchenjunga-himal", place: "Kanchenjunga region", altitudeM: 2800, date: "2025-04", note: "spring bloom" }),
+    ],
+    sightings: [
+      ...seen("likely", ["himalayan-monal", "lammergeier"]),
+      ...seen("possible", ["satyr-tragopan", "blood-pheasant", "red-panda", "blue-sheep", "himalayan-tahr"]),
+      one("rhododendron-arboreum", "common", [3, 4]),
+    ],
+  },
+
+  /* ------------------------------------------------------------------- peaks */
+  {
+    id: "everest",
+    name: "Mount Everest",
+    kind: "peak",
+    coords: [86.925, 27.9881],
+    elevationM: 8849,
+    range: "Mahalangur Himal",
+    labelTier: 1,
+    blurb: "The highest mountain on earth, known in Nepali as Sagarmatha. Even from far away its dark pyramid is unmistakable.",
+    media: [
+      shot(PH.snow, "Wide shot: Everest and Nuptse rising above the Khumbu valley in the first light, plume of wind-blown snow", { landmarkId: "everest", place: "Khumbu, Sagarmatha", altitudeM: 5000, date: "2025-04", note: "dawn, clear" }),
+      shot(PH.ridge, "Landscape: Everest seen from the Kala Patthar viewpoint at sunset, trekkers small on the ridge", { landmarkId: "everest", place: "Kala Patthar, Sagarmatha", altitudeM: 5550, date: "2025-04", note: "sunset glow" }),
+    ],
+  },
+  {
+    id: "kanchenjunga",
+    name: "Kanchenjunga",
+    kind: "peak",
+    coords: [88.1475, 27.7025],
+    elevationM: 8586,
+    range: "Kanchenjunga Himal",
+    labelTier: 2,
+    blurb: "The third-highest mountain in the world, on Nepal's eastern border, whose name means the five treasures of the snows.",
+    media: [
+      shot(PH.snow, "Wide shot: Kanchenjunga's five summits above cloud at sunrise, taken from the Kanchenjunga trek", { landmarkId: "kanchenjunga", place: "Kanchenjunga region", altitudeM: 4600, date: "2025-04", note: "sunrise" }),
+      shot(PH.ridge, "Landscape: Kanchenjunga from Pangpema base camp in evening light, glacier in the foreground", { landmarkId: "kanchenjunga", place: "Pangpema, Kanchenjunga", altitudeM: 5140, date: "2025-04", note: "evening, glacier foreground" }),
+    ],
+  },
+  {
+    id: "lhotse",
+    name: "Lhotse",
+    kind: "peak",
+    coords: [86.9333, 27.9617],
+    elevationM: 8516,
+    range: "Mahalangur Himal",
+    labelTier: 2,
+    blurb: "Everest's southern neighbour, joined to it by the South Col, and the fourth-highest mountain on earth.",
+    media: [
+      shot(PH.snow, "Wide shot: the south face of Lhotse seen from Chukhung in the evening light", { landmarkId: "lhotse", place: "Chukhung, Khumbu", altitudeM: 4730, date: "2025-04", note: "evening light" }),
+      shot(PH.ridge, "Landscape: Lhotse and Nuptse above the Imja valley with clouds streaming from the ridge", { landmarkId: "lhotse", place: "Imja valley, Khumbu", altitudeM: 4400, date: "2025-04", note: "wind-blown cloud" }),
+    ],
+  },
+  {
+    id: "makalu",
+    name: "Makalu",
+    kind: "peak",
+    coords: [87.0889, 27.8897],
+    elevationM: 8485,
+    range: "Mahalangur Himal",
+    labelTier: 2,
+    blurb: "A perfect four-sided pyramid of rock and snow, the fifth-highest mountain in the world, rising above the wild Barun valley.",
+    media: [
+      shot(PH.snow, "Wide shot: Makalu's pyramid at sunrise above the Barun valley, orange alpenglow", { landmarkId: "makalu", place: "Barun valley, Makalu", altitudeM: 4600, date: "2025-04", note: "sunrise alpenglow" }),
+      shot(PH.ridge, "Landscape: rhododendron forest in the lower Barun valley below Makalu, mist in the trees", { landmarkId: "makalu", place: "Barun valley, Makalu", altitudeM: 3000, date: "2025-04", note: "mossy forest in mist" }),
+    ],
+  },
+  {
+    id: "cho-oyu",
+    name: "Cho Oyu",
+    kind: "peak",
+    coords: [86.6609, 28.0942],
+    elevationM: 8188,
+    range: "Mahalangur Himal",
+    labelTier: 2,
+    blurb: "The sixth-highest mountain on earth, on the Nepal-Tibet border and seen in the west of the Khumbu valley.",
+    media: [
+      shot(PH.snow, "Wide shot: Cho Oyu rising above the Gokyo lakes at sunrise, turquoise water in the foreground", { landmarkId: "cho-oyu", place: "Gokyo, Khumbu", altitudeM: 4790, date: "2025-10", note: "sunrise, still water" }),
+      shot(PH.ridge, "Landscape: Cho Oyu from the Gokyo Ri viewpoint, with the Ngozumpa glacier below", { landmarkId: "cho-oyu", place: "Gokyo Ri, Khumbu", altitudeM: 5357, date: "2025-10", note: "midday, glacier" }),
+    ],
+  },
+  {
+    id: "dhaulagiri-i",
+    name: "Dhaulagiri I",
+    kind: "peak",
+    coords: [83.4875, 28.6967],
+    elevationM: 8167,
+    range: "Dhaulagiri Himal",
+    labelTier: 1,
+    blurb: "The White Mountain, the seventh-highest in the world, standing over the Kali Gandaki gorge, and the great white wall to the west from Poon Hill.",
+    media: [
+      shot(PH.snow, "Wide shot: Dhaulagiri I glowing orange at sunrise from Poon Hill, rhododendron in the foreground", { landmarkId: "dhaulagiri-i", place: "Poon Hill, Annapurna", altitudeM: 3210, date: "2025-04", note: "sunrise, 05:55" }),
+      shot(PH.ridge, "Landscape: Dhaulagiri I and Tukuche Peak above the clouds, seen from the Ghorepani trail", { landmarkId: "dhaulagiri-i", place: "Ghorepani, Annapurna", altitudeM: 2860, date: "2025-04", note: "morning cloud sea" }),
+    ],
+    nearbyTripSlugs: ["annapurna-birding-trek"],
+  },
+  {
+    id: "manaslu",
+    name: "Manaslu",
+    kind: "peak",
+    coords: [84.5597, 28.5497],
+    elevationM: 8163,
+    range: "Mansiri Himal",
+    labelTier: 2,
+    blurb: "The Mountain of the Spirit, the eighth-highest in the world, rising over the Manaslu Conservation Area.",
+    media: [
+      shot(PH.snow, "Wide shot: Manaslu at sunrise from Samagaon, golden light on the summit", { landmarkId: "manaslu", place: "Samagaon, Manaslu", altitudeM: 3530, date: "2025-10", note: "sunrise, 06:10" }),
+      shot(PH.ridge, "Landscape: the Budhi Gandaki valley with Manaslu in the distance and a line of prayer flags", { landmarkId: "manaslu", place: "Budhi Gandaki valley", altitudeM: 3000, date: "2025-10", note: "afternoon, flags" }),
+    ],
+  },
+  {
+    id: "annapurna-i",
+    name: "Annapurna I",
+    kind: "peak",
+    coords: [83.8203, 28.5961],
+    elevationM: 8091,
+    range: "Annapurna Himal",
+    labelTier: 1,
+    blurb: "The first 8,000-metre peak ever climbed, and the great white heart of the Annapurna Sanctuary. Standing beneath its south face at base camp is something you do not forget.",
+    media: [
+      shot(PH.snow, "Wide shot: Annapurna I's south face at dawn from Annapurna Base Camp, golden light, prayer flags in the foreground", { landmarkId: "annapurna-i", place: "Annapurna Base Camp", altitudeM: 4130, date: "2025-11", note: "clear dawn, 06:45" }),
+      shot(PH.ridge, "Landscape: Annapurna I from Poon Hill with the mist below, the pale shape at the edge of the range", { landmarkId: "annapurna-i", place: "Poon Hill, Annapurna", altitudeM: 3210, date: "2025-04", note: "dawn, distant" }),
+    ],
+    nearbyTripSlugs: ["annapurna-birding-trek"],
+  },
+  {
+    id: "annapurna-south",
+    name: "Annapurna South",
+    kind: "peak",
+    coords: [83.8061, 28.5183],
+    elevationM: 7219,
+    range: "Annapurna Himal",
+    labelTier: 2,
+    blurb: "The first big peak you see from Pokhara's side of the range, a huge snow-and-rock pyramid standing guard at the entrance of the Sanctuary.",
+    media: [
+      shot(PH.snow, "Wide shot: Annapurna South catching the first light from Poon Hill, a mist-filled valley below", { landmarkId: "annapurna-south", place: "Poon Hill, Annapurna", altitudeM: 3210, date: "2025-04", note: "alpenglow, 06:00" }),
+      shot(PH.ridge, "Landscape: Annapurna South above the stone steps of Chhomrong at midday", { landmarkId: "annapurna-south", place: "Chhomrong, Annapurna", altitudeM: 2170, date: "2025-04", note: "midday, terraces" }),
+    ],
+    nearbyTripSlugs: ["annapurna-birding-trek"],
+  },
+  {
+    id: "hiunchuli",
+    name: "Hiunchuli",
+    kind: "peak",
+    coords: [83.8519, 28.5103],
+    elevationM: 6441,
+    range: "Annapurna Himal",
+    labelTier: 2,
+    blurb: "A graceful snow peak shouldering Annapurna South, forming the western gate of the Sanctuary.",
+    media: [
+      shot(PH.snow, "Wide shot: Hiunchuli in cloud at sunrise, above the Modi Khola gorge", { landmarkId: "hiunchuli", place: "Modi Khola gorge, Annapurna", altitudeM: 2900, date: "2025-11", note: "cloud lifting at sunrise" }),
+      shot(PH.ridge, "Landscape: Hiunchuli seen from the Deurali slope in clear afternoon light", { landmarkId: "hiunchuli", place: "Deurali, Annapurna", altitudeM: 3230, date: "2025-04", note: "afternoon light" }),
+    ],
+    nearbyTripSlugs: ["annapurna-birding-trek"],
+  },
+  {
+    id: "machhapuchhre",
+    name: "Machhapuchhre",
+    kind: "peak",
+    coords: [83.9492, 28.495],
+    elevationM: 6993,
+    range: "Annapurna Himal",
+    labelTier: 1,
+    blurb: "The Fishtail, a sacred, unclimbed peak that floats above Pokhara and keeps appearing around every bend of the trek.",
+    media: [
+      shot(PH.snow, "Wide shot: Machhapuchhre at dawn from Tadapani, its twin summit tilted above forested ridges", { landmarkId: "machhapuchhre", place: "Tadapani, Annapurna", altitudeM: 2630, date: "2025-04", note: "dawn, 06:00" }),
+      shot(PH.ridge, "Landscape: Machhapuchhre reflected in Phewa Lake from Lakeside at sunrise", { landmarkId: "machhapuchhre", place: "Phewa Lake, Pokhara", altitudeM: 800, date: "2025-11", note: "sunrise reflection" }),
+    ],
+    nearbyTripSlugs: ["annapurna-birding-trek"],
+  },
+  {
+    id: "langtang-lirung",
+    name: "Langtang Lirung",
+    kind: "peak",
+    coords: [85.5167, 28.2583],
+    elevationM: 7227,
+    range: "Langtang Himal",
+    labelTier: 2,
+    blurb: "The highest peak in the Langtang range, a huge white mountain standing over the valley and the village of Kyanjin Gompa.",
+    media: [
+      shot(PH.snow, "Wide shot: Langtang Lirung at sunrise from Kyanjin Gompa, yak pastures in the foreground", { landmarkId: "langtang-lirung", place: "Kyanjin Gompa, Langtang", altitudeM: 3870, date: "2025-10", note: "sunrise, clear" }),
+      shot(PH.ridge, "Landscape: Langtang Lirung above the oak-and-rhododendron forest, from the trail near Lama Hotel", { landmarkId: "langtang-lirung", place: "Lama Hotel, Langtang", altitudeM: 2470, date: "2025-10", note: "morning" }),
+    ],
+  },
+  {
+    id: "phulchowki",
+    name: "Phulchowki",
+    kind: "peak",
+    coords: [85.4005, 27.574],
+    elevationM: 2782,
+    range: "Mahabharat Range",
+    labelTier: 2,
+    blurb: "The highest hill around the Kathmandu Valley and the most rewarding day of birding near the capital, with rhododendron forest, mountain streams and a wide view.",
+    media: [
+      shot(PH.forest, "Wide shot: rhododendron in bloom on the upper slopes of Phulchowki, mist in the trees", { speciesIds: ["rhododendron-arboreum"], landmarkId: "phulchowki", place: "Phulchowki", altitudeM: 2500, date: "2026-03", note: "peak bloom" }),
+      shot(PH.plain, "Close: Mrs. Gould's Sunbird feeding at a rhododendron flower on Phulchowki", { speciesIds: ["mrs-goulds-sunbird"], landmarkId: "phulchowki", place: "Phulchowki", altitudeM: 2300, date: "2026-03", note: "male at flower, 07:50" }),
+    ],
+    sightings: [
+      ...seen("likely", ["spotted-laughingthrush", "mrs-goulds-sunbird", "rufous-sibia", "spotted-forktail", "large-niltava", "hoary-throated-barwing"]),
+      ...seen("possible", ["himalayan-cutia", "great-parrotbill"]),
+      one("rhododendron-arboreum", "common", [2, 3, 4]),
+    ],
+    nearbyTripSlugs: ["phulchowki-birding-day"],
+  },
+
+  /* ---------------------------------------------- points of interest, side trips */
+  {
+    id: "koshi-tappu-wildlife-reserve",
+    name: "Koshi Tappu Wildlife Reserve",
+    kind: "poi",
+    coords: [86.993, 26.65],
+    elevationM: 75,
+    labelTier: 2,
+    blurb: "A wide, braided stretch of the Koshi River in eastern Nepal, with grassland, marsh and sandbars that fill with thousands of ducks, waders and raptors in winter.",
+    media: [
+      shot(PH.plain, "Wide shot: the Koshi River at dawn with mist on the water, sandbars, and a flock of waterbirds in flight", { landmarkId: "koshi-tappu-wildlife-reserve", place: "Koshi Tappu", altitudeM: 75, date: "2026-01", note: "winter dawn" }),
+      shot(PH.forest, "Landscape: Ruddy Shelducks and Northern Pintails on a Koshi sandbar in winter light", { speciesIds: ["ruddy-shelduck", "northern-pintail"], landmarkId: "koshi-tappu-wildlife-reserve", place: "Koshi Tappu", altitudeM: 75, date: "2026-01", note: "mixed flock on sandbar" }),
+    ],
+    sightings: [
+      ...seen("likely", ["ruddy-shelduck", "northern-pintail", "gadwall", "river-tern", "great-thick-knee", "small-pratincole", "bronze-winged-jacana", "citrine-wagtail"], [11, 12, 1, 2]),
+      ...seen("possible", ["swamp-francolin", "pied-harrier", "ganges-river-dolphin", "gharial", "hog-deer"]),
+    ],
+  },
+  {
+    id: "phewa-lake",
+    name: "Phewa Lake",
+    kind: "poi",
+    coords: [83.94, 28.215],
+    elevationM: 742,
+    labelTier: 2,
+    blurb: "The glittering lake of Pokhara, with painted boats, forest on its far shore and Machhapuchhre in its reflection on a clear morning.",
+    media: [
+      shot(PH.ridge, "Wide shot: Phewa Lake at dawn with Machhapuchhre reflected and a painted boat at the shore", { landmarkId: "phewa-lake", place: "Phewa Lake, Pokhara", altitudeM: 742, date: "2025-04", note: "dawn, calm" }),
+      shot(PH.plain, "Landscape: Pied Kingfisher hovering over Phewa Lake with painted boats behind", { speciesIds: ["pied-kingfisher"], landmarkId: "phewa-lake", place: "Phewa Lake, Pokhara", altitudeM: 742, date: "2025-04", note: "hovering, morning" }),
+    ],
+    sightings: [
+      ...seen("common", ["little-cormorant", "indian-pond-heron", "cattle-egret", "white-throated-kingfisher", "black-kite"]),
+      ...seen("likely", ["pied-kingfisher", "common-kingfisher", "little-egret", "red-wattled-lapwing", "great-cormorant"]),
+    ],
+    nearbyTripSlugs: ["annapurna-birding-trek"],
+  },
+  {
+    id: "begnas-lake",
+    name: "Begnas Lake",
+    kind: "poi",
+    coords: [84.095, 28.17],
+    elevationM: 650,
+    labelTier: 2,
+    blurb: "A quieter lake east of Pokhara, ringed by hills and good for ducks, herons and kingfishers.",
+    media: [
+      shot(PH.plain, "Wide shot: Begnas Lake in morning mist with a fisherman's boat and forested hills behind", { landmarkId: "begnas-lake", place: "Begnas Lake", altitudeM: 650, date: "2025-11", note: "morning mist" }),
+      shot(PH.forest, "Landscape: Little Grebe and Cotton Pygmy-Goose in the shallows of Begnas Lake", { speciesIds: ["little-grebe", "cotton-pygmy-goose"], landmarkId: "begnas-lake", place: "Begnas Lake", altitudeM: 650, date: "2025-11", note: "in the shallows, 07:30" }),
+    ],
+    sightings: [
+      ...seen("common", ["little-grebe", "little-cormorant", "pied-kingfisher", "grey-heron", "common-moorhen"]),
+      ...seen("likely", ["indian-spot-billed-duck", "cotton-pygmy-goose", "bronze-winged-jacana", "white-throated-kingfisher"]),
+      one("ferruginous-duck", "possible", [11, 12, 1, 2]),
+      one("great-cormorant", "possible", [11, 12, 1, 2]),
+    ],
+  },
+  {
+    id: "rara-lake",
+    name: "Rara Lake",
+    kind: "poi",
+    coords: [82.087, 29.526],
+    elevationM: 2990,
+    labelTier: 2,
+    blurb: "Nepal's largest lake, a deep blue jewel in the far west among pine, spruce and rhododendron forests, and one of the quietest places in the country.",
+    media: [
+      shot(PH.plain, "Wide shot: Rara Lake at dawn, glassy blue water, pine forest and snow peaks beyond", { landmarkId: "rara-lake", place: "Rara Lake", altitudeM: 2990, date: "2025-05", note: "calm dawn" }),
+      shot(PH.forest, "Landscape: forest of Himalayan spruce and rhododendron on the Rara Lake shore, a Himalayan Monal in the foreground", { speciesIds: ["himalayan-monal"], landmarkId: "rara-lake", place: "Rara Lake", altitudeM: 3000, date: "2025-05", note: "male at forest edge" }),
+    ],
+    sightings: [
+      ...seen("likely", ["himalayan-monal", "koklass-pheasant", "spotted-nutcracker", "red-billed-chough", "grey-crested-tit", "rufous-breasted-accentor", "white-capped-redstart"]),
+      ...seen("possible", ["lammergeier", "himalayan-griffon", "himalayan-black-bear", "yellow-throated-marten"]),
+    ],
+  },
+  {
+    id: "karnali-river-bardia",
+    name: "Karnali River, Bardia",
+    kind: "poi",
+    coords: [81.3, 28.43],
+    elevationM: 150,
+    labelTier: 2,
+    blurb: "The mighty Karnali as it flows by Bardia, with sandbars and forested banks for gharials, dolphins and kingfishers.",
+    media: [
+      shot(PH.plain, "Wide shot: the Karnali River at Bardia in morning mist, sandbars and a sal-forested bank", { landmarkId: "karnali-river-bardia", place: "Karnali River, Bardia", altitudeM: 150, date: "2026-02", note: "morning mist" }),
+      shot(PH.forest, "Landscape: Gharial basking on a Karnali sandbar, forest behind", { speciesIds: ["gharial"], landmarkId: "karnali-river-bardia", place: "Karnali River, Bardia", altitudeM: 150, date: "2026-02", note: "adult on sandbar" }),
+    ],
+    sightings: [
+      ...seen("likely", ["gharial", "mugger-crocodile", "river-tern", "great-thick-knee", "river-lapwing", "pied-kingfisher"]),
+      ...seen("possible", ["ganges-river-dolphin", "smooth-coated-otter", "ibisbill", "asian-elephant"]),
+      one("ruddy-shelduck", "likely", [11, 12, 1, 2]),
+    ],
+  },
+  {
+    id: "gosaikunda",
+    name: "Gosaikunda",
+    kind: "poi",
+    coords: [85.413, 28.083],
+    elevationM: 4380,
+    labelTier: 2,
+    blurb: "A string of sacred alpine lakes beneath the Langtang range, a pilgrim destination in August and a spectacular high-altitude trek.",
+    media: [
+      shot(PH.snow, "Wide shot: Gosaikunda lake in morning light with the Langtang Himal behind and prayer flags on the shore", { landmarkId: "gosaikunda", place: "Gosaikunda", altitudeM: 4380, date: "2025-10", note: "calm morning" }),
+      shot(PH.ridge, "Landscape: Yellow-billed Choughs over the rocky shore of Gosaikunda, the lake dark and still", { speciesIds: ["yellow-billed-chough"], landmarkId: "gosaikunda", place: "Gosaikunda", altitudeM: 4380, date: "2025-10", note: "choughs over the shore" }),
+    ],
+    sightings: [
+      ...seen("likely", ["yellow-billed-chough", "red-billed-chough", "alpine-accentor", "plain-mountain-finch", "lammergeier"]),
+      ...seen("possible", ["himalayan-monal", "blood-pheasant", "himalayan-snowcock", "grandala", "himalayan-tahr", "blue-sheep"]),
+      one("rhododendron-lepidotum", "possible", [5, 6]),
+    ],
+  },
+  {
+    id: "sarangkot",
+    name: "Sarangkot",
+    kind: "poi",
+    coords: [83.949, 28.244],
+    elevationM: 1600,
+    labelTier: 2,
+    blurb: "The classic sunrise viewpoint above Pokhara, with the whole Annapurna range spread out, and griffons soaring beside the paragliders.",
+    media: [
+      shot(PH.ridge, "Wide shot: sunrise on the Annapurna range and Machhapuchhre from Sarangkot, mist in the Pokhara valley", { landmarkId: "sarangkot", place: "Sarangkot, Pokhara", altitudeM: 1600, date: "2025-11", note: "sunrise, 06:15" }),
+      shot(PH.plain, "Landscape: Himalayan Griffon gliding past paragliders over the Pokhara valley, from Sarangkot", { speciesIds: ["himalayan-griffon"], landmarkId: "sarangkot", place: "Sarangkot, Pokhara", altitudeM: 1600, date: "2025-11", note: "griffon among paragliders, 10:30" }),
+    ],
+    sightings: [
+      ...seen("likely", ["himalayan-griffon", "black-eagle", "eurasian-kestrel", "black-kite", "himalayan-bulbul", "great-barbet"]),
+      ...seen("possible", ["egyptian-vulture", "mountain-hawk-eagle", "verditer-flycatcher"]),
+      one("common-mormon", "likely", [3, 4, 5, 10, 11]),
+    ],
+    nearbyTripSlugs: ["annapurna-birding-trek"],
+  },
+] satisfies Landmark[];
