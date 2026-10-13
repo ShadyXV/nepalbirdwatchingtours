@@ -11,7 +11,7 @@ Technique source: `research/SANRITA_INTERACTION.md` (we borrow choreography, not
    behind. Nothing traps the thumb.
 3. **One gesture, one meaning (mobile).** Where the map is a backdrop, touches scroll the page. Where
    the map is explorable, the content sheet is a separate, always-visible drag target.
-4. **Every state has a URL.** `/`, `/trips/:slug`, `/trips/:slug?stop=<id>`. Back button = fly back.
+4. **Every state has a URL.** `/`, `/trips/:slug`, `/trips/:slug?stop=<id>`, `/places/:id`. No pop-ups. Back button = fly back.
 5. **Personal, not a brochure.** Each trip and stop leads with *memories*: past trips with real guests,
    their photos, the birds and animals seen together, told in Krishna's voice. Altitude, stays and
    checklists are supporting detail in a compact strip.
@@ -21,8 +21,8 @@ Technique source: `research/SANRITA_INTERACTION.md` (we borrow choreography, not
 ## URLs, SEO and AEO
 
 - **Paths for things, params for states.** Indexable entities get real paths, each prerendered to full
-  static HTML: `/`, `/trips/:slug/`, `/about/` (and, if approved, `/places/:id/`). Transient states are
-  query params on top: `?stop=`, `?place=`, `?inquire…`. They're shareable but not separate pages.
+  static HTML: `/`, `/trips/:slug/`, `/places/:id/`, `/about/`. Transient states are
+  query params on top: `?stop=`, `?inquire…`. They're shareable but not separate pages.
   GitHub Pages ignores query strings, so a param-only design would serve crawlers one page.
 - **Same URL, two experiences.** In-app navigation (from home) keeps the map, flies the camera and animates
   content in. A direct landing serves the prerendered HTML instantly; the map then loads already in that
@@ -40,11 +40,8 @@ Technique source: `research/SANRITA_INTERACTION.md` (we borrow choreography, not
 | **S0 Overview** | `/` | All of Nepal, low pitch, slight bearing | Off (backdrop); pins tappable | Terrain, graticule, 6–8 labels (Kathmandu, Pokhara, Chitwan, Bardia, main peaks), trip pins |
 | **S1 Trip** | `/trips/:slug` | Fit trip bounds, pitch ~55–60°, route-aligned bearing, bottom padding for the sheet | On, inside the visible map area | Route draws in, stop markers pop in with a stagger, trip's peaks labelled |
 | **S2 Stop** | `?stop=<id>` | Ease to stop, closer, slight orbit | On | Lens ring + grid around the stop; other stops dimmed |
+| **S3 Place** | `/places/:id` | Ease to the mountain/place, framed for its view (peaks: low pitch, looking at the face) | On | The place highlighted, its range softly lit, nearby trip routes faint |
 | **Ambient** | `/about` | Slow, gentle drift over Krishna's home hills, dimmed | Off | Terrain only |
-
-**Places (overlay on any state, `?place=<id>`):** mountains, ranges, parks and one-off points of
-interest are tappable hubs outside the itineraries. Tapping one eases the camera a little toward it and
-opens a small **place card**. It does not navigate away; close returns to where you were.
 
 Route-to-route moves: S0→S1 `flyTo` about 2.4–3 s; S1→S2 `easeTo` about 0.9 s; S1→S0 fly back out;
 trip→trip flies through S0 (handled by `flyTo` curve).
@@ -127,22 +124,30 @@ well. The card carousel is the primary picker and the map follows it.
 └──────────────────────────┘
 ```
 
-### Place card (mountains, ranges, points of interest)
+### S3 Place (mountains, ranges, points of interest)
+
+Same interaction as a trip: real page, camera flies there, sheet peeks, scroll reveals more. **No pop-ups,
+no cards-as-modals, anywhere.** Places are lower in the hierarchy than trips: smaller markers (peaks
+keep their labels), less content, and no main-nav entry. You reach them from the map, from trip pages and
+from home.
 
 ```
-├──── sheet (half) / popover on desktop ┤
-│ [landscape media carousel]            │  Everest at dawn, the range from Kala Patthar…
-│ MOUNT EVEREST · 8,849 m               │  field-label style
-│ Mahalangur Himal                       │
-│ one or two warm sentences             │
-│ AROUND HERE  Himalayan Monal · Snow Partridge · Himalayan Tahr · …  (6–12, light)
-│ TRIPS NEARBY  [Annapurna trek card] or "none yet"
-│ [Plan a trip here]  → inquiry drawer prefilled with the place
-└───────────────────────────────────────┘
+│   ▲ EVEREST  (camera framed on the face)   │  map, gestures on
+├──── sheet peek ─────────────────────────────┤
+│ MOUNT EVEREST · 8,849 m · Mahalangur Himal  │
+│ [Plan a trip here]                          │
+└─────────────────────────────────────────────┘
+   ↑ scroll: the sheet expands into the place story
+│ giant headline · one or two warm paragraphs  │
+│ media carousel (landscape stills, clips)     │
+│ memories here (if any)                       │
+│ AROUND HERE  light species list, field labels│
+│ TRIPS NEARBY  trip cards → fly to the trip   │
+│ [Plan a trip here]  → inquiry prefilled with the place
 ```
 
-Mountains get special love: big peaks stay labelled on the overview, and ranges glow subtly when one of
-their peaks is tapped. Not a full page; just enough to see the beauty and want to go.
+Mountains get special love: big peaks stay labelled on the overview, and a range glows softly while one of
+its peaks is open.
 
 ### Persistent mobile actions
 

@@ -199,9 +199,9 @@ export type Trip = {
 
 /**
  * A place on the map outside any itinerary: mountains and ranges (special love), cities, parks,
- * and one-off points of interest / side trips. Tapping one opens a small card — media, a short
- * blurb, what you might see around it, nearby trips and "plan a trip here" — not a full page.
- * Deep link: ?place=<id> on any map view.
+ * and one-off points of interest / side trips. Same interaction as a trip (page at /places/<id>/,
+ * camera flies there, sheet rises with media, blurb, sightings, nearby trips) but lower in the
+ * content hierarchy than trips. Never a pop-up.
  */
 export type Landmark = {
   id: string;

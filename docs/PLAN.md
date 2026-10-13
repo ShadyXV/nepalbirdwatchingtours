@@ -29,6 +29,8 @@ place, altitude and date — light, never database-like (no coordinates or conse
 
 - `/` — home: full-bleed map of Nepal with trip pins (photo, name, species count); below it: Krishna intro, services, reviews.
 - `/trips/:slug/` — same persistent map, flown into the trip: route, waypoints, per-stop stay/altitude/nights and an interactive bird/wildlife/plant checklist; reel (Ken Burns + ambient clips) under/over the map.
+- `/places/:id/` — mountains, ranges, parks, points of interest: same map + rising-sheet interaction as
+  trips, lighter content, lower in the hierarchy.
 - `/about/` — Krishna: experience, certifications, art and photography.
 - `/privacy/`
 - No contact page: the **inquiry drawer** opens from any page (header/footer/trip CTAs) and via deep link
