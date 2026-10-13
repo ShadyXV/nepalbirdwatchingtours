@@ -29,6 +29,15 @@ Tone: plain, warm, friendly, professional — openly excited about birds and nat
 - No contact page: the **inquiry drawer** opens from any page (header/footer/trip CTAs) and via deep link
   `?inquire&trip=<slug>&from=<date>&to=<date>&party=<n>`. It sends via WhatsApp / email / Instagram.
 
+## Design principles
+
+- **Mobile-first.** Most visitors are on phones. Every interaction (map gestures vs page scroll, sheets,
+  inquiry, carousels) is designed for one-handed touch first, then scaled up to desktop.
+- **Landscape media, lots of it.** Wide images and clips of birds, animals and landscapes; multiple images
+  per section, with carousels where a section has more than one.
+- **Design tokens in one place** (`app/design/tokens.css`) — colours, fonts, type scale, motion. Changing
+  the look is a token edit. Visual spec: `docs/STYLE_GUIDE.md`.
+
 ## Core architecture rule
 
 The map is mounted **once** in a layout route shared by `/` and `/trips/:slug`. Navigating between them
