@@ -26,7 +26,7 @@ export function LabelledMediaCarousel({ label, items, aspect = "3 / 2", slideCla
           <MediaFrame asset={asset} aspect={aspect} className="rounded-card" />
           <figcaption className="mt-2 space-y-1">
             <FieldLabel as="div" observation={asset.observation} />
-            {asset.credit && <p className="text-small text-fg-muted">{asset.credit}</p>}
+            {asset.credit && <p className="not-italic text-small text-fg-muted">{asset.credit}</p>}
           </figcaption>
         </figure>
       ))}

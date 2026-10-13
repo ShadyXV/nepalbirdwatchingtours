@@ -15,7 +15,7 @@ export function Footer() {
       <div className="mx-auto flex max-w-5xl flex-col gap-8 md:flex-row md:justify-between">
         <div>
           <p className="font-display text-h3 uppercase">{guide.brand}</p>
-          <p className="mt-1 text-small text-fg-muted">{guide.name}</p>
+          <p className="mt-1 not-italic text-small text-fg-muted">{guide.name}</p>
         </div>
         <nav aria-label={t("footer.explore")}>
           <h2 className="eyebrow mb-1 font-mono text-fg-muted">{t("footer.explore")}</h2>

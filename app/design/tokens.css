@@ -43,6 +43,7 @@
   /* ---- 3a. Fonts ---- */
   --font-display: "Anton", "Impact", "Haettenschweiler", "Arial Narrow Bold", sans-serif;
   --font-mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --font-body-copy-style: italic; /* paragraph text: italic | normal (owner is trying italic) */
   /* Accent: sparing artistic italic for big numbers, dates, short quotes, scientific names. */
   --font-accent: "Fraunces Variable", "Iowan Old Style", Georgia, serif;
   --font-accent--weight: 100; /* Thin only: owner says it never looks right bold */

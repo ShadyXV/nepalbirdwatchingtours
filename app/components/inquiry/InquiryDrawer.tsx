@@ -128,7 +128,7 @@ function DrawerPanel({ prefill, onClose }: { prefill: Partial<Inquiry>; onClose:
         <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
           {topic && (
             <div className="flex items-center justify-between gap-3 rounded-field border border-route px-3 py-2">
-              <p className="min-w-0">
+              <p className="not-italic min-w-0">
                 <span className="eyebrow block text-fg-muted">{t("inquiry.topic")}</span>
                 <span className="font-medium">{topic}</span>
               </p>
@@ -162,7 +162,7 @@ function DrawerPanel({ prefill, onClose }: { prefill: Partial<Inquiry>; onClose:
 
           <fieldset>
             <legend className={label}>{t("inquiry.dates")}</legend>
-            <p className="mb-2 text-small text-fg-muted">{t("inquiry.datesHint")}</p>
+            <p className="mb-2 not-italic text-small text-fg-muted">{t("inquiry.datesHint")}</p>
             <div className="flex justify-center rounded-field border border-border bg-bg p-2">
               <DayPicker mode="range" selected={range} onSelect={setRange} disabled={{ before: new Date() }} />
             </div>
@@ -217,7 +217,7 @@ function DrawerPanel({ prefill, onClose }: { prefill: Partial<Inquiry>; onClose:
           </div>
 
           <div>
-            <p className={label}>{t("inquiry.sendVia")}</p>
+            <p className={`not-italic ${label}`}>{t("inquiry.sendVia")}</p>
             <div className="flex flex-col gap-2 md:flex-row md:flex-wrap">
               <ButtonLink className="w-full md:w-auto" href={whatsappUrl(guide.contact, text)} target="_blank" rel="noopener noreferrer">
                 {t("inquiry.whatsapp")}
@@ -233,7 +233,7 @@ function DrawerPanel({ prefill, onClose }: { prefill: Partial<Inquiry>; onClose:
                 {t("inquiry.instagram")}
               </Button>
             </div>
-            <p role="status" className="mt-2 min-h-5 text-small text-fg-muted">
+            <p role="status" className="mt-2 min-h-5 not-italic text-small text-fg-muted">
               {copied === "ok" && t("inquiry.copied")}
               {copied === "failed" && t("inquiry.copyFailed")}
             </p>

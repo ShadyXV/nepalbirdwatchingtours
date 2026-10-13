@@ -3,5 +3,7 @@
 import "@fontsource/anton/400.css";
 import "@fontsource/dm-mono/400.css";
 import "@fontsource/dm-mono/500.css";
+import "@fontsource/dm-mono/400-italic.css";
+import "@fontsource/dm-mono/500-italic.css";
 // Accent: Fraunces italic with the WONK axis (wonky leaning forms). Always Thin; see tokens.css.
 import "@fontsource-variable/fraunces/wonk-italic.css";

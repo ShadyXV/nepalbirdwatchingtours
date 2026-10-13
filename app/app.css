@@ -10,6 +10,7 @@
     color: var(--color-fg);
     color-scheme: dark;
     font-family: var(--font-mono);
+    font-style: normal; /* body, labels, controls stay upright; only paragraph text takes --font-body-copy-style */
     font-size: var(--text-body);
     line-height: var(--text-body--line-height);
     font-synthesis: none; /* Anton has one weight; never fake bold */
@@ -21,14 +22,32 @@
     min-height: 100svh;
     overflow-x: clip; /* no horizontal page scroll on phones */
   }
+  /* Running text: paragraphs and quotes (reviews, stories, descriptions). */
+  p,
+  blockquote {
+    font-style: var(--font-body-copy-style);
+  }
   h1,
   h2,
   h3,
   h4 {
     font-family: var(--font-display);
+    font-style: normal; /* Anton has no italic: never let the browser fake an oblique */
     font-weight: 400;
     text-transform: uppercase;
     text-wrap: balance;
+  }
+  /* Display face applied by class (Heading, brand, menu links) on non-heading tags. */
+  .font-display {
+    font-style: normal;
+  }
+  /* Mono labels on any tag (e.g. FieldLabel wrapper) stay upright, even inside a <p>. */
+  .font-mono,
+  button,
+  input,
+  select,
+  textarea {
+    font-style: normal;
   }
   a {
     text-underline-offset: 0.2em;
@@ -58,6 +77,7 @@
 /* Labels / eyebrows: mono, 12px, 500, uppercase, 0.12em tracking */
 @utility eyebrow {
   font-family: var(--font-mono);
+  font-style: normal; /* labels stay upright, even when placed inside a paragraph */
   font-size: var(--text-label);
   line-height: var(--text-label--line-height);
   font-weight: var(--text-label--font-weight);
@@ -111,6 +131,7 @@
 }
 .rdp-root .rdp-caption_label {
   font-family: var(--font-display);
+  font-style: normal;
   font-weight: 400;
   font-size: 1.25rem;
   letter-spacing: 0.01em;

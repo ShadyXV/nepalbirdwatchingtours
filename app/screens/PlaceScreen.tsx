@@ -62,7 +62,7 @@ export function PlaceScreen({ place }: { place: Landmark }) {
                 {items.map(({ species, sighting }) => (
                   <li key={species.id} className="rounded-card border border-border px-3 py-2">
                     <FieldLabel variant="compact" species={species} />
-                    <p className="mt-0.5 text-small text-fg-muted">{sightingHint(sighting)}</p>
+                    <p className="mt-0.5 not-italic text-small text-fg-muted">{sightingHint(sighting)}</p>
                   </li>
                 ))}
               </ul>
