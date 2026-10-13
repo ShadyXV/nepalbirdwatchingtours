@@ -212,6 +212,31 @@ export type Review = {
   media: MediaAsset[];
 };
 
+/* --------------------------------------------------------------- memories */
+
+/**
+ * A moment from a past trip with guests — the personal heart of each itinerary.
+ * Trip and stop views lead with these; altitude, stays and checklists are supporting detail.
+ */
+export type Memory = {
+  id: string;
+  tripSlug: Trip["slug"];
+  /** Where it happened; omit for a trip-wide memory. */
+  waypointId?: Waypoint["id"];
+  /** "2025-04" (month) or a full IsoDate. */
+  date: string;
+  /** Guests as they agreed to be named, e.g. "Anna & Tom, Netherlands". */
+  guests?: string;
+  title: string;
+  /** Krishna's telling, first person. Paragraphs. */
+  story: string[];
+  /** Species actually seen that day — powers "seen with guests here" on checklists. */
+  seen: Species["id"][];
+  media: MediaAsset[];
+  /** The guests' own review of that trip, if they left one. */
+  reviewId?: Review["id"];
+};
+
 /* ------------------------------------------------------------------ guide */
 
 export type ContactChannels = {
