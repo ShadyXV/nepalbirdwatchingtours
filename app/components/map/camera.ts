@@ -8,7 +8,7 @@
  *                (portrait phones, where all of Nepal would be a thin strip), low pitch, a bearing
  *                that lays Nepal's long axis level
  *   S1 trip      fit the route, pitched, bearing roughly along the route
- *   S2 stop      closer on the stop, a slight orbit
+ *   S2 stop      closer on the stop, turned and tilted so the stop is not hidden by a ridge
  *   S3 place     framed by kind; peaks seen from a low camera, looking at the face
  */
 import type { Landmark, LngLat, Trip } from "~/content/types";
@@ -24,24 +24,33 @@ import {
 } from "~/lib/geo";
 
 export const CAMERA = {
-  /** MapLibre's pitch limit; peaks need a low camera. */
-  maxPitch: 72,
+  /** MapLibre's pitch limit (users can tilt up to this; peaks' face views use up to ~62°). */
+  maxPitch: 70,
   /**
-   * How far past Nepal's outline the camera may go, degrees (lng, lat). Enough that edge places
-   * (Kanchenjunga, Rara, Mahakali) are not cramped and that pitched views and the sheet padding
-   * never push a framing into the bounds; small enough that nobody wanders off Nepal.
+   * Soft edge: when a pan ends with the centre further than this past Nepal's outline (degrees,
+   * lng / lat), the camera eases back inside. Panning itself is never blocked here.
    */
-  boundsMargin: [2, 1.8] as const,
+  softBoundsMargin: [2.2, 1.8] as const,
+  /** Hard wall far beyond the soft edge (MapLibre maxBounds), only a safety net. */
+  hardBoundsMargin: [7, 5.5] as const,
   /** Zoom-out limit: this much below the "all of Nepal" fit for the current viewport. */
-  minZoomSlack: 0.3,
+  minZoomSlack: 0.6,
   /** Zoom-in limit. The DEM goes to z12; beyond ~z14.5 overzoomed relief gets soft. */
   maxZoom: 14.5,
   /** flyTo zoom-out curve (MapLibre default 1.42); lower = flatter arc. */
   flightCurve: 1.3,
+  /** Deliberate stop steps longer than this travel with flyTo (a small arc), shorter with easeTo. */
+  stepFlyKm: 6,
+  /** After the user pans, zooms, rotates or tilts, automatic camera moves wait this long. */
+  userIdleMs: 6000,
+  /** A user rotation / tilt this far from the state's own view shows the "reset view" control. */
+  adjustedDeg: 4,
+  /** Drag-pan inertia (MapLibre dragPan options). */
+  inertia: { linearity: 0.25, maxSpeed: 1600, deceleration: 2200 },
   overview: {
     /** Nepal runs WNW–ESE at about 20°; this bearing lays it nearly level. */
     bearing: 17,
-    pitch: 24,
+    pitch: 20,
     margin: 18,
     minZoom: 5,
     maxZoom: 7.8,
@@ -51,7 +60,7 @@ export const CAMERA = {
   /** Home trip-card swipe: ease towards the card's pin. */
   preview: { zoomIn: 0.7 },
   trip: {
-    pitch: 58,
+    pitch: 45,
     margin: 34,
     minZoom: 7.5,
     maxZoom: 13.2,
@@ -63,31 +72,56 @@ export const CAMERA = {
     defaultBearing: 8,
     /** Higher = tighter vertical fit at this pitch (see fitPoints). */
     pitchSlack: 1.3,
+    /** Visibility search for the whole-route view: key stops must be visible. */
+    visibility: { pitches: [45, 38, 30], bearingStep: 15, bearingSpan: 45 },
   },
-  stop: { zoomIn: 1.3, minZoom: 11.6, maxZoom: 13.8, pitch: 62, orbit: 12 },
+  stop: {
+    zoomIn: 1.3,
+    minZoom: 11.6,
+    maxZoom: 13.8,
+    pitch: 50,
+    /** Visibility search: try every bearingStep around the current view, then lower pitches. */
+    visibility: { pitches: [50, 43, 36, 28], bearingStep: 25, bearingSpan: 175 },
+  },
+  /** Auto-tour framing: a little wider than a deliberate stop. */
+  tour: { zoomOut: 0.45, startDelayMs: 900 },
   place: {
-    peak: { zoom: 11.2, pitch: 70 },
-    range: { zoom: 9.3, pitch: 58 },
-    park: { zoom: 9.2, pitch: 46 },
-    city: { zoom: 11, pitch: 44 },
-    poi: { zoom: 12, pitch: 52 },
+    peak: { zoom: 11.2, pitch: 62 },
+    range: { zoom: 9.3, pitch: 50 },
+    park: { zoom: 9.2, pitch: 40 },
+    city: { zoom: 11, pitch: 40 },
+    poi: { zoom: 12, pitch: 45 },
     /** Peaks are viewed from the nearest stop or city within this distance … */
     viewpointKm: 70,
     /** … but never turned further than this from north (Nepal sees its peaks from the south). */
     maxTurn: 35,
+    /** Visibility search for a peak's face: stay near the face bearing, lower the camera if hidden. */
+    visibility: { pitches: [62, 54, 46, 38], bearingStep: 20, bearingSpan: 60 },
   },
+  /** How long a camera move waits for the elevation data before going ahead without the check. */
+  visibilityWaitMs: 450,
+  /** Area around a trip / place for which elevation is fetched up front, km. */
+  visibilityMarginKm: 22,
 } as const;
 
 export type Frame = { width: number; height: number; padding: Insets };
 
-/** Nepal's bounds plus CAMERA.boundsMargin: the map's maxBounds. */
-export function cameraBounds(): [[number, number], [number, number]] {
+/** Nepal's bounds plus a margin (degrees lng, lat). */
+export function nepalBounds(margin: readonly [number, number]): [[number, number], [number, number]] {
   const b = boundsOf(NEPAL_FRAME);
-  const [mx, my] = CAMERA.boundsMargin;
+  const [mx, my] = margin;
   return [
     [b.west - mx, b.south - my],
     [b.east + mx, b.north + my],
   ];
+}
+
+/** The centre clamped into the soft bounds, or null when it is already inside. */
+export function softBoundsCorrection(center: LngLat): LngLat | null {
+  const [[w, s], [e, n]] = nepalBounds(CAMERA.softBoundsMargin);
+  const lng = Math.min(e, Math.max(w, center[0]));
+  const lat = Math.min(n, Math.max(s, center[1]));
+  return lng === center[0] && lat === center[1] ? null : [lng, lat];
 }
 
 /**
@@ -197,21 +231,35 @@ function tripBearing(points: LngLat[], frame: Frame): number {
   return clamp(target * t.alignment, -t.maxBearing, t.maxBearing);
 }
 
-export function tripCamera(trip: Trip, frame: Frame): CameraTarget {
+/** Centre and zoom that fit a trip for a given bearing and pitch (used by the visibility search too). */
+export function fitTrip(trip: Trip, frame: Frame, bearing: number, pitch: number): { center: LngLat; zoom: number } {
   const t = CAMERA.trip;
-  const points = tripPoints(trip);
-  const bearing = tripBearing(points, frame);
-  const fit = fitPoints({
-    points,
+  return fitPoints({
+    points: tripPoints(trip),
     bearing,
-    pitch: t.pitch,
+    pitch,
     ...frame,
     margin: t.margin,
     pitchSlack: t.pitchSlack,
     minZoom: t.minZoom,
     maxZoom: t.maxZoom,
   });
-  return { ...fit, bearing, pitch: t.pitch, padding: frame.padding };
+}
+
+/** The geometric whole-route view (before the visibility check). */
+export function tripCamera(trip: Trip, frame: Frame): CameraTarget {
+  const bearing = tripBearing(tripPoints(trip), frame);
+  const pitch = CAMERA.trip.pitch;
+  return { ...fitTrip(trip, frame, bearing, pitch), bearing, pitch, padding: frame.padding };
+}
+
+/** The direction of travel at a stop: from the stop before it (or towards the next, at the start). */
+export function travelBearing(trip: Trip, waypointId: string): number | undefined {
+  const i = trip.waypoints.findIndex((w) => w.id === waypointId);
+  if (i < 0 || trip.waypoints.length < 2) return undefined;
+  const from = trip.waypoints[Math.max(0, i - 1)].coords;
+  const to = trip.waypoints[i === 0 ? 1 : i].coords;
+  return bearingBetween(from, to);
 }
 
 /* ------------------------------------------------------------------ S2 */
@@ -224,7 +272,7 @@ export function stopCamera(trip: Trip, waypointId: string, frame: Frame): Camera
   return {
     center: waypoint.coords,
     zoom: clamp(base.zoom + s.zoomIn, s.minZoom, s.maxZoom),
-    bearing: base.bearing + s.orbit,
+    bearing: base.bearing,
     pitch: s.pitch,
     padding: frame.padding,
   };
@@ -236,7 +284,7 @@ export function stopCamera(trip: Trip, waypointId: string, frame: Frame): Camera
  * The direction to look at a peak from: from the nearest trip stop or city (where guests actually
  * see it), kept within a turn of north so the familiar southern faces show.
  */
-function faceBearing(peak: Landmark, viewpoints: LngLat[]): number {
+export function faceBearing(peak: Landmark, viewpoints: LngLat[]): number {
   const p = CAMERA.place;
   let best: LngLat | null = null;
   let bestKm: number = p.viewpointKm;
