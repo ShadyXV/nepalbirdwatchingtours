@@ -16,6 +16,9 @@ At the start of a session, briefly remind the owner of the next phase and of the
 
 ## Working rules
 
+- **Model choice for subagents:** anything that builds features, UI or interactions → **Opus**. Sonnet and
+  Haiku only for research, low-level mechanical implementation, and minor updates or fixes.
+
 - Mobile-first; most visitors are on phones.
 - No pop-ups or modal cards. Trips and places share one interaction: map fly-to plus a rising sheet. The
   inquiry drawer is the only overlay.
