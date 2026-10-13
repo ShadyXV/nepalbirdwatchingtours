@@ -21,6 +21,9 @@ At the start of a session, briefly remind the owner of the next phase and of the
   inquiry drawer is the only overlay.
 - Paths for things, query params for states. Every page must be fully readable without JavaScript.
 - Field labels: name, italic scientific name, place, altitude, date. Never coordinates or conservation codes.
+- **UI work uses the `frontend-design:frontend-design` skill** for layout, content placement, visual and type
+  hierarchy, spacing and responsiveness, but not for its creative direction. The aesthetic comes from
+  `docs/VISION.md`, `docs/STYLE_GUIDE.md`, the tokens and the San Rita reference; those win any conflict.
 - Design values only through tokens; no hard-coded colours or fonts in components.
 - **No tests, for now.** No unit, integration or e2e tests, no test frameworks, no test files. Don't spend
   tokens on elaborate verification. Put the effort into clear, understandable components and scripts.
