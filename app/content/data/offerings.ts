@@ -1,4 +1,5 @@
 import type { ImageAsset, Observation, Offering } from "../types";
+import { withMockPhotos } from "./media/withMockPhotos";
 
 /**
  * "Anywhere" offerings: ways to travel or work with Krishna beyond the set trips.
@@ -21,7 +22,7 @@ const shot = (src: string, alt: string, observation?: Observation): ImageAsset =
   ...(observation ? { observation } : {}),
 });
 
-export const offerings = [
+const seed = [
   {
     id: "custom-day-trips",
     title: "Custom day trips",
@@ -160,3 +161,5 @@ export const offerings = [
     reviewIds: [],
   },
 ] satisfies Offering[];
+
+export const offerings: Offering[] = withMockPhotos(seed);
