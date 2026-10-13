@@ -99,7 +99,7 @@ well. The card carousel is the primary picker and the map follows it.
 │        ▲ Langtang Lirung │
 ├──── drag handle ─────────┤  slim peek: navigation only, no dense facts
 │ ANNAPURNA BIRDING TREK   │
-│ ‹  DAY 4 · TADAPANI  ›  ▶│  stop stepper ↔ camera follows; ▶ = auto-tour
+│ ‹  DAY 4 · TADAPANI  ›   │  stop stepper ↔ camera follows
 │ [Inquire]   story ↓      │
 └──────────────────────────┘
    ↑ drag or scroll the sheet: it expands into the trip story (page scroll)
@@ -149,31 +149,20 @@ well. The card carousel is the primary picker and the map follows it.
 ### Key stops
 
 Not every stop gets rich content. **Key stops** (`waypoint.key`) carry the photos, story text, memories
-and a full checklist; they're what the story features, the auto-tour visits and the stepper steps
+and a full checklist; they're what the story features and the stepper steps
 through. Other stops stay a quiet line in the itinerary (day · name · altitude · stay) and a minor marker
 on the map. What you might see across the whole trip is still summarised at trip level.
 
-### A birding diary that grows along the route
+### Birds of the day
 
-Each day/stop in the journey shows its sightings in the generous empty space around the photos, as a
-running tally: `38 birds today · 12 new · 96 so far`, with the new species highlighted. You watch the
-list grow as the trip climbs through habitats. Data: `sightingStatsByStop(trip, group?)` in
-`app/content/index.ts`. Mountains seen from that stop can join the list as field labels.
+Each day in the day view shows one obvious count, `78 birds possible`, and below it a single line of
+bird names that scrolls slowly sideways like a gentle ticker (never wrapping; paused off-screen, on
+hover/focus and under reduced motion). An icon at its end opens the "This day" sheet with the full list.
+(The earlier "today · new · so far" tally was dropped by the owner: it isn't meaningful at a glance.)
 
-### S1 auto-tour: the trip plays itself
+### S1 auto-tour (removed)
 
-After the fly-in, route draw and stop pop, the trip **plays itself** until the visitor interacts:
-
-- A pulse ring and a label at the current stop: `DAY 1` (accent italic, Thin) over `POKHARA · 820 m`
-  (label caps).
-- Every 4–5 s the camera glides slowly to the next **key** stop (others are skipped, to keep it short); the label and pulse move with it. The sheet's day stepper follows in sync. Checklist
-  and stay details stay quiet, as supporting information.
-- Any tap, drag, pinch, scroll or key press **pauses** it. A small "▶ Play the route" control resumes.
-  At the last stop it pulls back to the whole route and ends.
-- The tour never writes `?stop=` (the URL changes only on deliberate choices). It pauses when the map is
-  scrolled out of view or the tab is hidden.
-- Reduced motion: no camera movement; the day highlight steps in place.
-- Future: with soundscapes, each stop's ambience can fade in as the tour arrives.
+The self-playing auto-tour was removed in favour of "Start the journey" (the day view, `JOURNEY.md`).
 
 ### S2 Stop
 
@@ -233,7 +222,7 @@ and places can link straight to the relevant one.
 
 Same states, and **no content sidebar**. On trip and place pages the map fills the screen, as on home.
 A **small floating navigator** carries only navigation: trip or place name, the stop stepper
-(`DAY 4 ‹ › TADAPANI`), play/pause for the auto-tour, Inquire, and a "scroll for the story ↓" cue.
+(`DAY 4 ‹ › TADAPANI`), "Start the journey", Inquire, and a round "show trip details" button on the story's edge.
 **Scrolling reveals the story** as a dark overlay rising from below (as on the home page): giant
 headline overlapping the map's edge, then memories and photos, then the compact itinerary, what you
 might see, and practical facts. Scroll back up and the map is whole again. Pins are big enough alone, so
