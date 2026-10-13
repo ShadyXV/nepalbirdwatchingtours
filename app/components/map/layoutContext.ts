@@ -4,6 +4,11 @@ import { useOutletContext } from "react-router";
 export type MapLayoutContext = {
   activeWaypointId: string | null;
   setActiveWaypoint: (id: string | null) => void;
+  /**
+   * Home trip-card carousel → map: the trip whose card is in view (null = none).
+   * Raises that trip's pin; on phones the camera eases towards it as cards are swiped.
+   */
+  previewTrip: (slug: string | null) => void;
 };
 
 export function useMapLayoutContext(): MapLayoutContext {

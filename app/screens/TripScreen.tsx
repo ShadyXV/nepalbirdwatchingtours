@@ -91,7 +91,7 @@ export function TripScreen({ trip }: { trip: Trip }) {
       )}
 
       {pricing?.show && (
-        <p>
+        <p className="not-italic">
           <span className="eyebrow text-fg-muted">{t("trip.price")}: </span>
           <strong className="font-medium">{formatPrice(pricing.amount, pricing.currency)}</strong> {t(perKey[pricing.per])}
           {pricing.note && <span className="mt-1 block text-small text-fg-muted">{pricing.note}</span>}
@@ -140,7 +140,7 @@ function WaypointItem({ waypoint, active, onToggle }: { waypoint: Waypoint; acti
       {/* Always in the DOM so the prerendered HTML carries the full itinerary. */}
       <div hidden={!active} className="space-y-3 px-3 pb-4 text-small">
         {waypoint.stay && (
-          <p>
+          <p className="not-italic">
             <span className="eyebrow text-fg-muted">{t("trip.stay")}: </span>
             {waypoint.stay.name ?? waypoint.stay.kind}
           </p>

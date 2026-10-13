@@ -7,8 +7,13 @@ export type NepalMapProps = {
   landmarks: Landmark[];
   activeTripSlug: string | null;
   activeWaypointId: string | null;
+  /** Open place (/places/:placeId), or null. */
+  activePlaceId: string | null;
+  /** Home trip-card carousel: the card in view. Raises its pin; on phones the camera follows swipes. */
+  previewTripSlug?: string | null;
   onSelectTrip: (slug: string | null) => void;
   onSelectWaypoint: (id: string | null) => void;
+  onSelectPlace: (id: string | null) => void;
   appearance?: MapAppearance;
   className?: string;
 };

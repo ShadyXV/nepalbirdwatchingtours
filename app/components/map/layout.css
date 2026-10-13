@@ -1,0 +1,145 @@
+/*
+ * Map layout scroll model (app/routes/map-layout.tsx). Plain document scroll; the map is sticky
+ * behind the content. Peek sizes come from app/lib/mapLayout.ts as custom properties on the root.
+ *
+ *   .nbt-stage   sticky map, as tall as the largest viewport (so it never resizes when mobile
+ *                browser bars show / hide); a negative margin lets the content flow over it
+ *   .nbt-spacer  transparent, taps go through to the map
+ *   .nbt-sheet   the page, in normal flow: readable with or without JavaScript
+ */
+
+.nbt-layout {
+  --map-stage-h: calc(100vh - var(--spacing-header));
+  position: relative;
+}
+@supports (height: 100lvh) {
+  .nbt-layout {
+    --map-stage-h: calc(100lvh - var(--spacing-header));
+  }
+}
+
+.nbt-stage {
+  position: sticky;
+  top: var(--spacing-header);
+  z-index: 0;
+  height: var(--map-stage-h);
+  margin-bottom: calc(-1 * var(--map-stage-h));
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+/* Dims the map as content covers it (progress written to --map-dim by useScrollDim). */
+.nbt-stage__dim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--color-bg);
+  opacity: calc(var(--map-dim, 0) * 0.7);
+}
+
+.nbt-spacer {
+  pointer-events: none;
+  height: calc(100svh - var(--spacing-header) - var(--map-sheet-peek));
+}
+.nbt-layout[data-mode="home"] .nbt-spacer {
+  height: calc(100svh - var(--spacing-header) - var(--map-home-peek));
+}
+
+/* ------------------------------------------------------------- sheet */
+
+.nbt-sheet {
+  position: relative;
+  z-index: 1;
+  /* Always at least a screen tall, so the sticky map never outlasts the content. */
+  min-height: var(--map-stage-h);
+  background: var(--color-bg-raised);
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  box-shadow: var(--shadow-sheet);
+}
+
+/* Home: a dark sheet whose top edge melts into the map. */
+.nbt-layout[data-mode="home"] .nbt-sheet {
+  background: var(--color-bg);
+  border-radius: 0;
+  box-shadow: none;
+}
+.nbt-layout[data-mode="home"] .nbt-sheet::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 6rem;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--color-bg));
+}
+
+.nbt-sheet__handle {
+  display: flex;
+  justify-content: center;
+  padding: 0.625rem 0 0.25rem;
+}
+.nbt-sheet__handle > span {
+  width: 2.5rem;
+  height: 0.25rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-fg-muted) 60%, transparent);
+}
+
+/* Desktop: the trip / place story is a left column over the map; it scrolls with the page. */
+@media (min-width: 1024px) {
+  .nbt-layout[data-mode="sheet"] .nbt-spacer {
+    height: 0;
+  }
+  .nbt-layout[data-mode="sheet"] .nbt-sheet {
+    width: var(--map-column);
+    border-radius: 0;
+    border-right: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card);
+    padding-top: 1rem;
+  }
+  .nbt-layout[data-mode="sheet"] .nbt-sheet__handle {
+    display: none;
+  }
+  .nbt-layout[data-mode="home"] .nbt-spacer {
+    height: calc(100svh - var(--spacing-header) - var(--map-home-peek-desktop));
+  }
+}
+
+/* -------------------------------------------- entrance (client nav only) */
+
+.nbt-sheet[data-enter] {
+  animation: nbt-sheet-rise var(--duration-sheet) var(--ease-sheet) var(--sheet-delay, 0ms) backwards;
+}
+.nbt-sheet[data-enter] h1 {
+  animation: nbt-headline-rise 900ms var(--ease-sheet) calc(var(--sheet-delay, 0ms) + 120ms) backwards;
+}
+@keyframes nbt-sheet-rise {
+  from {
+    transform: translateY(55svh);
+  }
+}
+@keyframes nbt-headline-rise {
+  from {
+    transform: translateY(2.5rem);
+    opacity: 0;
+  }
+}
+@media (min-width: 1024px) {
+  .nbt-layout[data-mode="sheet"] .nbt-sheet[data-enter] {
+    animation-name: nbt-column-in;
+  }
+}
+@keyframes nbt-column-in {
+  from {
+    transform: translateX(-2rem);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nbt-sheet[data-enter],
+  .nbt-sheet[data-enter] h1 {
+    animation: none;
+  }
+}

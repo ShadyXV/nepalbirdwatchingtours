@@ -1,0 +1,510 @@
+/*
+ * Map surface, overlays and DOM markers (pins, stops, lens, place labels).
+ * Loaded with the lazy map chunk. Design values only through tokens (app/design/tokens.css).
+ * Look constants that live in JS (relief stops, light, widths): ./look.ts.
+ */
+
+/* ------------------------------------------------------------ surface */
+
+.nbt-map {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-bg);
+  container-type: size;
+  container-name: nbt-map;
+}
+
+.nbt-map__canvas {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 900ms var(--ease-out);
+}
+.nbt-map__canvas.is-ready {
+  opacity: 1;
+}
+.nbt-map--overlay .nbt-map__canvas.is-ready {
+  opacity: 0.55;
+}
+.nbt-map__canvas.is-unavailable {
+  display: none;
+}
+
+/* Overlays: static DOM, never animated, never hit-tested. */
+.nbt-map__grain,
+.nbt-map__clouds,
+.nbt-map__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Printed-paper grain: a tiny tiled noise image, plain alpha (no blend mode, so no per-frame cost). */
+.nbt-map__grain {
+  opacity: 0.1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .93 0 0 0 0 .95 0 0 0 0 .94 0 0 0 1.6 -.55'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+/* Soft cloud / fog patches in the top third, strongest on the overview. */
+.nbt-map__clouds {
+  opacity: 1;
+  transition: opacity 1200ms var(--ease-out);
+  background:
+    radial-gradient(38% 16% at 18% 6%, color-mix(in oklab, var(--color-snow) 22%, transparent), transparent 70%),
+    radial-gradient(30% 12% at 62% 2%, color-mix(in oklab, var(--color-snow) 16%, transparent), transparent 72%),
+    radial-gradient(26% 10% at 92% 16%, color-mix(in oklab, var(--color-snow) 12%, transparent), transparent 70%),
+    radial-gradient(60% 22% at 50% -4%, color-mix(in oklab, var(--color-mist) 18%, transparent), transparent 75%);
+}
+.nbt-map__canvas:not([data-state="overview"]) ~ .nbt-map__clouds {
+  opacity: 0.45;
+}
+
+/* Edge vignette so the map sinks into the page. */
+.nbt-map__vignette {
+  background:
+    radial-gradient(130% 95% at 50% 45%, transparent 55%, color-mix(in oklab, var(--color-bg) 70%, transparent) 100%),
+    linear-gradient(to bottom, color-mix(in oklab, var(--color-bg) 45%, transparent), transparent 12%);
+}
+
+/* Attribution: small, quiet, out of the sheet's way (top right). */
+.nbt-map .maplibregl-ctrl-attrib {
+  background: color-mix(in oklab, var(--color-bg) 70%, transparent);
+  color: var(--color-fg-muted);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+}
+.nbt-map .maplibregl-ctrl-attrib a {
+  color: inherit;
+}
+.nbt-map .maplibregl-ctrl-attrib-button {
+  filter: invert(1) opacity(0.6);
+}
+
+/* Common to every marker button. */
+.nbt-pin__btn,
+.nbt-stop__btn,
+.nbt-place__btn {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  color: var(--color-fg);
+  cursor: pointer;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Text on terrain: a soft night halo instead of a box. */
+.nbt-pin__label,
+.nbt-stop__label,
+.nbt-place__text {
+  text-shadow:
+    0 0 2px var(--color-bg),
+    0 0 6px var(--color-bg),
+    0 0 14px color-mix(in oklab, var(--color-bg) 70%, transparent);
+}
+
+.nbt-mk__inner {
+  transition:
+    opacity var(--duration-ui) var(--ease-out),
+    visibility 0s linear 0s,
+    transform var(--duration-ui) var(--ease-out);
+}
+.nbt-mk__inner.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--duration-ui) var(--ease-out),
+    visibility 0s linear var(--duration-ui);
+}
+
+/* --------------------------------------------------------- trip pins */
+
+.nbt-pin {
+  --pin-size: 3.25rem;
+  position: relative;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(10px) scale(0.6);
+  transform-origin: 50% 100%;
+}
+.nbt-pin.is-shown {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+}
+.nbt-pin__btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.nbt-pin__photo {
+  width: var(--pin-size);
+  height: var(--pin-size);
+  overflow: visible;
+  filter: drop-shadow(0 4px 8px color-mix(in oklab, var(--color-bg) 80%, transparent));
+  transition: transform var(--duration-ui) var(--ease-pop);
+  transform-origin: 50% 100%;
+}
+.nbt-pin__frame {
+  fill: none;
+  stroke: var(--color-fg);
+  stroke-width: 2px;
+  vector-effect: non-scaling-stroke;
+}
+.nbt-pin__stem {
+  width: 2px;
+  height: 0.6rem;
+  background: var(--color-fg);
+  border-radius: 1px;
+}
+.nbt-pin__label {
+  position: absolute;
+  left: calc(50% + var(--pin-size) / 2 + 0.5rem);
+  top: 0.15rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  white-space: nowrap;
+  text-align: left;
+}
+.nbt-pin__name {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-fg);
+}
+.nbt-pin__count {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: 0.06em;
+  color: var(--color-accent);
+}
+.nbt-pin__number {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: var(--font-accent--weight);
+  font-variation-settings: "WONK" 1;
+  font-size: 1.375rem;
+  line-height: 1;
+  letter-spacing: 0;
+  margin-right: 0.15em;
+}
+.nbt-pin.is-preview .nbt-pin__photo,
+.nbt-pin__btn:hover .nbt-pin__photo,
+.nbt-pin__btn:focus-visible .nbt-pin__photo {
+  transform: scale(1.18);
+}
+/* The previewed pin pulses a few times, then rests (no idle animation). */
+.nbt-pin.is-preview .nbt-pin__btn::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: calc(var(--pin-size) / 2);
+  width: var(--pin-size);
+  height: var(--pin-size);
+  margin: calc(var(--pin-size) / -2) 0 0 calc(var(--pin-size) / -2);
+  border-radius: 50%;
+  border: 1px solid var(--color-fg);
+  opacity: 0;
+  animation: nbt-pulse 1.6s var(--ease-out) 3;
+  pointer-events: none;
+}
+.nbt-pin__btn:focus-visible {
+  outline: none;
+}
+.nbt-pin__btn:focus-visible .nbt-pin__frame {
+  stroke: var(--color-focus);
+}
+/* Narrow maps: only the previewed (or hovered) pin carries its name; the cards below name the rest. */
+@container nbt-map (max-width: 40rem) {
+  .nbt-pin:not(.is-preview) .nbt-pin__btn:not(:hover, :focus-visible) .nbt-pin__label {
+    display: none;
+  }
+  .nbt-pin {
+    --pin-size: 2.75rem;
+  }
+}
+
+/* -------------------------------------------------------------- stops */
+
+.nbt-stop {
+  position: relative;
+  z-index: 0; /* own stacking context: the lens sits behind the blob */
+}
+.has-active-stop .nbt-stop:not(.is-active) {
+  opacity: 0.45;
+}
+.nbt-stop.is-leaving {
+  opacity: 0;
+  transform: scale(0.4);
+}
+.nbt-stop__btn {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+}
+.nbt-stop__blob {
+  width: 1.1rem;
+  height: 1.1rem;
+  overflow: visible;
+  filter: drop-shadow(0 1px 3px color-mix(in oklab, var(--color-bg) 85%, transparent));
+  transition: transform var(--duration-ui) var(--ease-pop);
+}
+.nbt-stop__blob path {
+  vector-effect: non-scaling-stroke;
+  stroke-width: 2px;
+}
+.nbt-stop--stay .nbt-stop__blob path {
+  fill: var(--color-marker);
+  stroke: var(--color-fg);
+}
+.nbt-stop--spot .nbt-stop__blob {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+.nbt-stop--spot .nbt-stop__blob path {
+  fill: var(--color-bg-raised);
+  stroke: var(--color-accent);
+}
+.nbt-stop.is-active .nbt-stop__blob {
+  transform: scale(1.35);
+}
+.nbt-stop__btn:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -4px;
+  border-radius: 50%;
+}
+.nbt-stop__label {
+  position: absolute;
+  left: calc(50% + 0.85rem);
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  pointer-events: none;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-fg);
+  transition: opacity var(--duration-ui) var(--ease-out);
+}
+.nbt-stop__label.is-hidden {
+  opacity: 0;
+}
+.nbt-stop.is-active .nbt-stop__label {
+  color: var(--color-accent);
+}
+
+/* Pop in on arrival: staggered, back-out overshoot. `backwards` so classes win once it is done. */
+.nbt-stop.is-popping .nbt-stop__btn {
+  animation: nbt-pop var(--duration-pop) var(--ease-pop) var(--pop-delay, 0ms) backwards;
+}
+.nbt-stop.is-popping .nbt-stop__label {
+  animation: nbt-fade var(--duration-ui) var(--ease-out) calc(var(--pop-delay, 0ms) + 120ms) backwards;
+}
+
+/* --------------------------------------------------------------- lens */
+
+.nbt-lens {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10rem;
+  height: 10rem;
+  margin: -5rem 0 0 -5rem;
+  border-radius: 50%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle, color-mix(in oklab, var(--color-accent) 18%, transparent) 0%, transparent 70%);
+  animation: nbt-lens-in 600ms var(--ease-pop) backwards;
+}
+.nbt-lens__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, var(--color-fg) 60%, transparent);
+}
+.nbt-lens__grid {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-image:
+    repeating-linear-gradient(0deg, color-mix(in oklab, var(--color-fg-muted) 30%, transparent) 0 1px, transparent 1px 0.75rem),
+    repeating-linear-gradient(90deg, color-mix(in oklab, var(--color-fg-muted) 30%, transparent) 0 1px, transparent 1px 0.75rem);
+  mask-image: radial-gradient(circle, #000 25%, transparent 68%);
+  -webkit-mask-image: radial-gradient(circle, #000 25%, transparent 68%);
+}
+
+/* ------------------------------------------------------- place labels */
+
+.nbt-place__btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.375rem;
+  position: relative;
+}
+/* A larger hit area than the text, for thumbs. */
+.nbt-place__btn::after {
+  content: "";
+  position: absolute;
+  inset: -0.375rem;
+}
+.nbt-place__text {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color var(--duration-ui) var(--ease-out);
+}
+.nbt-place__btn:hover .nbt-place__text {
+  color: var(--color-accent);
+}
+.nbt-place__btn:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 0;
+  border-radius: var(--radius-button);
+}
+.nbt-place__mark {
+  flex: none;
+}
+
+/* Peaks: special love. NAME · altitude over a small summit mark (anchor = summit). */
+.nbt-place--peak .nbt-place__btn {
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-bottom: 0;
+}
+.nbt-place--peak .nbt-place__name {
+  color: var(--color-fg);
+}
+.nbt-place__alt {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: var(--font-accent--weight);
+  font-variation-settings: "WONK" 1;
+  font-size: 1rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-fg);
+}
+.nbt-place--peak .nbt-place__mark {
+  width: 0.625rem;
+  height: 0.45rem;
+  background: var(--color-fg);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.nbt-place--peak[data-tier="2"] .nbt-place__text {
+  font-size: 0.625rem;
+}
+
+/* Cities and points of interest: a dot with the name beside it (anchor = the dot). */
+.nbt-place--city .nbt-place__btn,
+.nbt-place--poi .nbt-place__btn {
+  padding-left: 0;
+}
+.nbt-place--city .nbt-place__mark {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-fg);
+  box-shadow: 0 0 0 2px var(--color-bg);
+}
+.nbt-place--poi .nbt-place__mark {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-accent);
+  background: var(--color-bg-raised);
+}
+.nbt-place--poi .nbt-place__text {
+  font-size: 0.625rem;
+  color: var(--color-fg-muted);
+}
+
+/* Parks and ranges: spaced names laid over the land, no mark. */
+.nbt-place--park .nbt-place__mark,
+.nbt-place--range .nbt-place__mark {
+  display: none;
+}
+.nbt-place--park .nbt-place__text {
+  font-size: 0.625rem;
+  letter-spacing: 0.22em;
+  color: var(--color-fg-muted);
+}
+.nbt-place--range .nbt-place__text {
+  font-size: 0.75rem;
+  letter-spacing: 0.45em;
+  color: color-mix(in oklab, var(--color-fg) 72%, transparent);
+}
+
+/* The open place, and the range that glows with it. */
+.nbt-place.is-active .nbt-place__name {
+  color: var(--color-accent);
+}
+.nbt-place.is-active {
+  transform: scale(1.12);
+  transform-origin: 50% 100%;
+}
+.nbt-place.is-lit .nbt-place__text {
+  text-shadow:
+    0 0 2px var(--color-bg),
+    0 0 6px var(--color-bg),
+    0 0 18px color-mix(in oklab, var(--color-map-light) 55%, transparent);
+}
+
+/* ---------------------------------------------------------- keyframes */
+
+@keyframes nbt-pop {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+@keyframes nbt-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes nbt-lens-in {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+}
+@keyframes nbt-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nbt-stop.is-popping .nbt-stop__btn,
+  .nbt-stop.is-popping .nbt-stop__label,
+  .nbt-lens,
+  .nbt-pin.is-preview .nbt-pin__btn::before {
+    animation: none;
+  }
+}
