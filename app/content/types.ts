@@ -321,11 +321,13 @@ export type InquiryChannel = "whatsapp" | "email" | "instagram";
 
 /**
  * What the inquiry drawer collects. Also the deep-link contract:
- * any page accepts ?inquire&trip=<slug>&from=<IsoDate>&to=<IsoDate>&party=<n>
+ * any page accepts ?inquire&trip=<slug>&place=<landmarkId>&from=<IsoDate>&to=<IsoDate>&party=<n>
  * to open the drawer prefilled (documented for agents in llms.txt).
  */
 export type Inquiry = {
   tripSlug?: Trip["slug"];
+  /** "Plan a trip here" from a place card. */
+  placeId?: Landmark["id"];
   from?: IsoDate;
   to?: IsoDate;
   partySize?: number;
