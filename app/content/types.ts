@@ -1,0 +1,279 @@
+/**
+ * Content model for Nepal Birdwatching Tours.
+ *
+ * Single source of truth: pages, the map, and the machine-readable agent files
+ * (llms.txt, JSON, JSON-LD) are all generated from data typed by these shapes.
+ * Data lives in app/content/data/*. Keep this file free of runtime code.
+ */
+
+/** [longitude, latitude] — GeoJSON / MapLibre order. */
+export type LngLat = [lng: number, lat: number];
+
+/** ISO date, e.g. "2026-11-03". */
+export type IsoDate = string;
+
+/** 1 = January … 12 = December. */
+export type Month = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+
+/* ------------------------------------------------------------------ media */
+
+/**
+ * Where a video is served from. The player picks the renderer by `host`, so a
+ * clip can move between hosts by editing data only.
+ */
+export type VideoSource =
+  | { host: "local"; src: string; type?: "video/mp4" | "video/webm" }
+  | { host: "uploadthing"; src: string; type?: "video/mp4" | "video/webm" }
+  | { host: "youtube"; id: string };
+
+export type ImageAsset = {
+  kind: "image";
+  /** Path under /media (local) or absolute URL. */
+  src: string;
+  alt: string;
+  credit?: string;
+  /** Focal point (0–1, 0–1) used to aim Ken Burns pans and crops. */
+  focal?: [x: number, y: number];
+  width?: number;
+  height?: number;
+};
+
+export type VideoAsset = {
+  kind: "video";
+  /** First playable source wins; list local/uploadthing variants in preference order. */
+  sources: VideoSource[];
+  /** Still frame shown before play and as reduced-motion fallback. */
+  poster: string;
+  alt: string;
+  credit?: string;
+  durationSec?: number;
+  /** Ambient clips autoplay muted and loop; others show controls. */
+  ambient?: boolean;
+};
+
+export type MediaAsset = ImageAsset | VideoAsset;
+
+/* ---------------------------------------------------------------- species */
+
+export type SpeciesGroup = "bird" | "mammal" | "reptile" | "amphibian" | "butterfly" | "plant";
+
+/** IUCN Red List category. */
+export type IucnStatus = "LC" | "NT" | "VU" | "EN" | "CR";
+
+export type Species = {
+  /** Stable slug, e.g. "himalayan-monal". */
+  id: string;
+  group: SpeciesGroup;
+  commonName: string;
+  scientificName: string;
+  /** Nepali name, if commonly used. */
+  localName?: string;
+  iucn?: IucnStatus;
+  /** eBird species code, for linking out. */
+  ebirdCode?: string;
+  image?: ImageAsset;
+  /** One enthusiastic line from Krishna. */
+  note?: string;
+};
+
+export type Likelihood = "common" | "likely" | "possible" | "rare";
+
+/** A species that can be seen at a specific waypoint. */
+export type Sighting = {
+  speciesId: Species["id"];
+  likelihood: Likelihood;
+  /** Months when it is realistically seen here; omit for year-round. */
+  months?: Month[];
+  note?: string;
+};
+
+/* -------------------------------------------------------------- waypoints */
+
+export type WaypointKind =
+  | "town"
+  | "village"
+  | "camp"
+  | "viewpoint"
+  | "forest"
+  | "wetland"
+  | "river"
+  | "pass"
+  | "park-gate";
+
+export type StayKind = "teahouse" | "lodge" | "homestay" | "camp" | "hotel" | "none";
+
+export type Stay = {
+  kind: StayKind;
+  name?: string;
+  note?: string;
+};
+
+/** One stop on a trip — a village, stay, or birding spot. */
+export type Waypoint = {
+  /** Unique within its trip, e.g. "lama-hotel". */
+  id: string;
+  name: string;
+  kind: WaypointKind;
+  coords: LngLat;
+  altitudeM: number;
+  /** Day number (1-based) the trip reaches this point. */
+  day: number;
+  /** Nights spent here; 0 for a pass-through birding stop. */
+  nights: number;
+  stay?: Stay;
+  /** e.g. ["oak–rhododendron forest", "river gorge"]. */
+  habitat?: string[];
+  summary: string;
+  sightings: Sighting[];
+  media: MediaAsset[];
+};
+
+/* ------------------------------------------------------------------ trips */
+
+export type TripKind = "birding-trek" | "day-tour" | "wildlife-safari" | "trek-support";
+
+/** Krishna leads birding trips; on some treks he joins as birding specialist alongside a trek guide. */
+export type GuideRole = "lead-guide" | "birding-specialist";
+
+export type Difficulty = "easy" | "moderate" | "challenging" | "strenuous";
+
+export type Pricing = {
+  /** Master switch — prices stay hidden everywhere unless true. */
+  show: boolean;
+  amount: number;
+  currency: "USD" | "EUR" | "NPR";
+  per: "person" | "group" | "day";
+  note?: string;
+};
+
+export type Trip = {
+  /** URL slug: /trips/<slug>/ */
+  slug: string;
+  title: string;
+  /** Short line shown on the map card. */
+  tagline: string;
+  kind: TripKind;
+  guideRole: GuideRole;
+  /** e.g. "Langtang National Park". */
+  region: string;
+  durationDays: number;
+  difficulty: Difficulty;
+  maxAltitudeM: number;
+  bestMonths: Month[];
+  summary: string;
+  highlights: string[];
+  /** Map card image. */
+  cover: ImageAsset;
+  /** Background scene for the trip view: Ken Burns images and/or ambient clips. */
+  reel: MediaAsset[];
+  /** Ordered by day. Species counts are derived from these sightings. */
+  waypoints: Waypoint[];
+  /** Optional detailed track; otherwise the map connects waypoints in order. */
+  route?: LngLat[];
+  /** Landmark ids (peaks, parks) visible or visited on this trip. */
+  landmarkIds: Landmark["id"][];
+  reviewIds: Review["id"][];
+  includes?: string[];
+  pricing?: Pricing;
+  status: "draft" | "published";
+};
+
+/* -------------------------------------------------------------- landmarks */
+
+/** The few labels allowed on the otherwise label-free map. */
+export type Landmark = {
+  id: string;
+  name: string;
+  kind: "peak" | "city" | "park";
+  coords: LngLat;
+  elevationM?: number;
+  /** 1 = always visible, 2 = only when zoomed in. */
+  labelTier: 1 | 2;
+  image?: ImageAsset;
+  blurb?: string;
+};
+
+/* ---------------------------------------------------------------- reviews */
+
+export type Review = {
+  id: string;
+  /** Guest's real name, as published at the source. */
+  author: string;
+  country?: string;
+  date: IsoDate;
+  rating?: 1 | 2 | 3 | 4 | 5;
+  title?: string;
+  text: string;
+  tripSlug?: Trip["slug"];
+  source: {
+    name: "TripAdvisor" | "Google" | "Direct" | (string & {});
+    url?: string;
+  };
+  media: MediaAsset[];
+};
+
+/* ------------------------------------------------------------------ guide */
+
+export type ContactChannels = {
+  /** International format digits only, e.g. "9779800000000". */
+  whatsapp: string;
+  email: string;
+  /** Handle without "@". */
+  instagram: string;
+};
+
+export type Guide = {
+  name: string;
+  /** Brand name of the site. */
+  brand: string;
+  tagline: string;
+  /** Paragraphs. */
+  bio: string[];
+  basedIn: string;
+  yearsGuiding?: number;
+  certifications: { name: string; issuer: string; year?: number }[];
+  languages: string[];
+  specialties: string[];
+  portrait: ImageAsset;
+  /** Krishna's artwork and photography. */
+  art: MediaAsset[];
+  contact: ContactChannels;
+};
+
+/* ----------------------------------------------------------- availability */
+
+export type AvailabilityStatus = "available" | "limited" | "booked";
+
+export type AvailabilityRange = {
+  start: IsoDate;
+  /** Inclusive. */
+  end: IsoDate;
+  status: AvailabilityStatus;
+  note?: string;
+};
+
+/** Dates not covered by a range are "on request". Synced from Krishna's schedule later. */
+export type Availability = {
+  updated: IsoDate;
+  timezone: "Asia/Kathmandu";
+  ranges: AvailabilityRange[];
+};
+
+/* --------------------------------------------------------------- inquiry */
+
+export type InquiryChannel = "whatsapp" | "email" | "instagram";
+
+/**
+ * What the inquiry drawer collects. Also the deep-link contract:
+ * any page accepts ?inquire&trip=<slug>&from=<IsoDate>&to=<IsoDate>&party=<n>
+ * to open the drawer prefilled (documented for agents in llms.txt).
+ */
+export type Inquiry = {
+  tripSlug?: Trip["slug"];
+  from?: IsoDate;
+  to?: IsoDate;
+  partySize?: number;
+  name?: string;
+  message?: string;
+  channel: InquiryChannel;
+};
