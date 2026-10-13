@@ -45,8 +45,7 @@
   --font-mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   /* Accent: sparing artistic italic for big numbers, dates, short quotes, scientific names. */
   --font-accent: "Fraunces Variable", "Iowan Old Style", Georgia, serif;
-  --font-accent--weight: 100; /* Thin; owner's pick */
-  --font-accent--weight-small: 300; /* below ~16px, where Thin gets faint on dark */
+  --font-accent--weight: 100; /* Thin only: owner says it never looks right bold */
 
   /* ---- 3b. Type scale (STYLE_GUIDE 1.4). Phones use the clamp() minimums. ---- */
   --text-hero: clamp(4.5rem, 20vw, 16rem);

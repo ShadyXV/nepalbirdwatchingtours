@@ -3,5 +3,5 @@
 import "@fontsource/anton/400.css";
 import "@fontsource/dm-mono/400.css";
 import "@fontsource/dm-mono/500.css";
-// Accent: Fraunces italic, variable weight + optical size (browsers set opsz automatically).
-import "@fontsource-variable/fraunces/opsz-italic.css";
+// Accent: Fraunces italic with the WONK axis (wonky leaning forms). Always Thin; see tokens.css.
+import "@fontsource-variable/fraunces/wonk-italic.css";

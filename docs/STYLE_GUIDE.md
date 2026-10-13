@@ -37,8 +37,9 @@ Why these:
 
 ### 1.2b Accent italic (owner's pick)
 
-**Fraunces Italic, Thin (100)**, `@fontsource-variable/fraunces/opsz-italic.css` (weight + optical size
-axes). Token `--font-accent`, utilities `accent` (Thin) and `accent-sm` (300, for text under ~16px).
+**Fraunces Italic, Thin (100), wonky forms on**, `@fontsource-variable/fraunces/wonk-italic.css` (weight +
+WONK axes). Token `--font-accent`, utility `accent`. **Thin only: never bold or heavier weights.** Keep it
+at sizes where hairlines read (about 16px and up).
 Used sparingly and only for short text: big numbers (bird counts, altitudes, days), dates and "with
 Anna & Tom" lines on memories, short guest quotes and asides, and scientific names in field labels.
 Never for body copy or headlines.
@@ -154,7 +155,7 @@ Tadapani, Annapurna · 2,630 m · APR 2025 small, fg-muted
 "male displaying on the ridge, 06:40"    small, fg (optional field note)
 ```
 
-- Scientific names are always in the accent italic (`accent-sm`).
+- Scientific names are always in the accent italic (`accent`, about 18px).
 - **Never shown:** coordinates, conservation-status codes (IUCN), or other database-style fields.
 - Altitude with thousands separator and ` m`. Dates `APR 2025`, or `14 APR 2025` when the day is known.
 - Mountains: `MACHHAPUCHHRE · 6,993 m`; no scientific line.

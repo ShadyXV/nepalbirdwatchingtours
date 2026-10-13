@@ -99,7 +99,7 @@ export function FieldLabel({ variant = "full", as, className = "", ...subject }:
           {titleAltitude !== undefined && ` · ${formatAltitude(titleAltitude)}`}
         </p>
       )}
-      {scientificName && <p className="accent-sm text-body leading-snug text-fg-muted">{scientificName}</p>}
+      {scientificName && <p className="accent text-[1.125rem] leading-snug text-fg-muted">{scientificName}</p>}
       {full && details.length > 0 && <p className="mt-0.5 text-small text-fg-muted">{details.join(" · ")}</p>}
       {full && note && <p className="mt-0.5 text-small text-fg">&ldquo;{note}&rdquo;</p>}
     </Tag>

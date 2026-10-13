@@ -43,19 +43,14 @@
   }
 }
 
-/* Accent italic (Fraunces Thin). Use sparingly: big numbers, dates, short quotes, scientific names.
-   `accent-sm` for small sizes, where Thin gets faint. */
+/* Accent italic: Fraunces Thin, wonky forms on. Sparingly: big numbers, dates, short quotes,
+   scientific names. Thin only, never bold; keep it at sizes where hairlines read (~16px and up). */
 @utility accent {
   font-family: var(--font-accent);
   font-style: italic;
   font-weight: var(--font-accent--weight);
-  letter-spacing: 0;
-  text-transform: none;
-}
-@utility accent-sm {
-  font-family: var(--font-accent);
-  font-style: italic;
-  font-weight: var(--font-accent--weight-small);
+  font-variation-settings: "WONK" 1;
+  font-synthesis: none;
   letter-spacing: 0;
   text-transform: none;
 }
