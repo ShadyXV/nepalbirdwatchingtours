@@ -18,6 +18,21 @@ Technique source: `research/SANRITA_INTERACTION.md` (we borrow choreography, not
 6. **Content first, map as enhancement.** Prerendered HTML carries everything. The map chunk loads after
    first paint; reduced-motion gets jumps instead of flights.
 
+## URLs, SEO and AEO
+
+- **Paths for things, params for states.** Indexable entities get real paths, each prerendered to full
+  static HTML: `/`, `/trips/:slug/`, `/about/` (and, if approved, `/places/:id/`). Transient states are
+  query params on top: `?stop=`, `?place=`, `?inquire…`. They're shareable but not separate pages.
+  GitHub Pages ignores query strings, so a param-only design would serve crawlers one page.
+- **Same URL, two experiences.** In-app navigation (from home) keeps the map, flies the camera and animates
+  content in. A direct landing serves the prerendered HTML instantly; the map then loads already in that
+  state. Entrance animations run **only on client-side navigation**. Content is never hidden waiting
+  for JavaScript (no `opacity: 0` defaults).
+- **No-JS / crawler / AI agent:** every page's HTML holds the full text: memories, itinerary, species
+  names, place info. Plus canonical URLs (trailing slash), meta, schema.org JSON-LD (TouristTrip, Person,
+  Review, Place/Mountain), `llms.txt`, per-trip JSON, sitemap. All generated at build time from the same
+  content files.
+
 ## Map states
 
 | State | URL | Camera | Map gestures | What's on the map |
