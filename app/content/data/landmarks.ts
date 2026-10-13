@@ -7,6 +7,7 @@ export const landmarks: Landmark[] = [
     kind: "city",
     coords: [85.324, 27.7172],
     labelTier: 1,
+    media: [],
   },
   {
     id: "langtang-lirung",
@@ -15,5 +16,6 @@ export const landmarks: Landmark[] = [
     coords: [85.5167, 28.2583],
     elevationM: 7227,
     labelTier: 2,
+    media: [],
   },
 ];

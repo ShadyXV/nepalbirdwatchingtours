@@ -197,17 +197,31 @@ export type Trip = {
 
 /* -------------------------------------------------------------- landmarks */
 
-/** The few labels allowed on the otherwise label-free map. */
+/**
+ * A place on the map outside any itinerary: mountains and ranges (special love), cities, parks,
+ * and one-off points of interest / side trips. Tapping one opens a small card — media, a short
+ * blurb, what you might see around it, nearby trips and "plan a trip here" — not a full page.
+ * Deep link: ?place=<id> on any map view.
+ */
 export type Landmark = {
   id: string;
   name: string;
-  kind: "peak" | "city" | "park";
+  kind: "peak" | "range" | "city" | "park" | "poi";
+  /** Label/marker position; for a range, its visual centre. */
   coords: LngLat;
   elevationM?: number;
+  /** e.g. "Annapurna Himal" for its peaks. */
+  range?: string;
   /** 1 = always visible, 2 = only when zoomed in. */
   labelTier: 1 | 2;
-  image?: ImageAsset;
+  /** One or two warm sentences. */
   blurb?: string;
+  /** Landscape photos and clips; first is the card cover. */
+  media: MediaAsset[];
+  /** A light "you might see around here" list (6–12 species), not a full checklist. */
+  sightings?: Sighting[];
+  /** Trips that pass by or view it; shown as "trips nearby". */
+  nearbyTripSlugs?: Trip["slug"][];
 };
 
 /* ---------------------------------------------------------------- reviews */
