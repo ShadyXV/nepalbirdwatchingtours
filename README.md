@@ -20,8 +20,21 @@ pnpm preview     # serve build/client
 - `app/i18n/` all UI strings (`en.ts`) and the typed `t()` helper.
 - `public/` static files (served as-is, use `assetUrl()` from `app/lib/site.ts` to reference them).
 
-## Deploying to GitHub Pages
+## Deploying to GitHub Pages (manual, from your machine)
 
-`BASE_PATH` sets both the Vite `base` and the router `basename`; it defaults to `/`. For a project page build with `BASE_PATH=/<repo>/`. With a non-root base React Router writes the prerendered HTML into `build/client/<repo>/` while assets stay in `build/client/`; the deploy workflow (`.github/workflows/deploy.yml`) flattens that and copies `__spa-fallback.html` to `404.html`. Set `BASE_PATH` to `/` in the workflow when using a custom domain.
+No GitHub Actions: you build locally and push the result yourself.
 
-Inquiry deep link: `/?inquire&trip=<slug>&from=<date>&to=<date>&party=<n>`.
+```sh
+pnpm pages                       # build for /nepalbirdwatchingtours/ and commit it to a local gh-pages branch
+BASE_PATH=/<repo>/ pnpm pages    # if the GitHub repo has another name
+BASE_PATH=/ pnpm pages           # with a custom domain
+git push origin gh-pages         # publish
+```
+
+In the GitHub repo: Settings → Pages → Source "Deploy from a branch", branch `gh-pages`, folder `/ (root)`.
+
+`scripts/pages.sh` builds with `BASE_PATH`, lifts the prerendered pages out of `build/client/<repo>/`,
+adds `404.html` (app-shell fallback) and `.nojekyll`, strips local design previews, then commits
+`build/client` to `gh-pages` through a temporary worktree. It refuses to build while Krishna's mock-up
+photos (`public/media/mock/`) are present unless you pass `--with-mock-photos`, since they'd become
+public. `--no-commit` only builds. Also set `SITE_URL` in `app/lib/site.ts` to the real address.

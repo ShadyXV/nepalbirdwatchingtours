@@ -10,3 +10,5 @@ media-source/*
 public/media/mock/
 # Local design specimens (preview only, never published)
 public/_specimen/
+# Temporary worktree used by scripts/pages.sh
+.gh-pages/
