@@ -9,8 +9,11 @@ Technique source: `research/SANRITA_INTERACTION.md` (we borrow choreography, not
    Routes move the camera; they don't swap pages.
 2. **Native scroll, never hijacked.** "Scroll to enter" is ordinary page scroll with the map sticky
    behind. Nothing traps the thumb.
-3. **One gesture, one meaning (mobile).** Where the map is a backdrop, touches scroll the page. Where
-   the map is explorable, the content sheet is a separate, always-visible drag target.
+3. **The map is always explorable.** Drag to pan and zoom everywhere, with smooth inertia and soft
+   edges, never a wall. Desktop: mouse drag pans, even on home, while the wheel scrolls the home page
+   unless pinching or holding Ctrl/⌘. Phones: in trip/place views one finger pans the visible map and the
+   sheet is the scroll handle; on home, two fingers pan/zoom so one-finger swipes still scroll. 3D tilt
+   and rotation stay gentle, with a "reset view" control. Automatic camera moves never fight the user.
 4. **Every state has a URL.** `/`, `/trips/:slug`, `/trips/:slug?stop=<id>`, `/places/:id`. No pop-ups. Back button = fly back.
 5. **Personal, not a brochure.** Each trip and stop leads with *memories*: past trips with real guests,
    their photos, the birds and animals seen together, told in Krishna's voice. Altitude, stays and
@@ -37,7 +40,7 @@ Technique source: `research/SANRITA_INTERACTION.md` (we borrow choreography, not
 
 | State | URL | Camera | Map gestures | What's on the map |
 |---|---|---|---|---|
-| **S0 Overview** | `/` | All of Nepal, low pitch, slight bearing | Off (backdrop); pins tappable | Terrain, graticule, 6–8 labels (Kathmandu, Pokhara, Chitwan, Bardia, main peaks), trip pins |
+| **S0 Overview** | `/` | All of Nepal, low pitch, slight bearing | Pan/zoom (desktop drag; phone two-finger); pins tappable | Terrain, graticule, 6–8 labels (Kathmandu, Pokhara, Chitwan, Bardia, main peaks), trip pins |
 | **S1 Trip** | `/trips/:slug` | Fit trip bounds, pitch ~55–60°, route-aligned bearing, bottom padding for the sheet | On, inside the visible map area | Route draws in, stop markers pop in with a stagger, trip's peaks labelled |
 | **S2 Stop** | `?stop=<id>` | Ease to stop, closer, slight orbit | On | Lens ring + grid around the stop; other stops dimmed |
 | **S3 Place** | `/places/:id` | Ease to the mountain/place, framed for its view (peaks: low pitch, looking at the face) | On | The place highlighted, its range softly lit, nearby trip routes faint |
