@@ -236,6 +236,8 @@ export type Review = {
   title?: string;
   text: string;
   tripSlug?: Trip["slug"];
+  /** Offerings this review speaks to (e.g. "trek-photography"). */
+  offeringIds?: Offering["id"][];
   source: {
     name: "TripAdvisor" | "Google" | "Direct" | (string & {});
     url?: string;
@@ -266,6 +268,43 @@ export type Memory = {
   media: MediaAsset[];
   /** The guests' own review of that trip, if they left one. */
   reviewId?: Review["id"];
+};
+
+/* -------------------------------------------------------------- offerings */
+
+/** Who an offering is for; drives the "for you if you're…" line. */
+export type Audience =
+  | "birders"
+  | "photographers"
+  | "cinematographers"
+  | "researchers"
+  | "artists"
+  | "trekking-groups"
+  | "families"
+  | "first-timers";
+
+/**
+ * A way to travel or work with Krishna beyond the set trips — shown on the "Anywhere" page.
+ * e.g. custom day trips anywhere, field crew support, birding specialist for trekking groups,
+ * wild nature-focused trek photography. Photo-led, with relevant reviews.
+ */
+export type Offering = {
+  /** Also the section anchor: /anywhere/#<id> */
+  id: string;
+  title: string;
+  /** One warm line under the title. */
+  tagline: string;
+  audiences: Audience[];
+  /** Paragraphs, Krishna's voice. */
+  body: string[];
+  /** Concrete examples, e.g. "Dawn at Phulchowki for a wildlife film crew". */
+  examples?: string[];
+  media: MediaAsset[];
+  reviewIds: Review["id"][];
+  /** Trips or places that show this offering in action. */
+  tripSlugs?: Trip["slug"][];
+  placeIds?: Landmark["id"][];
+  pricing?: Pricing;
 };
 
 /* ------------------------------------------------------------------ guide */
@@ -321,13 +360,15 @@ export type InquiryChannel = "whatsapp" | "email" | "instagram";
 
 /**
  * What the inquiry drawer collects. Also the deep-link contract:
- * any page accepts ?inquire&trip=<slug>&place=<landmarkId>&from=<IsoDate>&to=<IsoDate>&party=<n>
+ * any page accepts ?inquire&trip=<slug>&place=<landmarkId>&offering=<id>&from=<IsoDate>&to=<IsoDate>&party=<n>
  * to open the drawer prefilled (documented for agents in llms.txt).
  */
 export type Inquiry = {
   tripSlug?: Trip["slug"];
-  /** "Plan a trip here" from a place card. */
+  /** "Plan a trip here" from a place page. */
   placeId?: Landmark["id"];
+  /** "Ask about this" from an offering on the Anywhere page. */
+  offeringId?: Offering["id"];
   from?: IsoDate;
   to?: IsoDate;
   partySize?: number;
