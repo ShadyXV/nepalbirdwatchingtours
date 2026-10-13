@@ -7,8 +7,10 @@ Technique source: `research/SANRITA_INTERACTION.md` (we borrow choreography, not
 
 1. **The map is the stage; content rises over it.** One MapLibre map, mounted once, never reloaded.
    Routes move the camera; they don't swap pages.
-2. **Native scroll, never hijacked.** "Scroll to enter" is ordinary page scroll with the map sticky
-   behind. Nothing traps the thumb.
+2. **Native scroll, except the trip journey.** "Scroll to enter" is ordinary page scroll with the map
+   sticky behind. The one deliberate exception is a trip page's journey, where scroll/swipe steps through
+   days (owner's decision, after San Rita's projects page; design in progress, see
+   `research/SANRITA_PROJECTS_ABOUT.md`).
 3. **The map is always explorable.** Drag to pan and zoom everywhere, with smooth inertia and soft
    edges, never a wall. Desktop: mouse drag pans, even on home, while the wheel scrolls the home page
    unless pinching or holding Ctrl/⌘. Phones: in trip/place views one finger pans the visible map and the
