@@ -162,6 +162,13 @@ Tadapani, Annapurna · 2,630 m · APR 2025 small, fg-muted
 - Placement: overlaid bottom-left of media on a scrim gradient, or beneath it in lists. Compact variant
   (name + scientific name only) for chips and map tooltips.
 
+## 3c. Terrain texture
+
+A faint, seamlessly tiling topographic-contour pattern (generic, not real terrain): `public/textures/contours.svg`,
+pale `snow` lines on transparent. `TerrainBackdrop` (`components/ui`) lays it over `night`, static, for
+backgrounds and transitional screens; today the map's loading fallback. Tokens: `--texture-opacity`, `--texture-size`.
+Regenerate with `node scripts/textures/contours.mjs [seed]` (density, line count, stroke are constants at its top).
+
 ## 4. Layout and motion
 
 ### 4.1 Layout
