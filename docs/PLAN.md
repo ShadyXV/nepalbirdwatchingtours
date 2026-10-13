@@ -33,6 +33,9 @@ place, altitude and date — light, never database-like (no coordinates or conse
 - `/trips/:slug/` — same persistent map, flown into the trip: route, waypoints, per-stop stay/altitude/nights and an interactive bird/wildlife/plant checklist; reel (Ken Burns + ambient clips) under/over the map.
 - `/places/:id/` — mountains, ranges, parks, points of interest: same map + rising-sheet interaction as
   trips, lighter content, lower in the hierarchy.
+- `/anywhere/` — ways to travel with Krishna beyond the set trips (custom day trips anywhere, crew support
+  for photographers/filmmakers/researchers/artists, birding specialist for trekking groups, trek
+  photography). Photo-led sections with relevant reviews. Working title, never "services".
 - `/about/` — Krishna: experience, certifications, art and photography.
 - `/privacy/`
 - No contact page: the **inquiry drawer** opens from any page (header/footer/trip CTAs) and via deep link

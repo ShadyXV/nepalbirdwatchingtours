@@ -71,9 +71,14 @@ with whom.
    and of memories.
 2. **Memories and reviews:** past guests, real names (as they agree), their photos, links to the original
    review sources (e.g. TripAdvisor).
-3. **Places:** mountains, ranges, parks, side trips, points of interest.
-4. **Krishna:** his story, certifications, art and photography.
-5. **Practical facts:** altitude, nights, stays, seasons, prices (only when chosen to show).
+3. **Anywhere (ways to travel with Krishna):** beyond the set trips. Custom day trips around Kathmandu or
+   anywhere a guest wants. Field crew support for photographers, cinematographers, researchers and
+   artists. Birding and nature specialist alongside a large trekking group. Trek photography: wild,
+   nature-focused, behind-the-scenes images of your trek (landscape and wildlife, not headshots). Each
+   one shown through photos of those experiences and the guests' own words. Never called "services".
+4. **Places:** mountains, ranges, parks, side trips, points of interest.
+5. **Krishna:** his story, certifications, art and photography.
+6. **Practical facts:** altitude, nights, stays, seasons, prices (only when chosen to show).
 
 ## How we build it
 
@@ -86,5 +91,6 @@ screens kept cleanly separated so the site can grow.
 - Home on phones: a swipeable trip-card row synced with the map, or pins only.
 - About page: over a softly drifting, dimmed map, or a plain page.
 - Terrain look once seen live: natural colours with paper grain and grid (recommended) vs. other blends.
+- Name for the "Anywhere" page (working title; alternatives: "Ways to go", "Field work", "Beyond the trips").
 - Optional delights: "seen it" ticks on checklists; "This month in Nepal"; a seasonal birding calendar.
 - Screen recording of San Rita from the owner, to tune timing and feel.

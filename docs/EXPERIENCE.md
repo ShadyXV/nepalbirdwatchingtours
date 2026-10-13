@@ -149,6 +149,14 @@ from home.
 Mountains get special love: big peaks stay labelled on the overview, and a range glows softly while one of
 its peaks is open.
 
+### Anywhere (ways to travel with Krishna)
+
+Same rising-sheet language over an ambient map. One full-bleed, photo-led section per offering: giant
+headline, "for you if you're a photographer / filmmaker / researcher / artist / trekking group…", a carousel
+of those experiences, a few lines in Krishna's voice, the guests' own reviews woven in, and "Ask about
+this" (inquiry prefilled with the offering). Sections are anchors (`/anywhere/#trek-photography`), so trips
+and places can link straight to the relevant one.
+
 ### Persistent mobile actions
 
 - Floating **Inquire** button bottom-right on every page (hidden while the drawer is open). The drawer
