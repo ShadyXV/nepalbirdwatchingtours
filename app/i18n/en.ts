@@ -217,3 +217,4 @@ export const en = {
 } as const;
 
 export type Strings = typeof en;
+    mapCredits: "Map data: terrain from AWS Terrain Tiles / Mapzen (SRTM and others) · boundaries from Natural Earth.",

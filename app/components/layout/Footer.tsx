@@ -64,6 +64,7 @@ export function Footer() {
           </Link>
         </div>
       </div>
+      <p className="not-italic mx-auto mt-10 max-w-5xl text-small text-fg-muted">{t("footer.mapCredits")}</p>
     </footer>
   );
 }
