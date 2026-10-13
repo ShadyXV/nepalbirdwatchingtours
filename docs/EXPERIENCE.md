@@ -109,14 +109,20 @@ well. The card carousel is the primary picker and the map follows it.
 └──────────────────────────┘
 ```
 
+### Key stops
+
+Not every stop gets rich content. **Key stops** (`waypoint.key`) carry the photos, story text, memories
+and a full checklist; they're what the story features, the auto-tour visits and the stepper steps
+through. Other stops stay a quiet line in the itinerary (day · name · altitude · stay) and a minor marker
+on the map. What you might see across the whole trip is still summarised at trip level.
+
 ### S1 auto-tour: the trip plays itself
 
 After the fly-in, route draw and stop pop, the trip **plays itself** until the visitor interacts:
 
 - A pulse ring and a label at the current stop: `DAY 1` (accent italic, Thin) over `POKHARA · 820 m`
   (label caps).
-- Every 4–5 s the camera glides slowly to the next **overnight** stop (pass-through spots are skipped, to
-  keep it short); the label and pulse move with it. The sheet's day stepper follows in sync. Checklist
+- Every 4–5 s the camera glides slowly to the next **key** stop (others are skipped, to keep it short); the label and pulse move with it. The sheet's day stepper follows in sync. Checklist
   and stay details stay quiet, as supporting information.
 - Any tap, drag, pinch, scroll or key press **pauses** it. A small "▶ Play the route" control resumes.
   At the last stop it pulls back to the whole route and ends.

@@ -194,6 +194,7 @@ export const trip = {
     },
     {
       id: "rapti-river",
+      key: true,
       name: "Rapti River",
       kind: "river",
       coords: [84.479, 27.5715],
@@ -226,6 +227,7 @@ export const trip = {
     },
     {
       id: "baghmara-community-forest",
+      key: true,
       name: "Baghmara Community Forest",
       kind: "forest",
       coords: [84.515, 27.562],
@@ -255,6 +257,7 @@ export const trip = {
     },
     {
       id: "kasara",
+      key: true,
       name: "Kasara and the Core Grasslands",
       kind: "park-gate",
       coords: [84.347, 27.538],
@@ -309,6 +312,7 @@ export const trip = {
     },
     {
       id: "bis-hazari-tal",
+      key: true,
       name: "Bis Hazari Tal",
       kind: "wetland",
       coords: [84.4235, 27.592],

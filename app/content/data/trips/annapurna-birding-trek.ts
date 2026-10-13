@@ -265,6 +265,7 @@ export const trip = {
     },
     {
       id: "ghorepani",
+      key: true,
       name: "Ghorepani",
       kind: "village",
       coords: [83.6992, 28.3986],
@@ -293,6 +294,7 @@ export const trip = {
     },
     {
       id: "poon-hill",
+      key: true,
       name: "Poon Hill",
       kind: "viewpoint",
       coords: [83.6895, 28.4],
@@ -334,6 +336,7 @@ export const trip = {
     },
     {
       id: "tadapani",
+      key: true,
       name: "Tadapani",
       kind: "village",
       coords: [83.7653, 28.3963],
@@ -470,6 +473,7 @@ export const trip = {
     },
     {
       id: "machhapuchhre-base-camp",
+      key: true,
       name: "Machhapuchhre Base Camp",
       kind: "camp",
       coords: [83.8905, 28.5075],
@@ -492,6 +496,7 @@ export const trip = {
     },
     {
       id: "annapurna-base-camp",
+      key: true,
       name: "Annapurna Base Camp",
       kind: "camp",
       coords: [83.878, 28.5308],
@@ -516,6 +521,7 @@ export const trip = {
     },
     {
       id: "bamboo",
+      key: true,
       name: "Bamboo",
       kind: "camp",
       coords: [83.848, 28.451],

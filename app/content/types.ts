@@ -125,10 +125,17 @@ export type Stay = {
   note?: string;
 };
 
-/** One stop on a trip — a village, stay, or birding spot. */
+/**
+ * One stop on a trip — a village, stay, or birding spot.
+ * Not every stop gets rich content: only **key** stops carry the photos, story text, memories and a
+ * full checklist. Other stops are a quiet line in the itinerary (day · name · altitude · stay) and a
+ * minor marker; their `summary`, `sightings` and `media` may be empty.
+ */
 export type Waypoint = {
   /** Unique within its trip, e.g. "lama-hotel". */
   id: string;
+  /** Key stop: featured in the story, the auto-tour and the stop stepper. */
+  key?: boolean;
   name: string;
   kind: WaypointKind;
   coords: LngLat;

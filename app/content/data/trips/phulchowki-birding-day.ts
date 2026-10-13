@@ -123,6 +123,7 @@ export const trip = {
   waypoints: [
     {
       id: "botanical-garden",
+      key: true,
       name: "National Botanical Garden, Godavari",
       kind: "forest",
       coords: [85.383, 27.595],
@@ -172,6 +173,7 @@ export const trip = {
     },
     {
       id: "phulchowki-mai",
+      key: true,
       name: "Phulchowki Mai Temple",
       kind: "forest",
       coords: [85.3965, 27.581],
@@ -220,6 +222,7 @@ export const trip = {
     },
     {
       id: "phulchowki-summit",
+      key: true,
       name: "Phulchowki Summit",
       kind: "viewpoint",
       coords: [85.4005, 27.574],
