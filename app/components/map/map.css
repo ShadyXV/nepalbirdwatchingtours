@@ -41,10 +41,12 @@
   pointer-events: none;
 }
 
-/* Printed-paper grain: a tiny tiled noise image, plain alpha (no blend mode, so no per-frame cost). */
+/* Printed-paper grain: a tiny tiled noise image, plain alpha (no blend mode, so no per-frame cost).
+   A fine DARK stipple (night-coloured), so it reads as texture (canopy, rock) and deepens a little,
+   instead of a pale speckle that lifted every shadow and washed the relief out. */
 .nbt-map__grain {
-  opacity: 0.1;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .93 0 0 0 0 .95 0 0 0 0 .94 0 0 0 1.6 -.55'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.14;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .05 0 0 0 0 .07 0 0 0 0 .06 0 0 0 1.6 -.6'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 160px 160px;
 }
 
@@ -58,8 +60,9 @@
     radial-gradient(26% 10% at 92% 16%, color-mix(in oklab, var(--color-snow) 12%, transparent), transparent 70%),
     radial-gradient(60% 22% at 50% -4%, color-mix(in oklab, var(--color-mist) 18%, transparent), transparent 75%);
 }
+/* Closer, pitched views: only a trace of haze at the far horizon. */
 .nbt-map__canvas:not([data-state="overview"]) ~ .nbt-map__clouds {
-  opacity: 0.45;
+  opacity: 0.28;
 }
 
 /* Edge vignette so the map sinks into the page. */
@@ -102,14 +105,12 @@
   user-select: none;
 }
 
-/* Text on terrain: a soft night halo instead of a box. */
+/* Text on terrain: a tight night halo instead of a box, so pale label caps read on bright golden
+   slopes and on deep shadow alike (--text-shadow-map-label). */
 .nbt-pin__label,
 .nbt-stop__label,
 .nbt-place__text {
-  text-shadow:
-    0 0 2px var(--color-bg),
-    0 0 6px var(--color-bg),
-    0 0 14px color-mix(in oklab, var(--color-bg) 70%, transparent);
+  text-shadow: var(--text-shadow-map-label);
 }
 
 .nbt-mk__inner {
@@ -193,7 +194,7 @@
   font-family: var(--font-mono);
   font-size: var(--text-label);
   letter-spacing: 0.06em;
-  color: var(--color-accent);
+  color: var(--color-fg); /* pale on terrain: thin orange text washes out on golden slopes */
 }
 .nbt-pin__number {
   font-family: var(--font-accent);
@@ -260,55 +261,84 @@
   width: 2.25rem;
   height: 2.25rem;
 }
+
+/*
+ * Stop marker (markers.ts), after the San Rita markers: a dark hand-drawn blob, a bold pale outline,
+ * a line icon inside. Sizes and strokes per tier below; colours are the MAP marker tokens.
+ */
+.nbt-stop {
+  --stop-size: 1.9rem; /* key stops */
+  --stop-outline: 2.25px;
+  --stop-icon-stroke: 1.5px;
+  --stop-fill: var(--color-map-marker);
+  --stop-ink: var(--color-map-marker-ink);
+  --stop-active-scale: 1.18;
+}
+.nbt-stop--minor {
+  --stop-size: 1.2rem;
+  --stop-outline: 1.5px;
+  --stop-icon-stroke: 1.25px;
+  --stop-ink: color-mix(in oklab, var(--color-map-marker-ink) 82%, var(--color-map-marker));
+  --stop-active-scale: 1.6; /* grows to about a key stop's size when it is the one in focus */
+}
 .nbt-stop__blob {
-  width: 1.1rem;
-  height: 1.1rem;
+  width: var(--stop-size);
+  height: var(--stop-size);
   overflow: visible;
-  filter: drop-shadow(0 1px 3px color-mix(in oklab, var(--color-bg) 85%, transparent));
+  filter: drop-shadow(0 1px 2px color-mix(in oklab, var(--color-bg) 75%, transparent));
   transition: transform var(--duration-ui) var(--ease-pop);
 }
 .nbt-stop__blob path {
   vector-effect: non-scaling-stroke;
-  stroke-width: 2px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition:
+    fill var(--duration-ui) var(--ease-out),
+    stroke var(--duration-ui) var(--ease-out),
+    opacity var(--duration-ui) var(--ease-out);
 }
-.nbt-stop--stay .nbt-stop__blob path {
-  fill: var(--color-marker);
-  stroke: var(--color-fg);
+.nbt-stop__shape {
+  fill: var(--stop-fill);
+  stroke: var(--stop-ink);
+  stroke-width: var(--stop-outline);
 }
-.nbt-stop--spot .nbt-stop__blob {
-  width: 0.8rem;
-  height: 0.8rem;
+.nbt-stop__icon path {
+  fill: none;
+  stroke: var(--stop-ink);
+  stroke-width: var(--stop-icon-stroke);
 }
-.nbt-stop--spot .nbt-stop__blob path {
-  fill: var(--color-bg-raised);
+/* The active stop's outer ring (hidden until active). */
+.nbt-stop__ring {
+  fill: none;
   stroke: var(--color-accent);
+  stroke-width: 1.5px;
+  opacity: 0;
+}
+/* Active: a confident inversion (pale blob, dark outline and icon) inside a thin copper ring. */
+.nbt-stop.is-active {
+  --stop-fill: var(--color-map-marker-ink);
+  --stop-ink: var(--color-map-marker);
 }
 .nbt-stop.is-active .nbt-stop__blob {
-  transform: scale(1.35);
+  transform: scale(var(--stop-active-scale));
 }
-/* Minor (non-key) stops: small, quiet dots; a supporting line, not a destination. */
-.nbt-stop--minor .nbt-stop__blob {
-  width: 0.55rem;
-  height: 0.55rem;
-  filter: none;
-}
-.nbt-stop--minor .nbt-stop__blob path {
-  fill: color-mix(in oklab, var(--color-fg) 70%, transparent);
-  stroke: var(--color-bg);
-  stroke-width: 1.5px;
-}
-.nbt-stop--minor .nbt-stop__label {
-  font-size: 0.625rem;
-  color: var(--color-fg-muted);
+.nbt-stop.is-active .nbt-stop__ring {
+  opacity: 1;
 }
 /* A stop behind a ridge (MapLibre marks it covered): still shown, drawn as "behind" (dashed). */
-.maplibregl-marker-covered .nbt-stop__blob path {
-  fill-opacity: 0.35;
-  stroke-dasharray: 2 2;
+.maplibregl-marker-covered .nbt-stop__shape {
+  fill-opacity: 0.45;
+  stroke-dasharray: 3 2.5;
 }
-.maplibregl-marker-covered .nbt-stop.is-active .nbt-stop__blob path {
+.maplibregl-marker-covered .nbt-stop__icon {
+  opacity: 0.6;
+}
+.maplibregl-marker-covered .nbt-stop.is-active .nbt-stop__shape {
   fill-opacity: 1;
   stroke-dasharray: none;
+}
+.maplibregl-marker-covered .nbt-stop.is-active .nbt-stop__icon {
+  opacity: 1;
 }
 
 /* Autoplay / engine focus: a pulse and `DAY 4` over `TADAPANI · 2,630 m`, above the stop. */
@@ -323,10 +353,7 @@
   gap: 0.1rem;
   pointer-events: none;
   white-space: nowrap;
-  text-shadow:
-    0 0 2px var(--color-bg),
-    0 0 6px var(--color-bg),
-    0 0 14px color-mix(in oklab, var(--color-bg) 70%, transparent);
+  text-shadow: var(--text-shadow-map-label);
   animation: nbt-fade var(--duration-ui) var(--ease-out) backwards;
 }
 .nbt-tour__day {
@@ -335,7 +362,7 @@
   font-weight: 500;
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  color: var(--color-fg-muted);
+  color: var(--color-fg);
 }
 .nbt-tour__num {
   font-family: var(--font-accent);
@@ -344,7 +371,7 @@
   font-variation-settings: "WONK" 1;
   font-size: 1.5rem;
   letter-spacing: 0;
-  color: var(--color-accent);
+  color: var(--color-fg); /* pale: thin orange washes out on golden slopes */
   margin-left: 0.1em;
 }
 .nbt-tour__place {
@@ -364,7 +391,7 @@
   height: 2.5rem;
   margin: -1.25rem 0 0 -1.25rem;
   border-radius: 50%;
-  border: 1px solid var(--color-accent);
+  border: 1.5px solid var(--color-map-marker-ink);
   opacity: 0;
   animation: nbt-pulse 1.6s var(--ease-out) 3;
 }
@@ -378,7 +405,7 @@
 }
 .nbt-stop__label {
   position: absolute;
-  left: calc(50% + 0.85rem);
+  left: calc(50% + var(--stop-size) / 2 + 0.4rem);
   top: 50%;
   transform: translateY(-50%);
   white-space: nowrap;
@@ -394,8 +421,14 @@
 .nbt-stop__label.is-hidden {
   opacity: 0;
 }
+.nbt-stop--minor .nbt-stop__label {
+  font-size: 0.625rem;
+  color: color-mix(in oklab, var(--color-fg) 88%, transparent);
+}
 .nbt-stop.is-active .nbt-stop__label {
-  color: var(--color-accent);
+  left: calc(50% + var(--stop-size) * var(--stop-active-scale) / 2 + 0.55rem);
+  font-size: var(--text-label);
+  color: var(--color-fg);
 }
 
 /* Pop in on arrival: staggered, back-out overshoot. `backwards` so classes win once it is done. */
@@ -409,33 +442,49 @@
 /* --------------------------------------------------------------- lens */
 
 .nbt-lens {
+  --lens-size: 9rem;
+  --lens-ink: color-mix(in oklab, var(--color-fg) 78%, transparent);
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 10rem;
-  height: 10rem;
-  margin: -5rem 0 0 -5rem;
+  width: var(--lens-size);
+  height: var(--lens-size);
+  margin: calc(var(--lens-size) / -2) 0 0 calc(var(--lens-size) / -2);
   border-radius: 50%;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(circle, color-mix(in oklab, var(--color-accent) 18%, transparent) 0%, transparent 70%);
   animation: nbt-lens-in 600ms var(--ease-pop) backwards;
 }
+/* Thin pale ring with a dark hairline outside it, so it holds on bright slopes too. */
 .nbt-lens__ring {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 1px solid color-mix(in oklab, var(--color-fg) 60%, transparent);
+  border: 1px solid var(--lens-ink);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-bg) 35%, transparent);
 }
+/* Four short ticks on the ring (N, E, S, W): a sighting lens, not a glow. */
+.nbt-lens__ticks {
+  --tick: 0.55rem;
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(var(--lens-ink), var(--lens-ink)) 50% 0 / 1px var(--tick) no-repeat,
+    linear-gradient(var(--lens-ink), var(--lens-ink)) 50% 100% / 1px var(--tick) no-repeat,
+    linear-gradient(var(--lens-ink), var(--lens-ink)) 0 50% / var(--tick) 1px no-repeat,
+    linear-gradient(var(--lens-ink), var(--lens-ink)) 100% 50% / var(--tick) 1px no-repeat;
+}
+/* Faint grid, fading out from the centre. No fill. */
 .nbt-lens__grid {
   position: absolute;
   inset: 0;
   border-radius: 50%;
   background-image:
-    repeating-linear-gradient(0deg, color-mix(in oklab, var(--color-fg-muted) 30%, transparent) 0 1px, transparent 1px 0.75rem),
-    repeating-linear-gradient(90deg, color-mix(in oklab, var(--color-fg-muted) 30%, transparent) 0 1px, transparent 1px 0.75rem);
-  mask-image: radial-gradient(circle, #000 25%, transparent 68%);
-  -webkit-mask-image: radial-gradient(circle, #000 25%, transparent 68%);
+    repeating-linear-gradient(0deg, color-mix(in oklab, var(--color-fg) 16%, transparent) 0 1px, transparent 1px 0.75rem),
+    repeating-linear-gradient(90deg, color-mix(in oklab, var(--color-fg) 16%, transparent) 0 1px, transparent 1px 0.75rem);
+  background-position: center;
+  mask-image: radial-gradient(circle, #000 20%, transparent 66%);
+  -webkit-mask-image: radial-gradient(circle, #000 20%, transparent 66%);
 }
 
 /* ------------------------------------------------------- place labels */
@@ -463,8 +512,11 @@
   white-space: nowrap;
   transition: color var(--duration-ui) var(--ease-out);
 }
-.nbt-place__btn:hover .nbt-place__text {
-  color: var(--color-accent);
+/* Hover / open: a copper underline mark; the text stays pale, never orange on terrain. */
+.nbt-place__btn:hover .nbt-place__name,
+.nbt-place.is-active .nbt-place__name {
+  text-decoration: underline 1.5px var(--color-accent);
+  text-underline-offset: 0.3em;
 }
 .nbt-place__btn:focus-visible {
   outline: 2px solid var(--color-focus);
@@ -525,7 +577,7 @@
 }
 .nbt-place--poi .nbt-place__text {
   font-size: 0.625rem;
-  color: var(--color-fg-muted);
+  color: color-mix(in oklab, var(--color-fg) 88%, transparent);
 }
 
 /* Parks and ranges: spaced names laid over the land, no mark. */
@@ -536,27 +588,23 @@
 .nbt-place--park .nbt-place__text {
   font-size: 0.625rem;
   letter-spacing: 0.22em;
-  color: var(--color-fg-muted);
+  color: color-mix(in oklab, var(--color-fg) 85%, transparent);
 }
 .nbt-place--range .nbt-place__text {
   font-size: 0.75rem;
   letter-spacing: 0.45em;
-  color: color-mix(in oklab, var(--color-fg) 72%, transparent);
+  color: color-mix(in oklab, var(--color-fg) 85%, transparent);
 }
 
 /* The open place, and the range that glows with it. */
-.nbt-place.is-active .nbt-place__name {
-  color: var(--color-accent);
-}
 .nbt-place.is-active {
   transform: scale(1.12);
   transform-origin: 50% 100%;
 }
 .nbt-place.is-lit .nbt-place__text {
   text-shadow:
-    0 0 2px var(--color-bg),
-    0 0 6px var(--color-bg),
-    0 0 18px color-mix(in oklab, var(--color-map-light) 55%, transparent);
+    var(--text-shadow-map-label),
+    0 0 18px color-mix(in oklab, var(--color-map-light) 45%, transparent);
 }
 
 /* ------------------------------------------------- hover media reveal */

@@ -4,11 +4,27 @@
  * nothing runs while idle.
  */
 import type { Map as MapLibreMap } from "maplibre-gl";
+import { readToken } from "~/design/tokens";
 import { drawnGradient, LAYER } from "./look";
 
 export type RouteColors = { line: string; casing: string };
 
-export function setRouteProgress(map: MapLibreMap, colors: RouteColors, progress: number): void {
+let cached: RouteColors | null = null;
+
+/** The route's colours on the map: the MAP tokens (pale line, dark casing), not the UI's `--color-route`. */
+export function mapRouteColors(): RouteColors {
+  // Read once (tokens are static): the draw-in calls this every frame.
+  cached ??= { line: readToken("--color-map-route"), casing: readToken("--color-map-route-casing") };
+  return cached;
+}
+
+/**
+ * Show the first `progress` (0..1) of the active route. The line is always drawn in the map's route
+ * colours (`mapRouteColors()`); `colors` is kept for API compatibility and ignored, so a caller
+ * still passing the UI teal cannot bring back a saturated route.
+ */
+export function setRouteProgress(map: MapLibreMap, _colors: RouteColors, progress: number): void {
+  const colors = mapRouteColors();
   map.setPaintProperty(LAYER.route, "line-gradient", drawnGradient(colors.line, progress));
   map.setPaintProperty(LAYER.routeCasing, "line-gradient", drawnGradient(colors.casing, progress));
 }

@@ -94,25 +94,33 @@
 
   /* ---- 4. MAP (docs/MAP.md). Terrain colours by elevation band, light, haze, camera motion. ----
      Elevation stops for the relief bands live in app/components/map/look.ts. */
-  /* Golden hour: dark olive forest below, khaki mid-hills, rosy-ochre ridges, warm-white snow. */
-  --color-map-terai: #34432c; /* ~100 m: Terai plains, sal forest (dark olive) */
-  --color-map-lowland: #3a4a2e; /* ~500 m: Churia / inner Terai forest */
-  --color-map-hills: #4f5a36; /* ~1,100 m: middle hills, terraces */
-  --color-map-midhills: #6a6a3f; /* ~1,900 m: oak-rhododendron, olive-khaki */
-  --color-map-ridge: #96834f; /* ~2,900 m: khaki-ochre ridges */
-  --color-map-alpine: #ab8a5f; /* ~3,800 m: dry alpine meadows, rosy ochre */
-  --color-map-rock: #a5806c; /* ~4,600 m: rosy rock */
-  --color-map-scree: #c9b2a2; /* ~5,400 m: pale rose scree, ice */
-  --color-map-snow: #f3eadf; /* 6,000 m+: warm-white snow */
+  /* Golden hour, rich and sculpted: deep green-olive valleys, olive-gold forest tops, golden alpine
+     meadows, rosy-ochre bare ridges, pale rose scree, bright warm snow. Saturated on purpose: the
+     hillshade (cool shadow, amber light) is laid over these and pulls them down. */
+  --color-map-terai: #2a4626; /* ~100 m: Terai plains, sal forest (deep green) */
+  --color-map-lowland: #2f4f29; /* ~500 m: Churia / inner Terai forest */
+  --color-map-hills: #3e5e2b; /* ~1,100 m: middle hills, terraces (green olive) */
+  --color-map-midhills: #566b2c; /* ~1,900 m: oak-rhododendron forest (deep olive) */
+  --color-map-ridge: #85803a; /* ~2,900 m: olive-gold forest tops */
+  --color-map-alpine: #b88d46; /* ~3,800 m: golden alpine meadows */
+  --color-map-rock: #b97c60; /* ~4,600 m: rosy-ochre bare rock */
+  --color-map-scree: #dfc3b0; /* ~5,400 m: pale rose scree, ice */
+  --color-map-snow: #fff6ea; /* 6,000 m+: bright warm snow */
   --color-map-light: #ffd29a; /* warm glow (range glow, map accents) */
-  --color-map-sun-dawn: #ffd0a0; /* dawn sun on slopes: pale peach gold */
-  --color-map-sun-sunset: #ffb465; /* sunset sun on slopes: deep amber gold */
-  --color-map-shade: #2a2650; /* cool blue-violet slope shadow */
-  --color-map-skylight: #9db3d8; /* cool sky fill on the shadow side */
+  --color-map-sun-dawn: #ffd6a3; /* dawn sun on slopes: pale peach gold */
+  --color-map-sun-sunset: #ffbc68; /* sunset sun on slopes: deep amber gold */
+  --color-map-shade: #141c30; /* cool, deep, clean slope shadow (slate blue, not violet) */
+  --color-map-skylight: #8fb2dc; /* cool sky fill, only on the shadow side */
   --color-map-outside: #111714; /* veil over land outside Nepal */
   --color-map-haze: #3a312b; /* warm fog at pitched views */
   --color-map-horizon-dawn: #5b4650; /* rosy dawn glow at the horizon */
   --color-map-horizon-sunset: #6b4a30; /* amber sunset glow at the horizon */
+  /* Route, stop markers, labels on the terrain (the San Rita way: pale line, dark blobs, pale ink). */
+  --color-map-route: var(--color-snow); /* the active trip's route: one pale line */
+  --color-map-route-casing: var(--color-night); /* thin dark edge so it reads on bright slopes */
+  --color-map-marker: var(--color-night); /* stop blob fill */
+  --color-map-marker-ink: var(--color-snow); /* stop outline and icon */
+  --text-shadow-map-label: 0 0 1px var(--color-night), 0 0 3px var(--color-night), 0 0 8px color-mix(in oklab, var(--color-night) 65%, transparent); /* tight dark halo behind map labels */
   --ease-map: cubic-bezier(0.6, 0, 0.25, 1); /* camera flights */
   --ease-pop: cubic-bezier(0.34, 1.7, 0.6, 1); /* back-out overshoot for markers, lens */
   --duration-map-flight: 2600ms; /* S0 -> S1, trip -> trip, -> place */

@@ -21,9 +21,15 @@ export const DEM = {
   tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
   encoding: "terrarium" as const,
   tileSize: 256,
-  /** Highest zoom fetched for colour + hillshade; MapLibre overzooms beyond it. */
-  maxzoom: 12,
-  /** The 3D mesh needs less detail than the shading. */
+  /**
+   * Highest zoom fetched for colour + hillshade; MapLibre overzooms (and smears) beyond it. With
+   * 256 px tiles a map at zoom z asks for tile zoom z + 1, so 14 keeps the closest stop views
+   * (map zoom ≤ 13.8) within ~1 level of native: the shading stays crisp instead of being stretched
+   * 4–6× from z12. Tiles exist to z15; distant tiles at pitched views stay at lower zooms, and
+   * nothing is fetched outside `bounds`, so a close view costs a few dozen small PNGs.
+   */
+  maxzoom: 14,
+  /** The 3D mesh needs less detail than the shading (the shading is draped at its own resolution). */
   terrainMaxzoom: 11,
   /** Never request tiles outside this box (lng/lat). */
   bounds: [75.5, 23, 93, 33.5] as [number, number, number, number],
@@ -35,8 +41,9 @@ export const DEM = {
 export const TERRAIN_EXAGGERATION = 1.3;
 
 /**
- * Elevation (m) → relief colour token. Golden-hour colours: dark olive lowland forest → khaki
- * mid-hills → rosy-ochre high ridges → pale rose scree → warm-white snow.
+ * Elevation (m) → relief colour token. Golden-hour colours: deep green lowland forest → deep olive
+ * mid-hills → olive-gold forest tops → golden alpine meadows → rosy-ochre bare ridges → pale rose
+ * scree → bright warm snow.
  */
 export const RELIEF_STOPS: [elevationM: number, token: TokenName][] = [
   [80, "--color-map-terai"],
@@ -53,13 +60,19 @@ export const RELIEF_STOPS: [elevationM: number, token: TokenName][] = [
 /* ---------------------------------------------------------------- light */
 
 /**
- * GOLDEN-HOUR LIGHT. A low warm sun rakes the ridges (golden highlights on the slopes facing it,
- * cool blue-violet shadows on the slopes turned away), and a faint cool sky fill keeps the
- * shadow side from going black.
+ * GOLDEN-HOUR LIGHT. A warm sun rakes the ridges (golden highlights on the slopes facing it, cool,
+ * deep shadows on the slopes turned away), and a faint cool sky fill keeps the shadow side from
+ * going black.
  *
  * MapLibre's `multidirectional` hillshade averages its lights, so each light is worth 1/n. The
- * sun is entered twice (a low and a slightly higher ray, a few degrees apart): that gives it two
+ * sun is entered twice (a ray and a slightly higher one, a few degrees apart): that gives it two
  * thirds of the weight and softens the terminator, like a sun disc rather than a point.
+ *
+ * Altitude is the "neutral slope" in this model: ground lit at less than 30° above its surface is
+ * SHADED. A real golden-hour altitude (~17°) therefore tints even flat valley floors with the
+ * shadow colour, which is the grey-violet veil we had. Around 26–32° flat ground stays neutral to
+ * faintly warm, sun-facing slopes go golden and turned-away slopes go deep and cool: the
+ * golden-hour character comes from the colours, the contrast from `HILLSHADE.exaggeration`.
  *
  * Directions are degrees clockwise from the top of the SCREEN (`anchor: "viewport"`), so the light
  * always falls from the upper half however the camera is turned: light from below the horizon
@@ -69,14 +82,14 @@ export const RELIEF_STOPS: [elevationM: number, token: TokenName][] = [
 export type LightPreset = {
   /** Sun direction, degrees clockwise from the top of the screen. */
   azimuth: number;
-  /** Sun height above the horizon, degrees (golden hour: ~15–25). */
+  /** Sun height above the horizon, degrees (~26–32; below 30 flat ground starts to shade, see above). */
   altitude: number;
   /** Sun colour on lit slopes, and how strongly it tints them (0–1). */
   sun: TokenName;
   sunStrength: number;
-  /** Cool shadow on slopes turned away from the sun (0–1). */
+  /** Cool shadow on slopes turned away from the sun (0–1). High: deep, but only where it belongs. */
   shadowStrength: number;
-  /** Cool sky fill on the shadow side (0–1). */
+  /** Cool sky fill, lifting only the shadow side (0–1). Keep low: it lifts every shadow. */
   skyStrength: number;
   /** Glow where the land meets the sky at pitched views. */
   horizon: TokenName;
@@ -86,21 +99,21 @@ export const LIGHT = {
   /** Pale peach-gold sun from the upper right, a touch higher and softer; rosy horizon. */
   dawn: {
     azimuth: 55,
-    altitude: 22,
+    altitude: 31,
     sun: "--color-map-sun-dawn",
-    sunStrength: 0.7,
-    shadowStrength: 0.68,
-    skyStrength: 0.26,
+    sunStrength: 0.85,
+    shadowStrength: 0.86,
+    skyStrength: 0.16,
     horizon: "--color-map-horizon-dawn",
   },
   /** Deep amber sun from the upper left, lower and warmer; amber horizon. */
   sunset: {
     azimuth: 300,
-    altitude: 17,
+    altitude: 27,
     sun: "--color-map-sun-sunset",
-    sunStrength: 0.78,
-    shadowStrength: 0.74,
-    skyStrength: 0.22,
+    sunStrength: 0.95,
+    shadowStrength: 0.92,
+    skyStrength: 0.12,
     horizon: "--color-map-horizon-sunset",
   },
 } as const satisfies Record<string, LightPreset>;
@@ -124,12 +137,19 @@ export function activeLight(): LightPresetName {
 
 /** How the preset becomes hillshade lights: the second sun ray and the sky fill, relative to the sun. */
 export const HILLSHADE = {
-  /** Strength of the relief derived from the DEM (MapLibre default 0.5). */
-  exaggeration: 0.6,
+  /**
+   * Strength of the relief derived from the DEM by zoom (0–1, MapLibre default 0.5). MapLibre
+   * already exaggerates far zooms itself, so the overview stays moderate and close views (where
+   * real slopes look flat per pixel) get the most sculpting.
+   */
+  exaggeration: [[6, 0.55], [9, 0.72], [11.5, 0.88], [13.5, 1]] as const,
   /** Second, slightly higher sun ray: offsets from the preset's azimuth / altitude. */
   sunSpread: { azimuth: 14, altitude: 9 },
-  /** Sky fill: comes from the opposite side, high up. */
-  sky: { azimuthOffset: 180, altitude: 55, shadow: 0.25 },
+  /**
+   * Sky fill: from the opposite side, at the neutral altitude (30°), so flat ground gets none of
+   * it; it never shades (`shadow` 0), so it cannot veil the sunlit side.
+   */
+  sky: { azimuthOffset: 180, altitude: 30, shadow: 0 },
 };
 
 function hillshadeLights(light: LightPreset) {
@@ -165,15 +185,24 @@ export const GRATICULE = {
   opacity: { major: [[5, 0.16], [9, 0.1], [12, 0.04]], minor: [[6.5, 0], [8, 0.07], [12, 0.03]] } as const,
 };
 
-/** Route lines (px). The active trip route draws over a thin dark casing. */
+/**
+ * Route lines (px). The active trip's route is ONE thin pale line (`--color-map-route`) over a
+ * slightly wider, subtle dark casing (`--color-map-route-casing`) so it reads on bright slopes;
+ * the hand-drawn feel comes from the seeded bows in `handDrawn` (lib/geo.ts).
+ */
 export const ROUTE = {
-  width: [[6, 2], [10, 3.5], [13, 4.5]] as const,
-  casingExtra: 3,
-  casingOpacity: 0.7,
-  blur: 0.6,
-  /** Other trips' routes, shown faintly on the overview and on place pages. */
-  faintOpacity: 0.45,
-  faintWidth: [[6, 1.2], [12, 2.5]] as const,
+  width: [[6, 1.3], [10, 1.9], [13, 2.4], [15, 2.8]] as const,
+  /** Casing width over the line's (both sides together). */
+  casingExtra: 2.2,
+  casingOpacity: 0.5,
+  /** Line edge softness: a little, so it reads drawn rather than vector-sharp. */
+  blur: 0.35,
+  casingBlur: 1,
+  /** Other trips' routes, shown faintly (and dashed: not this trip) on the overview and place pages. */
+  faintOpacity: 0.42,
+  faintWidth: [[6, 1], [12, 1.8]] as const,
+  /** Dash and gap, in line widths (other trips' routes; reuse for alternatives / side trips). */
+  dash: [2.2, 2] as const,
 };
 
 /** Soft glow along a mountain range while one of its peaks (or the range itself) is open. */
@@ -181,9 +210,11 @@ export const RANGE_GLOW = { opacity: 0.32, width: [[7, 40], [10, 120], [12, 260]
 
 /**
  * Sky and haze at pitched views: warm fog over the distant ground, a low glow in the light
- * preset's horizon colour, fading up into the dark page.
+ * preset's horizon colour, fading up into the dark page. MapLibre fogs the ground only from pitch
+ * 60° up; `fogGroundBlend` is where the fog starts between the map centre (0) and the horizon (1),
+ * so 0.84 keeps it to the far distance and leaves near and mid ground clear.
  */
-export const SKY = { fogGroundBlend: 0.45, horizonFogBlend: 0.6, skyHorizonBlend: 0.7 };
+export const SKY = { fogGroundBlend: 0.84, horizonFogBlend: 0.55, skyHorizonBlend: 0.7 };
 
 /* --------------------------------------------------------- source / ids */
 
@@ -247,7 +278,8 @@ const EMPTY = { type: "FeatureCollection" as const, features: [] };
 export function buildStyle({ terrain }: { terrain: boolean }): StyleSpecification {
   const c = (name: TokenName) => readToken(name);
   const relief = RELIEF_STOPS.flatMap(([m, token]) => [m, c(token)]);
-  const route = c("--color-route");
+  const route = c("--color-map-route");
+  const casing = c("--color-map-route-casing");
   const night = c("--color-night");
   const light = LIGHT[activeLight()];
   const lights = hillshadeLights(light);
@@ -302,7 +334,7 @@ export function buildStyle({ terrain }: { terrain: boolean }): StyleSpecificatio
         source: SRC.dem,
         paint: {
           "hillshade-method": "multidirectional",
-          "hillshade-exaggeration": HILLSHADE.exaggeration,
+          "hillshade-exaggeration": byZoom(HILLSHADE.exaggeration),
           "hillshade-illumination-anchor": "viewport",
           "hillshade-illumination-direction": lights.map((l) => l.direction),
           "hillshade-illumination-altitude": lights.map((l) => l.altitude),
@@ -386,7 +418,7 @@ export function buildStyle({ terrain }: { terrain: boolean }): StyleSpecificatio
           "line-color": route,
           "line-width": byZoom(ROUTE.faintWidth),
           "line-opacity": ROUTE.faintOpacity,
-          "line-blur": ROUTE.blur,
+          "line-dasharray": [...ROUTE.dash],
         },
       },
       {
@@ -396,10 +428,10 @@ export function buildStyle({ terrain }: { terrain: boolean }): StyleSpecificatio
         filter: ["==", ["get", "slug"], ""],
         layout: { "line-cap": "round", "line-join": "round" },
         paint: {
-          "line-gradient": solidGradient(night),
+          "line-gradient": solidGradient(casing),
           "line-width": byZoom(ROUTE.width.map(([z, w]) => [z, w + ROUTE.casingExtra] as const)),
           "line-opacity": ROUTE.casingOpacity,
-          "line-blur": ROUTE.blur,
+          "line-blur": ROUTE.casingBlur,
         },
       },
       {

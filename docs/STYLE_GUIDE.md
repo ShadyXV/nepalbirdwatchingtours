@@ -129,11 +129,11 @@ All map styling uses the palette above. Hex values are for SVG and MapLibre styl
 
 | Element | Spec |
 |---|---|
-| Main route | Solid, 4px, `line` (`#3FB8AE`), round caps and joins |
+| Main route (map) | One thin pale line, ~1.3–2.8px by zoom, `snow` (`--color-map-route`), slightly hand-drawn, over a subtle `night` casing; round caps and joins. `line` teal stays the UI's route colour, not the map's |
 | Alternative route | Dashed, 3px, `violet` (`#7D6BC4`), dash `6 6` |
-| Waypoint blob marker | Circle, 14px diameter, fill `rhodo` (`#C8323C`), 2px `snow` stroke, soft `night` drop shadow |
+| Waypoint blob marker | Irregular hand-drawn blob, fill `night`, bold `snow` outline (2.25px key / 1.5px other), `snow` line icon inside (teahouse, binoculars, tent, peak, water); key ~30px, other ~19px; active inverts with a thin `monal` ring. See docs/MAP.md "Stop markers" |
 | POI icon circle | 28px diameter, fill `surface` (`#18211D`), 1.5px `monal` ring, icon in `snow` |
-| Highlight "lens" | Circle, 1px `snow` ring at 60% opacity, radial fill from `monal` at 18% to 0% at the edge. Marks a bird-watching hotspot |
+| Highlight "lens" | Circle, 1px `snow` ring at ~78% with a faint dark hairline outside, four short ticks, faint grid; no fill |
 | Faint grid | 1px lines in `mist` (`#9AA8A2`) at 8% opacity, 40px spacing. Fades out towards the edges |
 | Clouds / fog | Blurred shapes (blur 24 to 40px) in `snow` at 10% to 25% opacity. Keep them in the top third of the map |
 | Terrain hints | Lowland `forest` (`#2F5D46`) → hills `#5E7F5A` → ochre ridges `ochre` (`#B8934A`) → snow `snow` (`#EEF4F1`). Use gradient bands by elevation, never saturated |

@@ -8,28 +8,38 @@ How the map is built, its states, and where to retune it. Intent lives in `VISIO
 - **MapLibre GL 6**, client only. `app/routes/map-layout.tsx` lazy-loads `NepalMap` after hydration,
   so prerendered pages never touch `window` and the ~290 kB (gzip) map chunk loads after first paint.
 - **No basemap.** The look is two layers over one elevation source (`look.ts`), lit for golden hour:
-  - `color-relief`: colours by elevation: dark olive lowland forest → khaki mid-hills → rosy-ochre
-    high ridges → pale rose scree → warm-white snow;
-  - `hillshade`, `multidirectional` method: a low warm sun (two close rays, so it has two thirds of
-    the weight and a soft terminator) gives golden lit slopes and cool blue-violet shadows, plus a
-    faint cool sky fill from the opposite side. Anchored to the viewport so the light always comes
-    from the upper half of the screen (light from below makes valleys read as ridges).
-  - Sky / fog at pitched views: warm haze on the distant ground, a dawn-rose or sunset-amber glow at
-    the horizon, fading into the dark page.
+  - `color-relief`: rich, saturated colours by elevation: deep green lowland forest → deep olive
+    mid-hills → olive-gold forest tops → golden alpine meadows → rosy-ochre bare ridges → pale rose
+    scree → bright warm snow;
+  - `hillshade`, `multidirectional` method: a warm sun (two close rays, so it has two thirds of the
+    weight and a soft terminator) gives golden lit slopes and deep, clean slate-blue shadows, plus a
+    faint cool sky fill that only lifts the shadow side. Relief strength rises with zoom
+    (`HILLSHADE.exaggeration`). Anchored to the viewport so the light always comes from the upper
+    half of the screen (light from below makes valleys read as ridges).
+  - Sky / fog at pitched views: warm haze only on the far ground (MapLibre fogs the ground from
+    pitch 60° up, from `SKY.fogGroundBlend` of the way to the horizon), a dawn-rose or sunset-amber
+    glow at the horizon, fading into the dark page.
   - Elevation: public Terrarium tiles (AWS Terrain Tiles / Mapzen), limited to a box around Nepal.
+    Colour + shading fetch up to z14 (`DEM.maxzoom`), so close stop views stay crisp; the 3D mesh
+    stops at z11 (`DEM.terrainMaxzoom`), it needs far less detail.
 - **Outside Nepal** is muted by its own layer, `outside-veil` (a world rectangle with Nepal cut out,
   from `public/geo/nepal.geojson`: Natural Earth 1:10m, simplified to ~630 points, 11 kB), plus a soft
   dark edge and a hairline border.
-- **Graticule** (generated 0.5° lines, faint, fading with zoom), **paper grain**, **cloud patches** and
-  an **edge vignette**: the last three are static DOM over the canvas (`map.css`), no per-frame cost.
+- **Graticule** (generated 0.5° lines, faint, fading with zoom), **paper grain** (a fine dark stipple:
+  texture without lifting the shadows), **cloud patches** (faint at closer views) and an **edge
+  vignette**: the last three are static DOM over the canvas (`map.css`), no per-frame cost.
 - **3D**: `setTerrain` with exaggeration 1.3 on capable devices. Off with Save-Data, low memory or few
   cores, and dropped at runtime after repeated slow frames during camera moves (then pixel ratio 1).
   Pixel ratio is capped at 2. Rendering is on demand: nothing runs while the map is idle.
 - **Labels, pins and stops are DOM markers** (`markers.ts`, styled in `map.css`) so they use the site
   fonts; no glyph pipeline. A collision pass (`labels.ts`) runs when the camera settles, never per frame.
 - **Routes**: one GeoJSON source with every trip, `lineMetrics: true`. Lines are slightly hand-drawn
-  (seeded bows + Chaikin smoothing, `lib/geo.ts`). The active route draws in by animating
-  `line-gradient` over `line-progress` (`routeDraw.ts`); other routes stay faint.
+  (seeded bows + Chaikin smoothing, `handDrawn` in `lib/geo.ts`). A segment's bow depends only on
+  its two end points, so out-and-back legs (Chhomrong ⇄ ABC, Poon Hill) stay ONE line; seeding by
+  position made the two legs bow apart into two parallel lines. The active route is one thin pale
+  line (`--color-map-route`, snow) over a subtle dark casing (`--color-map-route-casing`); it
+  draws in by animating `line-gradient` over `line-progress` (`routeDraw.ts`, which always uses the
+  map route tokens). Other trips' routes stay faint and dashed.
 - **Camera framings** are computed from the content (`camera.ts`), so new trips and places frame
   themselves. `controller.ts` turns the URL state into markers, layers and camera moves.
 
@@ -38,13 +48,35 @@ How the map is built, its states, and where to retune it. Intent lives in `VISIO
 | State | URL | Map |
 |---|---|---|
 | S0 overview | `/` | All of Nepal on landscape screens; on portrait phones the band holding the trips and tier-1 places (all of Nepal would be a thin strip there). Bearing 17° lays Nepal level, pitch 20°. Trip pins: cover photo in a blob frame, name, "142 birds" (number in the accent italic). On narrow maps only the previewed pin shows its name. Swiping the home trip cards raises that pin and (phones) eases the camera to it, once the user is idle. |
-| S1 trip | `/trips/:slug` | `flyTo` (~2.6 s) to the route's fit, pitch 45°, bearing along the route, then checked for visibility (the key stops must not hide behind ridges). The route draws in from ~55% of the flight; stops pop in with a stagger. Key stops are full blobs (stays filled rhododendron, birding spots hollow monal-ringed); other stops are small quiet dots. After arrival the **autoplay** starts (below). |
-| S2 stop | `?stop=<id>` | A deliberate step: pan + turn + tilt (`--duration-map-step`, 1.4 s; a small fly arc beyond 6 km) to a camera that can see the stop. Lens (ring, faint grid, warm glow); other stops dimmed. Closing the stop returns to the exact camera from before. |
+| S1 trip | `/trips/:slug` | `flyTo` (~2.6 s) to the route's fit, pitch 45°, bearing along the route, then checked for visibility (the key stops must not hide behind ridges). The route draws in from ~55% of the flight; stops pop in with a stagger. Stops are dark hand-drawn blobs with a bold pale outline and a line icon (below); key stops large, other stops smaller and quieter. After arrival the **autoplay** starts (below). |
+| S2 stop | `?stop=<id>` | A deliberate step: pan + turn + tilt (`--duration-map-step`, 1.4 s; a small fly arc beyond 6 km) to a camera that can see the stop. The stop inverts (pale blob, dark icon, thin copper ring); lens (thin pale ring with four ticks, faint grid, no fill); other stops dimmed. Closing the stop returns to the exact camera from before. |
 | S3 place | `/places/:id` | Framed by kind. Peaks: a low camera (pitch 62°) looking at the face from the nearest trip stop or city, then turned / lowered until the summit is not hidden. Its range glows softly. |
 
 Direct landings start already framed (no flight, no draw, no pop), then correct the camera once
 the elevation data is in if the subject was hidden (only if the user hasn't touched the map).
 Reduced motion: jumps, no draw, no pop, no lens animation; autoplay steps the highlight in place.
+
+## Stop markers (`markers.ts`, `map.css`)
+
+After the San Rita markers: a dark, slightly irregular blob (`--color-map-marker`, night; seeded
+by the stop id, `STOP_BLOB`) with a bold pale outline and a line icon inside
+(`--color-map-marker-ink`, snow), all icons drawn on one 24-unit grid in one stroke weight
+(`STOP_ICONS`, no icon library). `stopIcon()` picks it:
+
+| Icon | Used for |
+|---|---|
+| teahouse / lodge | stays (`nights > 0`), unless `stay.kind` is `camp` |
+| tent | camp nights; pass-through `camp` stops (base camps) |
+| peak | `viewpoint`, `pass` |
+| water | `river`, `wetland` |
+| binoculars | every other pass-through stop (villages, forest, gates: birding on the way) |
+
+Key stops: `--stop-size` 1.9rem, 2.25px outline, 1.5px icon. Other stops: 1.2rem, 1.5px outline,
+1.25px icon, ink a little dimmer. Active: the blob inverts (pale fill, dark outline and icon),
+grows (`--stop-active-scale`) and gets a thin copper ring (`STOP_RING_SCALE`). Behind a ridge:
+translucent fill, dashed outline. Labels: label caps in snow with a tight dark halo
+(`--text-shadow-map-label`); no orange or muted-grey text on the terrain (hover / open place
+names get a copper underline instead).
 
 ## Gestures (`gestures.ts`)
 
@@ -152,14 +184,21 @@ Peek sizes live in `app/lib/mapLayout.ts`, shared by the CSS and the camera padd
 
 | What | Where |
 |---|---|
-| Terrain colours, light/shade colours, outside veil, haze | `app/design/tokens.css`, group 4 "MAP" (mirror in `tokens.ts`) |
+| Terrain colours, light/shade colours, outside veil, haze, route / marker colours, map label halo | `app/design/tokens.css`, group 4 "MAP" (mirror in `tokens.ts`): `--color-map-*`, `--color-map-route(-casing)`, `--color-map-marker(-ink)`, `--text-shadow-map-label` |
 | Elevation stops of the colour bands | `RELIEF_STOPS` in `components/map/look.ts` |
 | Sun: direction, height, colour, strength of light / shadow / sky fill, horizon glow | `LIGHT` presets in `look.ts` (`dawn`, `sunset`); `DEFAULT_LIGHT` picks one; `?light=dawn\|sunset` in development compares them (reload) |
-| Hillshade mechanics: relief strength, second sun ray, sky fill direction | `HILLSHADE` in `look.ts` |
-| Outside-Nepal veil, border, graticule, route widths, range glow, sky/fog | `OUTSIDE`, `GRATICULE`, `ROUTE`, `RANGE_GLOW`, `SKY` in `look.ts` |
+| Hillshade mechanics: relief strength by zoom (`exaggeration`, 0–1), second sun ray, sky fill direction | `HILLSHADE` in `look.ts` |
+| Elevation detail: shading / colour tile zoom, 3D mesh zoom | `DEM.maxzoom` (14), `DEM.terrainMaxzoom` (11) in `look.ts`; each +1 is ~4× the tiles of a close view |
+| Outside-Nepal veil, border, graticule, range glow | `OUTSIDE`, `GRATICULE`, `RANGE_GLOW` in `look.ts` |
+| Route: widths by zoom, casing width / opacity / blur, faint routes, dash | `ROUTE` in `look.ts` |
+| Haze / fog at pitched views (where it starts, horizon blend) | `SKY` in `look.ts` (`fogGroundBlend` 0.84: far distance only) |
+| Stop icons, which icon a stop gets, blob wobble, active ring | `STOP_ICONS`, `stopIcon()`, `STOP_BLOB`, `STOP_RING_SCALE`, `STOP_ICON_SCALE` in `markers.ts` |
+| Stop sizes and strokes per tier, active scale | `--stop-size`, `--stop-outline`, `--stop-icon-stroke`, `--stop-active-scale` on `.nbt-stop` / `.nbt-stop--minor` in `map.css` |
+| Lens size, ring / tick / grid strength | `.nbt-lens` (`--lens-size`, `--lens-ink`) in `map.css` |
+| Paper grain, cloud patches | `.nbt-map__grain`, `.nbt-map__clouds` in `map.css` |
 | 3D exaggeration | `TERRAIN_EXAGGERATION` in `look.ts` |
 | Pitch, bearing, zoom limits, margins per state | `CAMERA` in `components/map/camera.ts` |
-| Bounds and zoom limits | `CAMERA.softBoundsMargin` (soft edge, degrees past Nepal's outline, lng/lat), `CAMERA.hardBoundsMargin` (MapLibre maxBounds), `CAMERA.minZoomSlack` (zoom-out limit below the all-of-Nepal fit, recomputed on resize), `CAMERA.maxZoom` (14.5; the DEM ends at z12) |
+| Bounds and zoom limits | `CAMERA.softBoundsMargin` (soft edge, degrees past Nepal's outline, lng/lat), `CAMERA.hardBoundsMargin` (MapLibre maxBounds), `CAMERA.minZoomSlack` (zoom-out limit below the all-of-Nepal fit, recomputed on resize), `CAMERA.maxZoom` (14.5; the shading DEM ends at z14) |
 | Gestures: inertia, idle time before automatic moves, reset-view threshold | `CAMERA.inertia`, `CAMERA.userIdleMs`, `CAMERA.adjustedDeg` |
 | Visibility search (pitches, bearing steps / spans per state, wait, prefetch area) | `CAMERA.stop/trip/place.visibility`, `CAMERA.visibilityWaitMs`, `CAMERA.visibilityMarginKm`; sampling and margin in `VISIBILITY` (`visibility.ts`) |
 | Stepping / autoplay | `--duration-map-step`, `--duration-tour-glide`, `--duration-tour-dwell` (tokens), `CAMERA.stepFlyKm`, `CAMERA.tour` |
@@ -177,10 +216,16 @@ Peek sizes live in `app/lib/mapLayout.ts`, shared by the CSS and the camera padd
 
 | Preset | Sun | Look |
 |---|---|---|
-| `sunset` (default) | from the upper left (300°), 17° up, deep amber `--color-map-sun-sunset` | warmer, longer shadows, amber horizon |
-| `dawn` | from the upper right (55°), 22° up, pale peach-gold `--color-map-sun-dawn` | softer and a little paler, rosy horizon |
+| `sunset` (default) | from the upper left (300°), 27° up, deep amber `--color-map-sun-sunset`, light 0.95 / shadow 0.92 / sky 0.12 | warmer, deeper shadows, amber horizon |
+| `dawn` | from the upper right (55°), 31° up, pale peach-gold `--color-map-sun-dawn`, light 0.85 / shadow 0.86 / sky 0.16 | softer and a little paler, rosy horizon |
 
-Shadows are `--color-map-shade` (cool blue-violet), the sky fill is `--color-map-skylight`. In
+Why not a real golden-hour altitude (~17°): in MapLibre's hillshade a slope lit at less than 30°
+is SHADED, so a low sun tints even flat valley floors with the shadow colour (the grey-violet veil
+of the first version). Around 26–32° flat ground stays neutral to faintly warm, sun-facing slopes go
+golden and turned-away slopes deep; the golden-hour mood comes from the colours. The sky fill sits
+at the neutral 30° and never shades, so it only lifts the shadow side.
+
+Shadows are `--color-map-shade` (deep slate blue), the sky fill is `--color-map-skylight`. In
 development, add `?light=dawn` or `?light=sunset` to any map URL and reload to compare; production
 builds ignore the parameter. Directions are relative to the screen, so the light stays the same
 however the camera turns (a deliberate trade against real-world sun positions).

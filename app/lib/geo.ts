@@ -188,18 +188,25 @@ export function seededRandom(seed: string): () => number {
 /**
  * A slightly hand-drawn version of a line: each long segment gets a soft sideways bow
  * (a fraction of its length, seeded so it never changes between renders), then Chaikin smoothing.
+ *
+ * The bow depends only on the segment's two end points, not on their order or position in the
+ * line: a trail walked out and back (A→B … B→A) bows the same way both times, so the two legs
+ * stay one line instead of splitting into two parallel ones.
  */
 export function handDrawn(points: LngLat[], seed: string, bow = 0.06): LngLat[] {
   if (points.length < 2) return points;
-  const rand = seededRandom(seed);
+  const key = ([x, y]: LngLat) => `${x.toFixed(5)},${y.toFixed(5)}`;
   const bowed: LngLat[] = [points[0]];
   for (let i = 0; i < points.length - 1; i++) {
-    const [ax, ay] = points[i];
-    const [bx, by] = points[i + 1];
-    const dx = bx - ax, dy = by - ay;
-    const amount = (rand() - 0.5) * 2 * bow;
+    const a = points[i];
+    const b = points[i + 1];
+    // Canonical order, so A→B and B→A get the same bow and the same midpoint.
+    const [ka, kb] = [key(a), key(b)];
+    const [[px, py], [qx, qy]] = ka <= kb ? [a, b] : [b, a];
+    const dx = qx - px, dy = qy - py;
+    const amount = (seededRandom(`${seed}|${ka <= kb ? ka : kb}|${ka <= kb ? kb : ka}`)() - 0.5) * 2 * bow;
     // Midpoint pushed perpendicular to the segment.
-    bowed.push([ax + dx / 2 - dy * amount, ay + dy / 2 + dx * amount], [bx, by]);
+    bowed.push([px + dx / 2 - dy * amount, py + dy / 2 + dx * amount], b);
   }
   return chaikin(bowed, 2);
 }
