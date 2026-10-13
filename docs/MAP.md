@@ -48,13 +48,13 @@ How the map is built, its states, and where to retune it. Intent lives in `VISIO
 | State | URL | Map |
 |---|---|---|
 | S0 overview | `/` | All of Nepal on landscape screens; on portrait phones the band holding the trips and tier-1 places (all of Nepal would be a thin strip there). Bearing 17° lays Nepal level, pitch 20°. Trip pins: cover photo in a blob frame, name, "142 birds" (number in the accent italic). On narrow maps only the previewed pin shows its name. Swiping the home trip cards raises that pin and (phones) eases the camera to it, once the user is idle. |
-| S1 trip | `/trips/:slug` | `flyTo` (~2.6 s) to the route's fit, pitch 45°, bearing along the route, then checked for visibility (the key stops must not hide behind ridges). The route draws in from ~55% of the flight; stops pop in with a stagger. Stops are dark hand-drawn blobs with a bold pale outline and a line icon (below); key stops large, other stops smaller and quieter. After arrival the **autoplay** starts (below). |
+| S1 trip | `/trips/:slug` | `flyTo` (~2.6 s) to the route's fit, pitch 45°, bearing along the route, then checked for visibility (the key stops must not hide behind ridges). The route draws in from ~55% of the flight; stops pop in with a stagger. Stops are dark hand-drawn blobs with a bold pale outline and a line icon (below); key stops large, other stops smaller and quieter. The navigator pill (top) steps through the key stops; "Start the journey" opens the day view. |
 | S2 stop | `?stop=<id>` | A deliberate step: pan + turn + tilt (`--duration-map-step`, 1.4 s; a small fly arc beyond 6 km) to a camera that can see the stop. The stop inverts (pale blob, dark icon, thin copper ring); lens (thin pale ring with four ticks, faint grid, no fill); other stops dimmed. Closing the stop returns to the exact camera from before. |
 | S3 place | `/places/:id` | Framed by kind. Peaks: a low camera (pitch 62°) looking at the face from the nearest trip stop or city, then turned / lowered until the summit is not hidden. Its range glows softly. |
 
 Direct landings start already framed (no flight, no draw, no pop), then correct the camera once
 the elevation data is in if the subject was hidden (only if the user hasn't touched the map).
-Reduced motion: jumps, no draw, no pop, no lens animation; autoplay steps the highlight in place.
+Reduced motion: jumps, no draw, no pop, no lens animation.
 
 ## Stop markers (`markers.ts`, `map.css`)
 
@@ -94,9 +94,37 @@ The map is always a real, explorable map; automatic moves never fight the user.
 - **Soft edge**: a pan that ends with the centre more than `CAMERA.softBoundsMargin` past Nepal's
   outline eases back inside; MapLibre's hard `maxBounds` is far out (`hardBoundsMargin`), a safety net.
 - **Reset view** appears (right edge) once the user turns or tilts more than `CAMERA.adjustedDeg`
-  from where the app put the camera: north up, the state's default tilt. Zoom +/− show on desktop.
-- **User first**: any user camera input pauses the autoplay and cancels a pending start; the home
-  preview easing waits until the user has been idle for `CAMERA.userIdleMs`.
+  from where the app put the camera; it restores the state's own bearing and tilt (the visibility-
+  checked view; in the day view, the straightened day camera), keeping the centre and zoom.
+- **Orbit** is the primary map control (below). Zoom +/− are demoted: two small buttons under it, on
+  desktop pointers only (hidden on phones, where pinch zooms, and in the day view).
+- **Day view** (`journey` mode): no pan, zoom or MapLibre rotate; scroll, swipe and keys step the
+  days (`docs/JOURNEY.md`), and only the orbit may turn the camera.
+- **User first**: the home preview easing waits until the user has been idle for
+  `CAMERA.userIdleMs`; automatic camera moves never fight the user.
+
+## Orbit (`orbit.ts`)
+
+In mountains seen in our near-isometric perspective, looking *around* a ridge (to see a stop that a
+valley hides) is more useful than zooming in, so the main control turns the camera around the point
+in focus, keeping pitch and zoom.
+
+- **Focus point**: in the day view the tapped stop or the day's anchor; else the focused stop (URL
+  or engine); else the open place; else (or when that point is off screen) the screen centre.
+- **↺ ↻ buttons** (right edge, thumb-sized on touch screens): a tap turns `CAMERA.orbitStepDeg` (35°)
+  over `CAMERA.orbitMs` (700 ms, `--ease-map`); press and hold longer than `CAMERA.orbitHoldMs`
+  (320 ms) keeps turning at `CAMERA.orbitDegPerSec` (24°/s) until release. ↺ turns the scene
+  anticlockwise (bearing grows).
+- **Keys**: Q / E (and Shift + ← / →), tap or hold, anywhere on a map page (not while typing or
+  with the inquiry drawer open).
+- **Right-drag / Ctrl-drag** (desktop): with a focus point on screen, horizontal drag orbits around
+  it and vertical drag tilts (MapLibre's own drag-rotate, which turns around the centre, is switched
+  off for that gesture); without one, MapLibre's drag-rotate as before.
+- How: the camera centre C rotates around the focus F in Web Mercator, `C' = F − R(θ)(F − C)`, while
+  the bearing turns by θ; one rAF loop only while turning. It counts as the user's camera input
+  (shows "reset view"). The visibility check is not applied to a look-around; in
+  the day view the next day step straightens the camera again.
+- Reduced motion: one instant 45° snap per tap (`CAMERA.orbitReducedDeg`), no continuous orbit.
 
 ## Hover reveal (`reveal.ts`)
 
@@ -135,24 +163,22 @@ trip opens (usually from the HTTP cache, ~10–16 tiles); a camera move waits at
 `CAMERA.visibilityWaitMs` for it, then goes ahead with the geometric view. No 3D terrain → no check.
 Stops still hidden behind terrain stay visible (dashed, translucent) rather than fading out.
 
-## Stepping engine (controller.ts) and autoplay (tour.ts)
+## Stepping engine (controller.ts)
 
 The engine focuses a trip's stops one at a time: highlight + visibility-aware camera, with a camera
-history. It is camera-only (never touches the URL), so a future scroll-driven trip journey can drive
-it directly. React gets it from `NepalMap`'s `onReady(api)`; the map layout passes it to pages as
+history. It is camera-only (never touches the URL). React gets it from `NepalMap`'s `onReady(api)`; the map layout passes it to pages as
 `useMapLayoutContext().map`, with the live state as `.step`.
 
 ```ts
 type StepperApi = {
-  goToStop(index: number, options?: { direction?: 1 | -1; source?: "engine" | "autoplay" | "url" }): Promise<void>;
+  goToStop(index: number, options?: { direction?: 1 | -1; source?: "engine" | "url" }): Promise<void>;
   next(options?): Promise<boolean>;   // false: no next key stop (nothing moves)
   prev(options?): Promise<boolean>;
   back(): Promise<void>;              // to exactly where the camera was before stepping began
-  play(): void;                       // autoplay: step, dwell, step … then back() and end
-  pause(): void;
-  state(): StepState;                 // { tripSlug, keyStopIds, index, waypointId, source, autoplay }
+  state(): StepState;                 // { tripSlug, keyStopIds, index, waypointId, source }
 };
-// MapApi = StepperApi & { resetView, zoomIn, zoomOut, setOutsideVeil, nepalOutlinePath }
+// MapApi = StepperApi & JourneyApi (docs/JOURNEY.md) & OrbitApi
+//          & { resetView, zoomIn, zoomOut, setOutsideVeil, nepalOutlinePath }
 ```
 
 - Indexes are into the **key stops** (`app/lib/tripStops.ts`: `waypoint.key`; falls back to overnight
@@ -161,14 +187,11 @@ type StepperApi = {
 - **Camera history**: the first focus remembers the camera; `back()` returns there exactly. The URL
   flow uses it too: opening a stop pushes one history entry, stepping replaces it, closing it (Esc,
   tapping the stop again, browser Back) pops it and calls `back()`.
-- **Autoplay** (`Autoplay` in `tour.ts`) is an automatic `next()` on a timer: glide
-  (`--duration-tour-glide`, framed `CAMERA.tour.zoomOut` wider), dwell (`--duration-tour-dwell`),
-  next; at the end `back()` to the whole route and "ended". It starts after the arrival choreography
-  (in-app) or ~2.6 s after a direct landing, only without `?stop`. Any tap, drag, pinch, wheel, key
-  or page scroll pauses it (elements marked `data-map-control` are exempt); a hidden tab pauses and
-  resumes it. Reduced motion: the highlight steps in place, the camera stays.
-- The current trip page uses it through a minimal on-map `StopStepper` (‹ DAY 4 · NAME ›, play /
-  pause, ← → and Esc keys), which writes `?stop=`; the trip page itself is to be redesigned.
+- The auto-tour (autoplay) was removed in favour of "Start the journey" (the day view).
+- The trip overview uses it through the on-map navigator (`StopStepper`, `navigator.css`): a compact
+  stepper pill at the top of the map (‹ DAY 4 · NAME ›, ← → and Esc keys), which writes `?stop=`;
+  "Start the journey" above the story's peek; and, on the story's top edge, a round marker-style
+  button that brings the story up (and, once it is up, back to the map).
 
 ## Layout and scroll
 
@@ -198,15 +221,17 @@ Peek sizes live in `app/lib/mapLayout.ts`, shared by the CSS and the camera padd
 | Paper grain, cloud patches | `.nbt-map__grain`, `.nbt-map__clouds` in `map.css` |
 | 3D exaggeration | `TERRAIN_EXAGGERATION` in `look.ts` |
 | Pitch, bearing, zoom limits, margins per state | `CAMERA` in `components/map/camera.ts` |
+| Day view camera (pitch, zoom range, visibility, move durations) / mood and day overlay | `CAMERA.day` / `DAY_MOOD`, `DAY_ROUTE` in `controller.ts` (see `docs/JOURNEY.md`) |
+| Orbit (step, duration, hold, speed, reduced-motion snap) | `CAMERA.orbitStepDeg`, `orbitMs`, `orbitHoldMs`, `orbitDegPerSec`, `orbitReducedDeg`; look in `components/map/controls.css` |
 | Bounds and zoom limits | `CAMERA.softBoundsMargin` (soft edge, degrees past Nepal's outline, lng/lat), `CAMERA.hardBoundsMargin` (MapLibre maxBounds), `CAMERA.minZoomSlack` (zoom-out limit below the all-of-Nepal fit, recomputed on resize), `CAMERA.maxZoom` (14.5; the shading DEM ends at z14) |
 | Gestures: inertia, idle time before automatic moves, reset-view threshold | `CAMERA.inertia`, `CAMERA.userIdleMs`, `CAMERA.adjustedDeg` |
 | Visibility search (pitches, bearing steps / spans per state, wait, prefetch area) | `CAMERA.stop/trip/place.visibility`, `CAMERA.visibilityWaitMs`, `CAMERA.visibilityMarginKm`; sampling and margin in `VISIBILITY` (`visibility.ts`) |
-| Stepping / autoplay | `--duration-map-step`, `--duration-tour-glide`, `--duration-tour-dwell` (tokens), `CAMERA.stepFlyKm`, `CAMERA.tour` |
+| Stepping | `--duration-map-step` (tokens), `CAMERA.stepFlyKm` |
 | Flight / ease / draw / pop timings and easings | `--duration-map-*`, `--duration-route-draw`, `--duration-pop`, `--duration-soft-edge`, `--ease-map`, `--ease-pop` in tokens |
 | When the route draws / stops pop during a flight | `DRAW_AT`, `POP_AT` in `controller.ts` |
 | Label tiers by zoom, label priority | top of `controller.ts`, `labelPriority()` |
 | Hover reveal: delays, sizes, crossfade interval / feather and caption | `REVEAL` in `components/map/reveal.ts` / `.nbt-reveal` in `map.css` |
-| Pin, stop (key / minor / covered), lens, autoplay tag, label, map controls look | `components/map/map.css`; stepper in `layout.css` |
+| Pin, stop (key / minor / covered), lens, engine tag, label, map controls look | `components/map/map.css`; orbit / zoom in `controls.css`; navigator and story button in `navigator.css` (stepper base in `layout.css`) |
 | Peeks, stepper room | `MAP_LAYOUT` in `app/lib/mapLayout.ts` |
 | Frame-rate budget for dropping 3D | `perf.ts` |
 
@@ -272,9 +297,10 @@ is a **baked relief raster**, rendered once on the owner's machine and draped ov
   an SVG path in map pixels. Planned use: on desktop home, hovering a trip fades a large trip photo
   in behind the map, strong outside Nepal (veil lowered, or the path as a CSS/SVG mask) and faint
   inside. Available through `useMapLayoutContext().map`; not used yet.
-- **Trip journey** (planned, San Rita projects-style): drive `map.goToStop / next / prev / back`
-  from scroll and turn the map's gestures off in that mode; the engine already handles camera,
-  visibility, highlight, history and reduced motion.
+- **Day view** ("the journey", built): `docs/JOURNEY.md`. The controller's `JourneyApi`
+  (`openJourney / goToDay / focusDayStop / closeJourney / setMapMood / visiblePeaks`) straightens
+  each day, mutes the map with paint overrides (restored on exit) and draws today's stretch as a
+  runtime overlay; React (`components/journey`) owns the URL and the composition.
 
 ## Known limitations / next steps
 
