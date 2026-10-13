@@ -89,10 +89,10 @@ well. The card carousel is the primary picker and the map follows it.
 │    route draws in        │  map gestures active here
 │   ●──●───●──── ●         │  stops pop in; tap a stop → S2
 │        ▲ Langtang Lirung │
-├──── drag handle ─────────┤  sheet peek (~35% height), always visible
-│ 9 DAYS · 3,870 M · 142 🐦│
-│ ‹ Day 1 Syabrubesi › ‹D3›│  stop stepper (swipe) ↔ camera follows
-│ [Inquire about this trip]│
+├──── drag handle ─────────┤  slim peek: navigation only, no dense facts
+│ ANNAPURNA BIRDING TREK   │
+│ ‹  DAY 4 · TADAPANI  ›  ▶│  stop stepper ↔ camera follows; ▶ = auto-tour
+│ [Inquire]   story ↓      │
 └──────────────────────────┘
    ↑ drag or scroll the sheet: it expands into the trip story (page scroll)
 ┌──────────────────────────┐
@@ -181,9 +181,13 @@ and places can link straight to the relevant one.
 
 ## Desktop (≥ 1024 px)
 
-Same states. The sheet becomes a left column (about 28–32 rem) that scrolls independently, and the map
-fills the rest. Giant headlines overlap the map from the column edge. Pins are big enough alone, so the
-card carousel becomes a hover-synced list. An optional cursor-following lens appears in S1/S2.
+Same states, and **no content sidebar**. On trip and place pages the map fills the screen, as on home.
+A **small floating navigator** carries only navigation: trip or place name, the stop stepper
+(`DAY 4 ‹ › TADAPANI`), play/pause for the auto-tour, Inquire, and a "scroll for the story ↓" cue.
+**Scrolling reveals the story** as a dark overlay rising from below (as on the home page): giant
+headline overlapping the map's edge, then memories and photos, then the compact itinerary, what you
+might see, and practical facts. Scroll back up and the map is whole again. Pins are big enough alone, so
+the home card carousel becomes a hover-synced list. An optional cursor-following lens appears in S1/S2.
 
 ## Motion (tokens in `app/design/tokens.css`)
 
