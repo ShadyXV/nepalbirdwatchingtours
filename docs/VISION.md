@@ -110,6 +110,11 @@ screens kept cleanly separated so the site can grow.
   page, hovering a trip (card or pin) fades a large photo from that trip, such as a bird, in behind the
   map: strongly visible **outside Nepal's border**, faintly through the terrain inside it; crossfades
   between trips. Phone equivalent to decide (e.g. the card in view while swiping).
+- **Refinement, later: golden-hour baked relief.** The live golden light (option A) is in place now. The
+  signature version (option B) comes later: Nepal rendered once on the owner's machine with land-cover
+  colours (dark forest valleys, rosy-ochre bare ridges), a low warm sun with real cast shadows, and
+  ambient occlusion, baked into image tiles draped over the 3D terrain. Prototype on Annapurna first;
+  light preset dawn vs sunset. Approach notes: `MAP.md`.
 - **Soundscapes:** when working on the itinerary/trip view, bring this up and show a few versions (e.g. a
   listen toggle on the trip scene, a sound per stop as you step through, sound fading with scroll).
 - Optional delights: "seen it" ticks on checklists; "This month in Nepal"; a seasonal birding calendar.
