@@ -2,3 +2,7 @@ node_modules
 build
 .react-router
 .DS_Store
+
+# Original photos/clips (large, personal) — only generated web copies are used
+media-source/*
+!media-source/README.md
