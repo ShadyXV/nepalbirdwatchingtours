@@ -16,6 +16,9 @@ Technique source: `research/SANRITA_INTERACTION.md` (we borrow choreography, not
    unless pinching or holding Ctrl/⌘. Phones: in trip/place views one finger pans the visible map and the
    sheet is the scroll handle; on home, two fingers pan/zoom so one-finger swipes still scroll. 3D tilt
    and rotation stay gentle, with a "reset view" control. Automatic camera moves never fight the user.
+   **Orbit, not zoom, is the primary control:** ↺ ↻ buttons (tap to turn, hold to keep turning) rotate
+   the camera around the point being looked at, to see around a ridge when a valley hides a place.
+   Zoom stays on wheel/pinch; +/- are secondary at most.
 4. **Every state has a URL.** `/`, `/trips/:slug`, `/trips/:slug?stop=<id>`, `/places/:id`. No pop-ups. Back button = fly back.
 5. **Personal, not a brochure.** Each trip and stop leads with *memories*: past trips with real guests,
    their photos, the birds and animals seen together, told in Krishna's voice. Altitude, stays and
