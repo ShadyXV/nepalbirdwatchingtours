@@ -53,6 +53,8 @@ with whom.
 - **The map is the centre of everything.** You arrive at all of Nepal, see the trips as photo pins with how
   many birds you might meet, and tap one to **zoom into it**: its route, villages and stays, birding spots,
   and what lives there.
+- **Trips play themselves.** After zooming into a trip, it gently tours itself day by day (pulsing
+  stop, "Day 1 · Pokhara", the camera gliding along the route) until the visitor touches anything.
 - **Content rises from below.** Scroll and the story slides up over the map: headline, memories, photos,
   then the practical detail. Natural scrolling, never hijacked.
 - **One interaction pattern, no pop-ups.** Trips are the main thing. Mountains, ranges, parks and one-off

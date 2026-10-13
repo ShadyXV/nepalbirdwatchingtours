@@ -109,6 +109,22 @@ well. The card carousel is the primary picker and the map follows it.
 └──────────────────────────┘
 ```
 
+### S1 auto-tour: the trip plays itself
+
+After the fly-in, route draw and stop pop, the trip **plays itself** until the visitor interacts:
+
+- A pulse ring and a label at the current stop: `DAY 1` (accent italic, Thin) over `POKHARA · 820 m`
+  (label caps).
+- Every 4–5 s the camera glides slowly to the next **overnight** stop (pass-through spots are skipped, to
+  keep it short); the label and pulse move with it. The sheet's day stepper follows in sync. Checklist
+  and stay details stay quiet, as supporting information.
+- Any tap, drag, pinch, scroll or key press **pauses** it. A small "▶ Play the route" control resumes.
+  At the last stop it pulls back to the whole route and ends.
+- The tour never writes `?stop=` (the URL changes only on deliberate choices). It pauses when the map is
+  scrolled out of view or the tab is hidden.
+- Reduced motion: no camera movement; the day highlight steps in place.
+- Future: with soundscapes, each stop's ambience can fade in as the tour arrives.
+
 ### S2 Stop
 
 ```
