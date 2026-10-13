@@ -8,8 +8,8 @@ Technique source: `research/SANRITA_INTERACTION.md` (we borrow choreography, not
 1. **The map is the stage; content rises over it.** One MapLibre map, mounted once, never reloaded.
    Routes move the camera; they don't swap pages.
 2. **Native scroll, except the trip journey.** "Scroll to enter" is ordinary page scroll with the map
-   sticky behind. The one deliberate exception is a trip page's journey, where scroll/swipe steps through
-   days (owner's decision, after San Rita's projects page; design in progress, see
+   sticky behind. The one deliberate exception is a trip's **day view**, where scroll/swipe steps through
+   days in sequence (owner's decision, after San Rita's projects page; design in progress, see
    `research/SANRITA_PROJECTS_ABOUT.md`).
 3. **The map is always explorable.** Drag to pan and zoom everywhere, with smooth inertia and soft
    edges, never a wall. Desktop: mouse drag pans, even on home, while the wheel scrolls the home page
@@ -113,6 +113,22 @@ well. The card carousel is the primary picker and the map follows it.
 │ price (only if shown) · [Inquire]
 └──────────────────────────┘
 ```
+
+### Two modes per trip: overview and day view
+
+1. **Trip overview** (`/trips/:slug/`, S1/S2): the map with the whole route; stops can be visited in any
+   order (stepper, markers, itinerary list); the overview content rises from below as you scroll down,
+   so everything about the trip is readable there.
+2. **Day view** (`?day=<n>`; working name "the journey"): a separate, **full-screen, focused**
+   experience, not a pop-up or overlay card. The camera zooms in and **straightens the route**: it turns
+   so the day's segment runs straight through the frame (as in San Rita's projects page). Scroll, swipe,
+   keys or next/prev move **strictly in sequence**, one day per step, with no jumping around (that's what
+   the overview is for). Each day: headline (`DAY 4 · TADAPANI · 2,630 m`), photos with feathered edges
+   placed in open space, and the birding diary (tally plus checklist) in the negative space.
+   - Enter: a prominent "Start the journey" button in the overview, a "Day n →" link on each itinerary
+     line, and deep links. Exit: an "Overview" button, Esc, or browser back, returning to the overview
+     exactly as it was.
+   - Design and input mechanics: `research/SANRITA_PROJECTS_ABOUT.md`.
 
 ### Key stops
 

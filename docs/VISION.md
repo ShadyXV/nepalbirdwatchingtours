@@ -53,9 +53,10 @@ with whom.
 - **The map is the centre of everything.** You arrive at all of Nepal, see the trips as photo pins with how
   many birds you might meet, and tap one to **zoom into it**: its route, villages and stays, birding spots,
   and what lives there.
-- **A trip is a journey you scroll through, day by day** (modelled on San Rita's projects page,
-  sanrita.ca/en/projects). On a trip page, scrolling (trackpad, wheel, swipe) or next/previous steps
-  through the days: the camera travels the route and high-quality images are overlaid on the map for
+- **A trip has an overview and a day-by-day journey.** The overview shows the whole route and
+  everything about the trip, rising from below as you scroll. The **day view** is a separate full-screen,
+  focused journey (modelled on San Rita's projects page, sanrita.ca/en/projects): in it, scrolling (trackpad, wheel, swipe) or next/previous steps
+  through the days strictly in order, the route straightened through the frame: the camera travels it and high-quality images are overlaid on the map for
   each day. In this journey the map is choreographed, not zoomed or panned. A **More info** button raises
   an overlay from below with the quieter text (what's included, practicalities).
 - **About page images fan out** along an organic curve as you scroll (modelled on sanrita.ca/en/about):
