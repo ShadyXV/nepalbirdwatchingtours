@@ -7,6 +7,7 @@ import { Button } from "../ui/Button";
 
 const links = [
   { to: "/#trips", label: "nav.trips" },
+  { to: "/anywhere", label: "nav.anywhere" },
   { to: "/about", label: "nav.about" },
 ] as const;
 

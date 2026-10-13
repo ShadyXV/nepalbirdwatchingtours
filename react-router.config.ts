@@ -1,4 +1,5 @@
 import type { Config } from "@react-router/dev/config";
+import { getPlaces } from "./app/content";
 import { trips } from "./app/content/data/trips";
 
 export default {
@@ -8,8 +9,10 @@ export default {
   basename: process.env.BASE_PATH ?? "/",
   prerender: () => [
     "/",
+    "/anywhere",
     "/about",
     "/privacy",
     ...trips.filter((t) => t.status === "published").map((trip) => `/trips/${trip.slug}`),
+    ...getPlaces().map((place) => `/places/${place.id}`),
   ],
 } satisfies Config;

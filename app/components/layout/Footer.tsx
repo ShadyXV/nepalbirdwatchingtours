@@ -17,6 +17,26 @@ export function Footer() {
           <p className="font-display text-h3 uppercase">{guide.brand}</p>
           <p className="mt-1 text-small text-fg-muted">{guide.name}</p>
         </div>
+        <nav aria-label={t("footer.explore")}>
+          <h2 className="eyebrow mb-1 font-mono text-fg-muted">{t("footer.explore")}</h2>
+          <ul>
+            <li>
+              <Link className={link} to="/#trips">
+                {t("nav.trips")}
+              </Link>
+            </li>
+            <li>
+              <Link className={link} to="/anywhere">
+                {t("nav.anywhere")}
+              </Link>
+            </li>
+            <li>
+              <Link className={link} to="/about">
+                {t("nav.about")}
+              </Link>
+            </li>
+          </ul>
+        </nav>
         <div>
           <h2 className="eyebrow mb-1 font-mono text-fg-muted">{t("footer.contact")}</h2>
           <ul>

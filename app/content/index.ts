@@ -1,7 +1,9 @@
-import type { Landmark, Review, Species, SpeciesGroup, Trip } from "./types";
+import type { Landmark, Memory, Offering, Review, Species, SpeciesGroup, Trip } from "./types";
 import { availability } from "./data/availability";
 import { guide } from "./data/guide";
 import { landmarks } from "./data/landmarks";
+import { memories } from "./data/memories";
+import { offerings } from "./data/offerings";
 import { reviews } from "./data/reviews";
 import { species } from "./data/species";
 import { trips } from "./data/trips";
@@ -22,6 +24,48 @@ export function getSpecies(id: string): Species | undefined {
 
 export function getLandmarks(): Landmark[] {
   return landmarks;
+}
+
+/** Places are landmarks: peaks, ranges, cities, parks and points of interest (pages at /places/<id>). */
+export function getPlaces(): Landmark[] {
+  return landmarks;
+}
+
+export function getPlace(id: string): Landmark | undefined {
+  return landmarks.find((place) => place.id === id);
+}
+
+/** Published trips a place lists in `nearbyTripSlugs`, in that order. */
+export function getTripsNearPlace(place: Landmark): Trip[] {
+  return (place.nearbyTripSlugs ?? []).flatMap((slug) => getTrip(slug) ?? []);
+}
+
+export function getOfferings(): Offering[] {
+  return offerings;
+}
+
+export function getOffering(id: string): Offering | undefined {
+  return offerings.find((offering) => offering.id === id);
+}
+
+/** Reviews an offering lists in `reviewIds`, plus any review that names the offering in `offeringIds`. */
+export function getReviewsForOffering(id: string): Review[] {
+  const listed = getOffering(id)?.reviewIds ?? [];
+  return reviews.filter((r) => listed.includes(r.id) || r.offeringIds?.includes(id));
+}
+
+/** Memories from past trips with guests, newest first. */
+export function getMemoriesForTrip(slug: string): Memory[] {
+  return memories.filter((m) => m.tripSlug === slug).sort((a, b) => b.date.localeCompare(a.date));
+}
+
+export function getMemoriesForWaypoint(slug: string, waypointId: string): Memory[] {
+  return getMemoriesForTrip(slug).filter((m) => m.waypointId === waypointId);
+}
+
+/** Species seen with guests at a stop, from its memories (the ★ on checklists). */
+export function speciesSeenAtWaypoint(slug: string, waypointId: string): Set<string> {
+  return new Set(getMemoriesForWaypoint(slug, waypointId).flatMap((m) => m.seen));
 }
 
 export function getReviews(): Review[] {
