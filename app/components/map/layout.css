@@ -17,6 +17,13 @@
   --map-visible-h: calc(100svh - var(--spacing-header));
   --map-peek: var(--map-story-peek);
   position: relative;
+  /*
+   * The sticky stage's negative bottom margin lets it stay stuck up to a full stage height past the
+   * end of the content, where it covered the footer (and caught wheel events, zooming the map out).
+   * Clip it at the end of the layout. `clip` (not `hidden`) is not a scroll container, so the stage
+   * still sticks to the viewport; fixed children (the day view) are not clipped.
+   */
+  overflow: clip;
 }
 @supports (height: 100lvh) {
   .nbt-layout {

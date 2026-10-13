@@ -1,9 +1,11 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./map.css";
+import "./controls.css";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { getMemoriesForWaypoint, speciesCountForTrip } from "~/content";
 import { t } from "~/i18n";
+import { CAMERA } from "./camera";
 import { MapController, type MapApi, type MapContent, type MapHandlers, type MapView } from "./controller";
 import type { NepalMapProps } from "./types";
 
@@ -103,6 +105,41 @@ export function NepalMap({
     controllerRef.current?.setView(viewRef.current);
   }, [activeTripSlug, activeWaypointId, activePlaceId, previewTripSlug]);
 
+  const orbit = useOrbitPress(apiRef);
+
+  // Keys: Q / E orbit (and Shift + ← / →). A tap turns one step, holding keeps turning.
+  useEffect(() => {
+    const direction = (event: KeyboardEvent): 1 | -1 | 0 => {
+      const key = event.key.toLowerCase();
+      if (key === "q" || (event.shiftKey && key === "arrowleft")) return 1;
+      if (key === "e" || (event.shiftKey && key === "arrowright")) return -1;
+      return 0;
+    };
+    const ignored = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return true;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("input, textarea, select, [contenteditable]")) return true;
+      return Boolean(document.querySelector("[aria-modal='true']"));
+    };
+    const down = (event: KeyboardEvent) => {
+      const dir = direction(event);
+      if (!dir || ignored(event) || !apiRef.current) return;
+      event.preventDefault();
+      if (!event.repeat) orbit.start(dir);
+    };
+    const up = (event: KeyboardEvent) => {
+      if (direction(event) || event.key === "Shift") orbit.end();
+    };
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    window.addEventListener("blur", orbit.end);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", orbit.end);
+    };
+  }, [orbit]);
+
   const control = "nbt-map__control";
   return (
     <div className={`nbt-map ${appearance === "overlay" ? "nbt-map--overlay" : ""} ${className}`}>
@@ -112,21 +149,97 @@ export function NepalMap({
       <div className="nbt-map__clouds" aria-hidden="true" />
       <div className="nbt-map__vignette" aria-hidden="true" />
 
-      {/* Zoom (desktop) and "reset view" (after the user has turned or tilted the map). */}
+      {/*
+        Map controls, right edge. Primary: orbit (look around a ridge, keeping pitch and zoom); tap
+        turns one step, press and hold keeps turning. "Reset view" after the user has turned or
+        tilted the map. Zoom +/- only on desktop pointers, small and last (wheel / pinch zoom too).
+      */}
       <div className="nbt-map__controls" data-map-control="">
-        <button type="button" className={`${control} nbt-map__zoom`} aria-label={t("map.zoomIn")} onClick={() => apiRef.current?.zoomIn()}>
-          <svg aria-hidden="true" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" /></svg>
-        </button>
-        <button type="button" className={`${control} nbt-map__zoom`} aria-label={t("map.zoomOut")} onClick={() => apiRef.current?.zoomOut()}>
-          <svg aria-hidden="true" viewBox="0 0 16 16"><path d="M3 8h10" /></svg>
-        </button>
+        <div className="nbt-orbit" role="group" aria-label={t("map.orbit")}>
+          <button
+            type="button"
+            className={`${control} nbt-orbit__btn`}
+            aria-label={t("map.orbitLeft")}
+            title={`${t("map.orbitLeft")} (Q)`}
+            aria-keyshortcuts="Q Shift+ArrowLeft"
+            {...orbit.bind(1)}
+          >
+            <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M15.5 11.5a6 6 0 1 1-2.2-6.6" /><path d="M14.6 2.2l-1.2 2.9 3 .8" /></svg>
+          </button>
+          <button
+            type="button"
+            className={`${control} nbt-orbit__btn`}
+            aria-label={t("map.orbitRight")}
+            title={`${t("map.orbitRight")} (E)`}
+            aria-keyshortcuts="E Shift+ArrowRight"
+            {...orbit.bind(-1)}
+          >
+            <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M4.5 11.5a6 6 0 1 0 2.2-6.6" /><path d="M5.4 2.2l1.2 2.9-3 .8" /></svg>
+          </button>
+        </div>
         {adjusted && (
           <button type="button" className={`${control} nbt-map__reset`} aria-label={t("map.resetView")} title={t("map.resetView")} onClick={() => apiRef.current?.resetView()}>
             {/* A north arrow over a level horizon. */}
             <svg aria-hidden="true" viewBox="0 0 16 16"><path d="M8 2l3 7H5z" /><path d="M2.5 13.5h11" /></svg>
           </button>
         )}
+        <div className="nbt-map__zooms">
+          <button type="button" className={`${control} nbt-map__zoom`} aria-label={t("map.zoomIn")} onClick={() => apiRef.current?.zoomIn()}>
+            <svg aria-hidden="true" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" /></svg>
+          </button>
+          <button type="button" className={`${control} nbt-map__zoom`} aria-label={t("map.zoomOut")} onClick={() => apiRef.current?.zoomOut()}>
+            <svg aria-hidden="true" viewBox="0 0 16 16"><path d="M3 8h10" /></svg>
+          </button>
+        </div>
       </div>
     </div>
   );
+}
+
+/**
+ * Press handling for an orbit control (buttons and keys): a short press turns one step
+ * (CAMERA.orbitStepDeg), holding longer than CAMERA.orbitHoldMs keeps turning until release.
+ * Keyboard activation of the buttons (Enter / Space, `click` with detail 0) turns one step.
+ */
+function useOrbitPress(apiRef: { current: MapApi | null }) {
+  const ref = useRef<{ start: (dir: 1 | -1) => void; end: () => void; bind: (dir: 1 | -1) => object } | null>(null);
+  if (!ref.current) {
+    let timer = 0;
+    let pressed: 1 | -1 | 0 = 0;
+    let holding = false;
+    const start = (dir: 1 | -1) => {
+      end();
+      pressed = dir;
+      holding = false;
+      timer = window.setTimeout(() => {
+        holding = true;
+        apiRef.current?.orbitHold(dir);
+      }, CAMERA.orbitHoldMs);
+    };
+    const end = () => {
+      window.clearTimeout(timer);
+      if (!pressed) return;
+      const dir = pressed;
+      pressed = 0;
+      if (holding) apiRef.current?.orbitRelease();
+      else apiRef.current?.orbit(dir);
+      holding = false;
+    };
+    const bind = (dir: 1 | -1) => ({
+      onPointerDown: (e: ReactPointerEvent<HTMLButtonElement>) => {
+        if (e.button !== 0) return;
+        e.currentTarget.setPointerCapture?.(e.pointerId);
+        start(dir);
+      },
+      onPointerUp: end,
+      onPointerCancel: end,
+      onLostPointerCapture: end,
+      onContextMenu: (e: Event | ReactKeyboardEvent) => e.preventDefault(),
+      onClick: (e: { detail: number }) => {
+        if (e.detail === 0) apiRef.current?.orbit(dir); // keyboard
+      },
+    });
+    ref.current = { start, end, bind };
+  }
+  return ref.current;
 }

@@ -12,9 +12,12 @@ export type MapLayoutContext = {
    * Raises that trip's pin; on phones the camera eases towards it when the user is idle.
    */
   previewTrip: (slug: string | null) => void;
-  /** The map's stepping engine and view tools; null until the map has loaded (and without JS). */
+  /**
+   * The map's engines and view tools: stop stepping, the day view (`openJourney`, `goToDay`, …,
+   * docs/JOURNEY.md), orbit, reset / zoom. Null until the map exists (and without JS).
+   */
   map: MapApi | null;
-  /** The engine's state: focused stop (URL, engine or autoplay), key stops, autoplay status. */
+  /** The engine's state: focused stop (URL or engine), key stops. */
   step: StepState | null;
 };
 

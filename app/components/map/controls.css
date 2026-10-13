@@ -1,0 +1,83 @@
+/*
+ * Map controls: orbit (primary), reset view, zoom (demoted). Loaded with the map chunk, after
+ * map.css, whose base `.nbt-map__controls` / `.nbt-map__control` rules (position, button look)
+ * this refines. Design values only through tokens.
+ *
+ *   orbit   ↺ ↻ as one pill: the main way to look around a ridge; thumb-sized on touch screens
+ *   reset   appears once the user has turned or tilted away from the app's view
+ *   zoom    desktop pointers only, small and last (wheel and pinch zoom too); hidden on phones
+ *           and in the day view, where the map is choreographed
+ */
+
+.nbt-map__controls {
+  align-items: flex-end;
+}
+
+.nbt-orbit {
+  display: flex;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: color-mix(in oklab, var(--color-bg-raised) 92%, transparent);
+  box-shadow: var(--shadow-card);
+}
+.nbt-map__control.nbt-orbit__btn {
+  width: var(--spacing-tap);
+  height: var(--spacing-tap);
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
+  touch-action: none; /* press and hold must not become a scroll or a long-press menu */
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+.nbt-map__control.nbt-orbit__btn:hover {
+  background: color-mix(in oklab, var(--color-fg) 10%, transparent);
+}
+.nbt-map__control.nbt-orbit__btn:active {
+  color: var(--color-accent);
+}
+.nbt-orbit__btn + .nbt-orbit__btn {
+  border-left: 1px solid var(--color-border);
+  border-radius: 0 999px 999px 0;
+}
+.nbt-orbit__btn:first-child {
+  border-radius: 999px 0 0 999px;
+}
+.nbt-orbit__btn svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Zoom: secondary. Two small buttons side by side under the orbit pill, desktop pointers only. */
+.nbt-map__zooms {
+  display: none;
+  gap: 0.25rem;
+}
+@media (hover: hover) and (pointer: fine) {
+  .nbt-map__zooms {
+    display: flex;
+  }
+}
+.nbt-map__control.nbt-map__zoom {
+  width: 1.75rem;
+  height: 1.75rem;
+  opacity: 0.8;
+  box-shadow: none;
+}
+.nbt-map__control.nbt-map__zoom:hover {
+  opacity: 1;
+}
+.nbt-map__zoom svg {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+/* Day view: the controls sit above the day bar, the zoom buttons go. */
+[data-journey] .nbt-map__zooms {
+  display: none;
+}
+html[data-journey] .nbt-layout .nbt-map__controls {
+  bottom: var(--jr-controls-bottom, 6rem);
+  z-index: 3;
+}

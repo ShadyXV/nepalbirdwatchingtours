@@ -1,20 +1,32 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { useInquiry } from "~/components/inquiry";
+import { DayList } from "~/components/journey/DayList";
+import { dayHref, useJourneyUrl } from "~/components/journey/useJourneyUrl";
 import { useMapLayoutContext } from "~/components/map/layoutContext";
 import { MediaCarousel } from "~/components/media";
-import { Button, Heading } from "~/components/ui";
-import { getSpecies } from "~/content";
-import type { Sighting, SpeciesGroup, Trip, Waypoint } from "~/content/types";
+import { Button, ButtonLink, Heading } from "~/components/ui";
+import type { Trip } from "~/content/types";
 import { t } from "~/i18n";
 import { formatPrice, monthName } from "~/lib/format";
-import { isKeyStop } from "~/lib/tripStops";
+import { dayCount } from "~/lib/tripDays";
+import { useHydrated } from "~/lib/useHydrated";
 
 const perKey = { person: "trip.perPerson", group: "trip.perGroup", day: "trip.perDay" } as const;
 
+/**
+ * The trip OVERVIEW: the story rising over the map. Near the top, "Start the journey" opens the day
+ * view (components/journey); "The way, day by day" is the full itinerary, every day in reading order
+ * (the day view's content, prerendered), each with "Day n →" into the day view at that day.
+ */
 export function TripScreen({ trip }: { trip: Trip }) {
   const { openInquiry } = useInquiry();
   const { activeWaypointId, setActiveWaypoint, step } = useMapLayoutContext();
-  // The stop the map is showing right now (chosen, or visited by the autoplay).
+  const hydrated = useHydrated();
+  const journey = useJourneyUrl(trip);
+  const openDay = hydrated ? journey.open : null;
+  const storyUp = useStoryUp();
+  // The stop the map is showing right now (chosen in the URL, or focused by the stepping engine).
   const focusedId = activeWaypointId ?? (step?.tripSlug === trip.slug ? step.waypointId : null);
   const { pricing } = trip;
 
@@ -30,7 +42,13 @@ export function TripScreen({ trip }: { trip: Trip }) {
 
   return (
     <article className="space-y-8 px-gutter pt-2">
-      <Link to="/" className="eyebrow inline-flex min-h-tap items-center text-accent hover:underline">
+      <StoryButton up={storyUp} />
+
+      {/* Nearly invisible while the story only peeks (it confused there); full once the story is up. Still reachable by keyboard. */}
+      <Link
+        to="/"
+        className={`eyebrow inline-flex min-h-tap items-center text-accent transition-opacity duration-(--duration-ui) ease-out hover:underline focus-visible:opacity-100 motion-reduce:transition-none ${hydrated && !storyUp ? "opacity-[0.18]" : "opacity-100"}`}
+      >
         <span aria-hidden="true">&larr;&nbsp;</span>
         {t("trip.back")}
       </Link>
@@ -41,6 +59,23 @@ export function TripScreen({ trip }: { trip: Trip }) {
         </Heading>
         <p className="mt-3 text-fg-muted">{trip.tagline}</p>
       </header>
+
+      {/* The way into the day view; without JS it jumps to day 1 of the itinerary below. */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <ButtonLink
+          href={dayHref(trip, 1)}
+          onClick={(event) => {
+            if (!openDay) return;
+            event.preventDefault();
+            openDay(1);
+          }}
+        >
+          {t("journey.start")}
+        </ButtonLink>
+        <span className="eyebrow text-fg-muted">
+          {t("trip.days", { count: dayCount(trip) })} · {t("journey.startNote")}
+        </span>
+      </div>
 
       <MediaCarousel
         label={t("media.photos")}
@@ -68,20 +103,15 @@ export function TripScreen({ trip }: { trip: Trip }) {
         </ul>
       </section>
 
-      <section>
-        <Heading level="h3" as="h2">{t("trip.itinerary")}</Heading>
-        <ol className="mt-3 space-y-2">
-          {trip.waypoints.map((waypoint) => (
-            <WaypointItem
-              key={waypoint.id}
-              waypoint={waypoint}
-              active={waypoint.id === activeWaypointId}
-              focused={waypoint.id === focusedId}
-              keyStop={isKeyStop(trip, waypoint)}
-              onToggle={() => setActiveWaypoint(waypoint.id === activeWaypointId ? null : waypoint.id)}
-            />
-          ))}
-        </ol>
+      <section aria-labelledby="the-way">
+        <Heading level="h3" as="h2" id="the-way">{t("journey.theWay")}</Heading>
+        <DayList
+          trip={trip}
+          activeWaypointId={activeWaypointId}
+          focusedId={focusedId}
+          onToggleStop={(id) => setActiveWaypoint(id === activeWaypointId ? null : id)}
+          onOpenDay={openDay}
+        />
       </section>
 
       {trip.includes && (
@@ -117,74 +147,53 @@ export function TripScreen({ trip }: { trip: Trip }) {
   );
 }
 
-type WaypointItemProps = { waypoint: Waypoint; active: boolean; focused: boolean; keyStop: boolean; onToggle: () => void };
-
-function WaypointItem({ waypoint, active, focused, keyStop, onToggle }: WaypointItemProps) {
-  const details = [
-    t("trip.day", { day: waypoint.day }),
-    `${waypoint.altitudeM.toLocaleString("en")} m`,
-    waypoint.nights > 0 ? t("trip.nights", { count: waypoint.nights }) : null,
-  ].filter(Boolean);
-
-  return (
-    <li className={`overflow-hidden rounded-card border ${active ? "border-route bg-bg" : focused ? "border-route/50" : "border-border"}`}>
-      <button
-        type="button"
-        className="flex min-h-14 w-full items-center gap-3 px-3 py-3 text-left"
-        aria-expanded={active}
-        onClick={onToggle}
-      >
-        <span
-          aria-hidden="true"
-          className={`shrink-0 rounded-full border-2 ${keyStop ? "size-3.5 border-fg" : "size-2.5 border-fg-muted"} ${active || focused ? "bg-marker" : "bg-transparent"}`}
-        />
-        <span className="min-w-0">
-          <span className="block font-medium">{waypoint.name}</span>
-          <span className="eyebrow mt-0.5 block text-fg-muted">{details.join(" · ")}</span>
-        </span>
-      </button>
-
-      {/* Always in the DOM so the prerendered HTML carries the full itinerary. */}
-      <div hidden={!active} className="space-y-3 px-3 pb-4 text-small">
-        {waypoint.stay && (
-          <p className="not-italic">
-            <span className="eyebrow text-fg-muted">{t("trip.stay")}: </span>
-            {waypoint.stay.name ?? waypoint.stay.kind}
-          </p>
-        )}
-        <p>{waypoint.summary}</p>
-        <Sightings sightings={waypoint.sightings} />
-      </div>
-    </li>
-  );
+/**
+ * The round button on the story's top edge (navigator.css `.nbt-story-btn`), styled like a stop
+ * marker: it isn't obvious that scrolling brings the story up over the map, so this does. Once the
+ * story is up it flips and takes you back to the map. Without JS it is a link to the story.
+ */
+/** True once the story has been pulled up over the map (scrolled a quarter of a screen). */
+function useStoryUp(): boolean {
+  const [up, setUp] = useState(false);
+  useEffect(() => {
+    let frame = 0;
+    const check = () => {
+      frame = 0;
+      setUp(window.scrollY > window.innerHeight * 0.25);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(check);
+    };
+    check();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+  return up;
 }
 
-function Sightings({ sightings }: { sightings: Sighting[] }) {
-  const groups = new Map<SpeciesGroup, { name: string; sighting: Sighting }[]>();
-  for (const sighting of sightings) {
-    const species = getSpecies(sighting.speciesId);
-    if (!species) continue;
-    const list = groups.get(species.group) ?? [];
-    list.push({ name: species.commonName, sighting });
-    groups.set(species.group, list);
-  }
-  if (groups.size === 0) return null;
+function StoryButton({ up: down }: { up: boolean }) {
+  const go = (event: React.MouseEvent) => {
+    const story = document.getElementById("story");
+    if (!story) return;
+    event.preventDefault();
+    const header = document.querySelector("body > header")?.getBoundingClientRect().height ?? 0;
+    const top = down ? 0 : story.getBoundingClientRect().top + window.scrollY - header;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top, behavior: reduce ? "instant" : "smooth" });
+  };
 
+  const label = down ? t("map.showMap") : t("map.showDetails");
   return (
-    <div>
-      <h3 className="eyebrow mb-1 font-mono text-fg">{t("trip.seen")}</h3>
-      {[...groups].map(([group, items]) => (
-        <section key={group} className="mt-2">
-          <h4 className="eyebrow font-mono text-fg-muted">{t(`group.${group}`)}</h4>
-          <ul>
-            {items.map(({ name, sighting }) => (
-              <li key={sighting.speciesId}>
-                {name} <span className="text-fg-muted">({t(`likelihood.${sighting.likelihood}`)})</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+    <div className="nbt-story-btn" data-down={down ? "" : undefined}>
+      <a href="#story" aria-label={label} title={label} onClick={go}>
+        <svg aria-hidden="true" viewBox="0 0 40 40">
+          <circle cx="20" cy="20" r="17" />
+          <path d="M13.5 22.5L20 16l6.5 6.5" />
+        </svg>
+      </a>
     </div>
   );
 }

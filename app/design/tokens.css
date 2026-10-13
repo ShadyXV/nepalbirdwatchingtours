@@ -128,7 +128,32 @@
   --duration-route-draw: 1400ms; /* route draws along its length */
   --duration-pop: 520ms; /* one stop marker popping in */
   --duration-map-step: 1400ms; /* deliberate stop step: pan + turn + tilt */
-  --duration-tour-glide: 2400ms; /* auto-tour: glide to the next key stop */
-  --duration-tour-dwell: 2600ms; /* auto-tour: time at each stop after arriving */
   --duration-soft-edge: 700ms; /* easing back inside the soft map edge */
+
+  /* ---- 6. JOURNEY: the trip's day view (docs/JOURNEY.md, app/components/journey/journey.css). ----
+     Step choreography: the media lead (A, then B), the headline follows, then meta, then the diary. */
+  --map-day-terrain-dim: 0.5; /* the day view's terrain: this much less visible (0 = as styled, 1 = gone) */
+  --duration-day-stage: 300ms; /* the full-screen map fading in / out around the overview */
+  --duration-day-leave: 160ms; /* outgoing day text */
+  --duration-day-text: 300ms; /* incoming day text, each part */
+  --duration-day-place: 600ms; /* the place name settling */
+  --duration-day-reveal: 800ms; /* new media spreading out through the old */
+  --duration-day-fade: 600ms; /* old media fading under it */
+  --duration-day-sheet: 450ms; /* "This day" sheet rising */
+  --delay-day-media-a: 250ms;
+  --delay-day-media-b: 330ms;
+  --delay-day-head: 450ms;
+  --delay-day-meta: 600ms;
+  --delay-day-diary: 700ms;
+  --delay-day-stagger: 60ms; /* per new species */
+  --text-day-place: clamp(3rem, 9vh, 7.5rem); /* desktop place name (San Rita's ~11% vh) */
+  --text-day-place-phone: clamp(2rem, 9vw, 3rem);
+  --text-day-numeral: clamp(2.25rem, 6vh, 4rem); /* DAY 4 and 2,630 m numerals (accent Thin) */
+  --text-day-numeral-phone: 2rem;
+  --color-day-scrim: color-mix(in oklab, var(--color-night) 62%, transparent); /* behind day text */
+  --color-day-text-shadow: color-mix(in oklab, var(--color-night) 85%, transparent);
+
+  /* ---- Texture: topographic contours (public/textures/contours.svg, TerrainBackdrop) ---- */
+  --texture-opacity: 0.22; /* the lines are snow; this keeps them a faint texture on night */
+  --texture-size: 800px; /* one tile; the pattern repeats seamlessly */
 }

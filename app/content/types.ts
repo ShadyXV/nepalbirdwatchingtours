@@ -150,6 +150,11 @@ export type Waypoint = {
   summary: string;
   sightings: Sighting[];
   media: MediaAsset[];
+  /**
+   * Optional curated "seen from here" mountains (Landmark ids, most striking first). Overrides the
+   * computed list (distance + line of sight, app/lib/tripDays.ts) in the trip's day view.
+   */
+  views?: Landmark["id"][];
 };
 
 /* ------------------------------------------------------------------ trips */

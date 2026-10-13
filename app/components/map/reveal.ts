@@ -52,7 +52,7 @@ export type RevealContent = {
   items: MediaAsset[];
   /** Name in the caption, e.g. "Tadapani". */
   title: string;
-  /** Stops: "Day 4", set in the accent italic. */
+  /** Stops: "Day 4", in label caps like the name. */
   day?: string;
 };
 

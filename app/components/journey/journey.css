@@ -1,0 +1,958 @@
+/*
+ * The trip's day view ("the journey"): Journey.tsx and friends. Design values through tokens
+ * (tokens.css group 6 JOURNEY, plus the base palette, type and motion tokens).
+ *
+ * Document states (html[data-journey], set by Journey.tsx):
+ *   entering   the map stage turns full-screen, still transparent (crossfades over the overview)
+ *   open       the stage is the whole screen, the overview under it is inert, no page scroll
+ *   leaving    the day layer fades while the camera returns to the overview's view
+ *   settling   the stage fades out, then goes back into the page as it was
+ *
+ * Composition: placed at runtime by the layout pass (dayLayout.ts) around the day's route, markers
+ * and labels as they sit on screen, so text never covers a photo, the route or a marker:
+ *
+ *   wide screens    photo A from the top-left corner, photo B from the bottom-right corner (outer
+ *                   edges off-screen, inner edges feathered), the headline top-right, the birds
+ *                   bottom-left, the walk running up the middle
+ *   tall screens    photo A a full-bleed band along the top, photo B along the bottom, the headline
+ *                   and the birds just above and below the route
+ *
+ * Text blocks and photos are absolutely positioned (left / top / size from the pass) and glide to
+ * new places once settled (`data-settled`).
+ */
+
+/* ------------------------------------------------------ document state */
+
+html[data-journey] {
+  overflow: hidden;
+  overscroll-behavior: none; /* no pull-to-refresh, no swipe-back while swiping days */
+  --jr-bar-h: 4rem;
+  --jr-controls-bottom: calc(var(--jr-bar-h) + 0.5rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 1024px) {
+  html[data-journey] {
+    --jr-bar-h: 4.75rem;
+  }
+}
+html[data-journey] body {
+  overflow: hidden;
+}
+
+/* The map stage becomes the whole screen (out of the page flow: no layout shift under it). */
+html[data-journey] .nbt-stage {
+  position: fixed;
+  inset: 0;
+  top: 0;
+  height: 100vh;
+  margin: 0;
+  z-index: 40;
+  touch-action: none;
+  transition: opacity var(--duration-day-stage) var(--ease-out);
+}
+@supports (height: 100lvh) {
+  html[data-journey] .nbt-stage {
+    height: 100lvh;
+  }
+}
+html[data-journey="entering"] .nbt-stage,
+html[data-journey="settling"] .nbt-stage {
+  opacity: 0;
+}
+html[data-journey] .nbt-stage__dim,
+html[data-journey] .nbt-stage__stepper {
+  display: none;
+}
+/* Midpoints: the day's own stops stay bright while the others dim. */
+html[data-journey] .has-active-stop .nbt-stop.is-journey-day {
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------- the layer */
+
+.jr {
+  --jr-gutter: 1rem;
+  --jr-top-h: 3.25rem;
+  --jr-pull: 0;
+  position: fixed;
+  inset: 0;
+  z-index: 41;
+  pointer-events: none; /* taps go through to the map (stop markers, orbit) … */
+  color: var(--color-fg);
+  transition: opacity 200ms var(--ease-out);
+}
+/* … except on the controls and text links. */
+.jr button,
+.jr a,
+.jr-sheet {
+  pointer-events: auto;
+}
+@media (min-width: 1024px) {
+  .jr {
+    --jr-gutter: clamp(1.5rem, 2.4vw, 2.5rem);
+    --jr-top-h: 4rem;
+  }
+}
+/* Opening in-app: the composition plays once the camera's flight is well under way. */
+.jr[data-intro] {
+  --jr-shift: 900ms;
+}
+.jr[data-phase="leaving"],
+html[data-journey="entering"] .jr {
+  opacity: 0;
+}
+
+/* Static scrim under the two bars only (no per-frame cost); text blocks carry their own. */
+.jr-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom, var(--color-day-scrim), transparent calc(var(--jr-top-h) + 1.5rem)),
+    linear-gradient(to top, var(--color-day-scrim), transparent calc(var(--jr-bar-h) + 1.5rem));
+}
+
+/* Text over the map: a soft night halo instead of boxes. */
+.jr-story,
+.jr-diary,
+.jr-top,
+.jr-media__caption {
+  text-shadow:
+    0 1px 2px var(--color-day-text-shadow),
+    0 0 18px var(--color-day-text-shadow);
+}
+
+/* ------------------------------------------------------------ top bar */
+
+.jr-top {
+  position: absolute;
+  inset: 0 0 auto;
+  height: var(--jr-top-h);
+  padding: env(safe-area-inset-top) var(--jr-gutter) 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 2;
+}
+.jr-top__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--color-fg-muted);
+  visibility: hidden;
+}
+.jr-top__count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  font-family: var(--font-mono);
+  font-style: normal;
+}
+/* The day number is set exactly like the label around it (owner): label caps, upright. */
+.jr-top__num {
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  color: var(--color-fg);
+}
+.jr-top__of {
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-fg-muted);
+}
+.jr-top__close {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .jr-top__title {
+    visibility: visible;
+  }
+  .jr-top__close {
+    display: inline-flex;
+  }
+}
+
+/* ------------------------------------------------------------ buttons */
+
+.jr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: var(--spacing-tap);
+  padding: 0 1rem;
+  border-radius: var(--radius-button);
+  border: 1px solid var(--color-border);
+  background: color-mix(in oklab, var(--color-bg-raised) 82%, transparent);
+  color: var(--color-fg);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  text-shadow: none;
+  white-space: nowrap;
+  transition:
+    background-color var(--duration-micro) var(--ease-out),
+    color var(--duration-micro) var(--ease-out);
+}
+.jr-btn:hover:not(:disabled) {
+  background: var(--color-bg-raised);
+  color: var(--color-accent);
+}
+.jr-btn:disabled {
+  opacity: 0.35;
+}
+.jr-btn--primary {
+  border-color: transparent;
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+}
+.jr-btn--primary:hover:not(:disabled) {
+  background: var(--color-fg);
+  color: var(--color-accent-fg);
+}
+.jr-btn--quiet {
+  border-color: transparent;
+  background: transparent;
+  padding-inline: 0.25rem 0.75rem;
+}
+.jr-btn__icon,
+.jr-icon svg {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.jr-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-tap);
+  height: var(--spacing-tap);
+  border-radius: var(--radius-button);
+  color: var(--color-fg);
+}
+.jr-icon:hover {
+  color: var(--color-accent);
+}
+.jr-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--spacing-tap);
+  color: var(--color-accent);
+}
+.jr-link:hover {
+  text-decoration: underline;
+}
+
+/* ------------------------------------------------------------ bottom bar */
+
+.jr-bar {
+  position: absolute;
+  inset: auto 0 0;
+  min-height: var(--jr-bar-h);
+  padding: 0.5rem var(--jr-gutter) max(0.75rem, env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "step more";
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 2;
+}
+/* Phones: the top bar's "4 / 12" is the progress; the dots come back on desktop. */
+.jr-bar__progress {
+  grid-area: progress;
+  min-width: 0;
+  display: none;
+}
+.jr-bar__step {
+  grid-area: step;
+  display: flex;
+  gap: 0.375rem;
+}
+.jr-bar__more {
+  grid-area: more;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+.jr-btn--step .jr-btn__text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.jr-btn--step {
+  width: var(--spacing-tap);
+  padding: 0;
+}
+@media (min-width: 1024px) {
+  .jr-bar__progress {
+    display: block;
+  }
+  .jr-bar {
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-areas: "progress step more";
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  .jr-bar__more {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .jr-btn--step {
+    width: auto;
+    padding: 0 1rem;
+  }
+  .jr-btn--step .jr-btn__text {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+  }
+}
+
+/* Progress: display-only dots (days strictly in order; the dots are not jump targets). */
+.jr-dots {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4375rem;
+}
+.jr-dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--color-fg) 55%, transparent);
+  transition:
+    transform var(--duration-ui) var(--ease-out),
+    background-color var(--duration-ui) var(--ease-out);
+}
+.jr-dot.is-done {
+  border-color: transparent;
+  background: color-mix(in oklab, var(--color-fg) 70%, transparent);
+}
+.jr-dot.is-current {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  transform: scale(1.6);
+}
+.jr-dot--end {
+  border-radius: 1px;
+  transform: rotate(45deg);
+}
+.jr-dot--end.is-current {
+  transform: rotate(45deg) scale(1.6);
+}
+
+/* ------------------------------------------------------------- media */
+
+@property --jr-reveal {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 150%;
+}
+
+/* Placed by the layout pass (left / top / width / height inline), anchored to a screen edge. */
+.jr-slot {
+  position: absolute;
+  pointer-events: none;
+  --jr-reveal-delay: calc(var(--delay-day-media-a) + var(--jr-shift, 0ms));
+}
+.jr-slot--b {
+  --jr-reveal-delay: calc(var(--delay-day-media-b) + var(--jr-shift, 0ms));
+}
+.jr[data-settled] .jr-slot,
+.jr[data-settled] .jr-block {
+  transition:
+    left var(--duration-day-place) var(--ease-sheet),
+    top var(--duration-day-place) var(--ease-sheet),
+    width var(--duration-day-place) var(--ease-sheet),
+    height var(--duration-day-place) var(--ease-sheet);
+}
+
+.jr-media {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+}
+/*
+ * The feather: only the INNER edges dissolve into the map; the outer edges run off-screen. Corner
+ * photos: the organic blob (feather.ts) at twice the box, centred on the screen corner, so its soft
+ * curve is the inner edge. Bands (phones): a ramp toward the middle. A third layer is the reveal:
+ * full except while a new day's photo spreads in from the screen edge through the old one.
+ */
+.jr-feather {
+  --jr-feather: 26%; /* bands: how far the inner edge fades */
+  --jr-reveal-layer: linear-gradient(#000, #000);
+  --jr-shape: var(--jr-blob);
+  --jr-shape-size: 200% 200%;
+  --jr-shape-pos: 100% 100%;
+  --jr-reveal-at: 0% 0%;
+  position: absolute;
+  inset: 0;
+  -webkit-mask-image: var(--jr-reveal-layer), var(--jr-shape);
+  mask-image: var(--jr-reveal-layer), var(--jr-shape);
+  -webkit-mask-size: 100% 100%, var(--jr-shape-size);
+  mask-size: 100% 100%, var(--jr-shape-size);
+  -webkit-mask-position: 0 0, var(--jr-shape-pos);
+  mask-position: 0 0, var(--jr-shape-pos);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.jr-slot[data-corner="top-left"] .jr-feather {
+  --jr-shape-pos: 100% 100%; /* the blob's centre on the box's top-left corner */
+  --jr-reveal-at: 0% 0%;
+}
+.jr-slot[data-corner="top-right"] .jr-feather {
+  --jr-shape-pos: 0% 100%;
+  --jr-reveal-at: 100% 0%;
+}
+.jr-slot[data-corner="bottom-left"] .jr-feather {
+  --jr-shape-pos: 100% 0%;
+  --jr-reveal-at: 0% 100%;
+}
+.jr-slot[data-corner="bottom-right"] .jr-feather {
+  --jr-shape-pos: 0% 0%;
+  --jr-reveal-at: 100% 100%;
+}
+.jr-slot[data-corner="top"] .jr-feather {
+  --jr-shape: linear-gradient(to bottom, #000 calc(100% - var(--jr-feather)), transparent);
+  --jr-shape-size: 100% 100%;
+  --jr-shape-pos: 0 0;
+  --jr-reveal-at: 50% 0%;
+}
+.jr-slot[data-corner="bottom"] .jr-feather {
+  --jr-shape: linear-gradient(to top, #000 calc(100% - var(--jr-feather)), transparent);
+  --jr-shape-size: 100% 100%;
+  --jr-shape-pos: 0 0;
+  --jr-reveal-at: 50% 100%;
+}
+.jr-media__still,
+.jr-media__clip {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.jr-media__still {
+  filter: brightness(0.9); /* photos sit a little under the map's light */
+}
+.jr-media__clip {
+  opacity: 0;
+  transition: opacity 400ms var(--ease-out);
+}
+.jr-media__clip.is-playing {
+  opacity: 0.92;
+}
+
+/* A new day's photo spreads in from its screen edge through the old one; the old fades under it. */
+.jr-media.is-entering .jr-feather {
+  --jr-reveal-layer: radial-gradient(circle at var(--jr-reveal-at), #000 var(--jr-reveal), transparent calc(var(--jr-reveal) + 30%));
+  animation: jr-reveal var(--duration-day-reveal) var(--ease-out) var(--jr-reveal-delay, 0ms) both;
+}
+.jr-media.is-leaving {
+  animation: jr-fade-out var(--duration-day-fade) var(--ease-out) var(--jr-reveal-delay, 0ms) forwards;
+}
+@keyframes jr-reveal {
+  from {
+    --jr-reveal: -30%;
+  }
+  to {
+    --jr-reveal: 150%;
+  }
+}
+@keyframes jr-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* One short caption (common name or place) on the photo's outer side, never over the map. */
+.jr-media__caption {
+  position: absolute;
+  max-width: 60%;
+  pointer-events: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-fg);
+  animation: jr-rise var(--duration-day-text) var(--ease-out) calc(var(--jr-reveal-delay, 0ms) + 400ms) backwards;
+}
+.jr-slot[data-corner="top-left"] .jr-media__caption {
+  left: calc(var(--jr-gutter) + 1.5rem);
+  top: calc(var(--jr-top-h) + 1.5rem);
+}
+.jr-slot[data-corner="bottom-right"] .jr-media__caption,
+.jr-slot[data-corner="bottom"] .jr-media__caption {
+  right: calc(var(--jr-gutter) + 1.5rem);
+  bottom: calc(var(--jr-bar-h) + 1.5rem);
+}
+.jr-slot[data-corner="top-right"] .jr-media__caption,
+.jr-slot[data-corner="top"] .jr-media__caption {
+  right: calc(var(--jr-gutter) + 1.5rem);
+  top: calc(var(--jr-top-h) + 0.75rem);
+}
+.jr-slot[data-corner="bottom-left"] .jr-media__caption {
+  left: calc(var(--jr-gutter) + 1.5rem);
+  bottom: calc(var(--jr-bar-h) + 1.5rem);
+}
+
+/* -------------------------------------------------- story and diary */
+
+.jr-swap {
+  display: grid;
+}
+.jr-swap__item {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+.jr-swap__item.is-leaving {
+  animation: jr-leave var(--duration-day-leave) ease-in forwards;
+}
+@keyframes jr-leave {
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/*
+ * Text blocks, placed by the layout pass (never on a photo, the route or a marker). Each carries a
+ * soft local scrim (a feathered darkening, not a box) and a night halo on its letters. The block
+ * leans toward the next day while a gesture builds (stepInput pull).
+ */
+.jr-block {
+  position: absolute;
+  z-index: 2;
+  transform: translateY(calc(var(--jr-pull) * -1px));
+}
+.jr-block::before {
+  content: "";
+  position: absolute;
+  inset: -2.5rem -3rem;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(closest-side, var(--color-day-scrim), transparent);
+}
+
+/* Headline: DAY 4 / TADAPANI / 2,630 m · 1 night · teahouse. */
+.jr-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  outline: none;
+}
+.jr-head__day {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-fg);
+}
+.jr-head__place {
+  font-family: var(--font-display);
+  font-size: var(--text-day-place-phone);
+  line-height: 0.92;
+  text-transform: uppercase;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 1024px) {
+  .jr-head__place {
+    font-size: var(--text-day-place);
+    line-height: 0.88;
+  }
+}
+.jr-meta {
+  margin-top: 0.375rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  font-style: normal;
+}
+.jr-alt {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+.jr-alt__num {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: var(--font-accent--weight);
+  font-variation-settings: "WONK" 1;
+  font-size: 1.75rem;
+  line-height: 1;
+}
+.jr-alt__unit,
+.jr-meta__part {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-fg);
+}
+@media (min-width: 1024px) {
+  .jr-alt__num {
+    font-size: 2.25rem;
+  }
+}
+
+/* A tapped stop of the day: name, altitude, one line. */
+.jr-stop {
+  margin-top: 0.75rem;
+  max-width: 34ch;
+  animation: jr-rise var(--duration-day-text) var(--ease-out) both;
+}
+.jr-stop__name {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-size: 1.5rem;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.jr-stop__alt,
+.jr-chip__alt {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--color-fg-muted);
+}
+.jr-stop__line {
+  margin-top: 0.375rem;
+  font-size: var(--text-small);
+  line-height: var(--text-small--line-height);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Birds: "78 birds possible", three names drifting upward, "+75 more birds" (opens the sheet). */
+.jr-tally {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-style: normal;
+}
+.jr-tally__item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.jr-tally__num {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: var(--font-accent--weight);
+  font-variation-settings: "WONK" 1;
+  font-size: 1.75rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.jr-tally__word {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-fg);
+}
+@media (min-width: 1024px) {
+  .jr-tally__num {
+    font-size: 2.25rem;
+  }
+}
+
+/* Three names at a time, one line each, drifting slowly upward (a seamless loop of two copies). */
+.jr-names {
+  --jr-name-h: 1.625rem;
+  margin-top: 0.5rem;
+  height: calc(3 * var(--jr-name-h));
+  overflow: hidden;
+  pointer-events: auto; /* hover pauses it */
+  outline-offset: 4px;
+}
+.jr-names[data-moving] {
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 78%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 78%, transparent);
+}
+.jr-names[data-moving] .jr-names__track {
+  animation: jr-names var(--jr-names-sec, 60s) linear infinite;
+}
+.jr-names__list li {
+  height: var(--jr-name-h);
+  line-height: var(--jr-name-h);
+  white-space: nowrap; /* a name is never wrapped or broken */
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-fg);
+}
+/* Paused on hover / focus, while the sheet is open, and while the day view is leaving. */
+.jr-names:hover .jr-names__track,
+.jr-names:focus-visible .jr-names__track,
+.jr[data-sheet] .jr-names__track,
+.jr[data-phase="leaving"] .jr-names__track {
+  animation-play-state: paused;
+}
+@keyframes jr-names {
+  to {
+    transform: translateY(-50%);
+  }
+}
+.jr-names__more {
+  margin-top: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+/* The whole way: the full route, every bird, and the way to book it. */
+.jr-whole__stats {
+  margin-top: 0.75rem;
+  gap: 1.25rem;
+}
+.jr-whole__actions {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ------------------------------------------ step choreography (enter) */
+
+/* Media lead (A 250 ms, B 330 ms), the headline follows (450), then meta (600), then the birds (700). */
+.jr-swap__item.is-entering .jr-head__day {
+  animation: jr-slide var(--duration-day-text) var(--ease-out) calc(var(--delay-day-head) + var(--jr-shift, 0ms)) backwards;
+}
+.jr-swap__item.is-entering .jr-head__place {
+  animation: jr-place var(--duration-day-place) var(--ease-sheet) calc(var(--delay-day-head) + var(--jr-shift, 0ms)) backwards;
+}
+.jr-swap__item.is-entering .jr-meta,
+.jr-swap__item.is-entering .jr-whole__stats,
+.jr-swap__item.is-entering .jr-whole__actions {
+  animation: jr-rise var(--duration-day-text) var(--ease-out) calc(var(--delay-day-meta) + var(--jr-shift, 0ms)) backwards;
+}
+.jr-swap__item.is-entering .jr-tally,
+.jr-swap__item.is-entering .jr-names,
+.jr-swap__item.is-entering .jr-names__more {
+  animation: jr-rise var(--duration-day-text) var(--ease-out) calc(var(--delay-day-diary) + var(--jr-shift, 0ms)) backwards;
+}
+/* Backwards steps: the same choreography, travelling the other way. */
+.jr[data-direction="-1"] .jr-swap__item.is-entering .jr-head__place {
+  animation-name: jr-place-back;
+}
+/* A direct landing on ?day=n: the day is simply there. */
+.jr[data-landing] .jr-swap__item.is-entering .jr-head__day,
+.jr[data-landing] .jr-swap__item.is-entering .jr-head__place,
+.jr[data-landing] .jr-swap__item.is-entering .jr-meta,
+.jr[data-landing] .jr-swap__item.is-entering .jr-tally,
+.jr[data-landing] .jr-swap__item.is-entering .jr-names,
+.jr[data-landing] .jr-swap__item.is-entering .jr-names__more,
+.jr[data-landing] .jr-media__caption {
+  animation: none;
+}
+
+@keyframes jr-slide {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+@keyframes jr-place {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(1.06);
+  }
+}
+@keyframes jr-place-back {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(1.06);
+  }
+}
+@keyframes jr-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+/* --------------------------------------------------- This-day sheet */
+
+.jr-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  height: 72svh;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  border: 1px solid var(--color-border);
+  border-bottom: 0;
+  background: var(--color-bg-raised);
+  box-shadow: var(--shadow-sheet);
+  text-shadow: none;
+  transform: translateY(calc(100% + 2rem));
+  transition: transform var(--duration-day-sheet) var(--ease-sheet);
+}
+.jr-sheet[data-open] {
+  transform: translateY(var(--jr-sheet-drag, 0px));
+}
+@media (min-width: 1024px) {
+  .jr-sheet {
+    left: 50%;
+    right: auto;
+    width: min(40rem, calc(100vw - 3rem));
+    height: 62vh;
+    transform: translate(-50%, calc(100% + 2rem));
+  }
+  .jr-sheet[data-open] {
+    transform: translate(-50%, var(--jr-sheet-drag, 0px));
+  }
+}
+.jr-sheet__handle {
+  flex: none;
+  display: grid;
+  place-items: center;
+  height: 1.5rem;
+  cursor: grab;
+  touch-action: none;
+}
+.jr-sheet__handle span {
+  width: 2.5rem;
+  height: 0.25rem;
+  border-radius: 999px;
+  background: var(--color-border);
+}
+.jr-sheet__head {
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 var(--jr-gutter) 0.5rem;
+}
+.jr-sheet__title {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  line-height: var(--text-h3--line-height);
+  text-transform: uppercase;
+  outline: none;
+}
+.jr-sheet__body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  padding: 0.5rem var(--jr-gutter) max(2rem, env(safe-area-inset-bottom));
+  display: grid;
+  gap: 1.75rem;
+  align-content: start;
+  font-size: var(--text-small);
+  line-height: var(--text-small--line-height);
+}
+.jr-sheet__label {
+  margin-bottom: 0.5rem;
+  color: var(--color-fg-muted);
+}
+.jr-sheet__stops {
+  display: grid;
+  gap: 1rem;
+}
+.jr-sheet__stop {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-style: normal;
+}
+.jr-sheet__stop-name {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  text-transform: uppercase;
+}
+.jr-memory + .jr-memory {
+  margin-top: 1.25rem;
+}
+.jr-memory__title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+.jr-memory__when {
+  font-style: normal;
+  color: var(--color-fg-muted);
+}
+.jr-checklist {
+  margin-top: 0.375rem;
+  display: grid;
+  gap: 0.5rem;
+}
+.jr-checklist__item {
+  display: grid;
+  grid-template-columns: 1rem 1fr auto;
+  align-items: start;
+  gap: 0.25rem;
+}
+.jr-checklist__star {
+  color: var(--color-accent);
+}
+
+/* ---------------------------------------------------- reduced motion */
+
+/* Crossfades only: no camera flights (the engine jumps), no reveal, no lean, no rise. */
+@media (prefers-reduced-motion: reduce) {
+  .jr-block {
+    transform: none;
+  }
+  /* The names stand still: the first three. */
+  .jr .jr-names .jr-names__track {
+    animation: none !important;
+  }
+  .jr .jr-names[data-moving] {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .jr .jr-media.is-entering .jr-feather {
+    --jr-reveal-layer: linear-gradient(#000, #000);
+    animation: jr-fade-in 150ms linear both !important;
+  }
+  .jr .jr-media.is-leaving {
+    animation: jr-fade-out 150ms linear forwards !important;
+  }
+  @keyframes jr-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+}

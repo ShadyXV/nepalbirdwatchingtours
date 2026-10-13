@@ -15,8 +15,13 @@ export const MAP_LAYOUT = {
   /** Trip / place: share of the screen the story's first lines cover, phones / desktop. */
   storyPeekPhone: 0.26,
   storyPeekDesktop: 0.16,
-  /** Trip pages: room kept free above the peek for the stop stepper, rem. */
-  stepperRem: 4.5,
+  /**
+   * Trip pages: room kept free above the peek (map controls, the story button on the seam), rem.
+   * "Start the journey" sits a little higher, clear of the sheet's soft edge (navigator.css).
+   */
+  stepperRem: 4,
+  /** Trip pages: room kept free at the top of the map for the stepper pill, rem. */
+  navigatorTopRem: 4,
   /** From this viewport width: desktop layout. */
   desktopFrom: 1024,
 } as const;
@@ -53,5 +58,31 @@ export function mapInsets(mode: MapLayoutMode, container: HTMLElement): Insets {
       ? wide ? MAP_LAYOUT.homePeekDesktop : MAP_LAYOUT.homePeekPhone
       : wide ? MAP_LAYOUT.storyPeekDesktop : MAP_LAYOUT.storyPeekPhone;
   const stepper = mode === "trip" ? MAP_LAYOUT.stepperRem * rem : 0;
-  return { top: 0, right: 0, bottom: hidden + share * screenH + stepper, left: 0 };
+  const top = mode === "trip" ? MAP_LAYOUT.navigatorTopRem * rem : 0;
+  return { top, right: 0, bottom: hidden + share * screenH + stepper, left: 0 };
+}
+
+/**
+ * The trip's day view ("the journey", docs/JOURNEY.md): the map fills the whole screen. The camera
+ * fits the day's walk into this clear band (shares of the screen); the day's photos, headline and
+ * birds are then laid out around where the walk really sits (components/journey/dayLayout.ts), and
+ * this band is also that pass's first guess while the camera is still moving.
+ *
+ *   desktop  the walk runs up a column at x 34–60 %: photo A and the birds on its left, the
+ *            headline and photo B on its right
+ *   phones   the walk runs up the middle band, y 36–70 %: photo A and the headline above it, the
+ *            birds and photo B below
+ */
+export const DAY_LAYOUT = {
+  desktop: { top: 0.16, right: 0.4, bottom: 0.14, left: 0.34 },
+  phone: { top: 0.36, right: 0.1, bottom: 0.3, left: 0.1 },
+} as const;
+
+/** Camera padding for the day view (client only): the map container fills the screen there. */
+export function dayInsets(container: HTMLElement): Insets {
+  const w = container.clientWidth;
+  const h = Math.min(container.clientHeight, window.innerHeight);
+  const hidden = Math.max(0, container.clientHeight - h);
+  const s = window.innerWidth >= MAP_LAYOUT.desktopFrom ? DAY_LAYOUT.desktop : DAY_LAYOUT.phone;
+  return { top: s.top * h, right: s.right * w, bottom: s.bottom * h + hidden, left: s.left * w };
 }

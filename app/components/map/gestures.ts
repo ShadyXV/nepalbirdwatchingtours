@@ -6,6 +6,9 @@
  *                     gestures) so one-finger swipes keep scrolling the page.
  *   explore (trip,    drag pans, wheel / pinch zoom, right-drag or Ctrl-drag and two-finger
  *   place)            twist / tilt rotate and tilt; the navigator and story are the scroll handle.
+ *   journey (day      the map is choreographed: no pan, zoom or MapLibre rotate. Scroll, swipe
+ *   view)             and keys step the days (journey/stepInput.ts); only the orbit (orbit.ts:
+ *                     buttons, Q / E, right-drag) may turn the camera for a look-around.
  *
  * Also: remembers when the user last touched the camera (automatic moves wait for them), a soft
  * edge (a pan that ends far outside Nepal eases back inside), and whether the user has turned or
@@ -16,7 +19,7 @@ import { readDurationMs, readToken } from "~/design/tokens";
 import { parseEasing } from "~/lib/easing";
 import { CAMERA, softBoundsCorrection } from "./camera";
 
-export type GestureMode = "overview" | "explore";
+export type GestureMode = "overview" | "explore" | "journey";
 
 type GestureEvents = {
   /** The user moved the camera, or pressed on the map. */
@@ -47,6 +50,8 @@ export class Gestures {
   private userMoving = false;
   /** The current user gesture turned or tilted the map (not just a pan / zoom). */
   private userTurned = false;
+  /** An orbit (orbit.ts) is moving the camera for the user: its frames are not "app moves". */
+  private orbiting = false;
   private readonly dispose: (() => void)[] = [];
 
   constructor(map: MapLibreMap, container: HTMLElement, hints: HintTexts, events: GestureEvents) {
@@ -71,6 +76,7 @@ export class Gestures {
       if (isUser(e)) this.userTurned = true;
     };
     const onEnd = (e: MapLibreEvent) => {
+      if (this.orbiting) return;
       if (this.userMoving || isUser(e)) {
         this.userMoving = false;
         if (this.userTurned) this.checkAdjusted();
@@ -115,6 +121,19 @@ export class Gestures {
 
   setMode(mode: GestureMode): void {
     const m = this.map;
+    if (mode === "journey") {
+      m.dragPan.disable();
+      m.scrollZoom.disable();
+      m.keyboard.disable();
+      m.doubleClickZoom.disable();
+      m.touchZoomRotate.disable();
+      m.touchPitch.disable();
+      m.dragRotate.disable();
+      m.boxZoom.disable();
+      m.cooperativeGestures.disable();
+      this.container.dataset.gestures = mode;
+      return;
+    }
     m.dragPan.enable(CAMERA.inertia);
     m.scrollZoom.enable();
     m.keyboard.enable();
@@ -126,6 +145,19 @@ export class Gestures {
     if (mode === "overview") m.cooperativeGestures.enable();
     else m.cooperativeGestures.disable();
     this.container.dataset.gestures = mode;
+  }
+
+  /** An orbit starts: its camera frames belong to the user (they don't reset the reference). */
+  orbitStart(): void {
+    this.orbiting = true;
+    this.markInput();
+  }
+
+  /** The orbit ended: show "reset view" if the view is now turned away from the app's. */
+  orbitEnd(): void {
+    this.orbiting = false;
+    this.markInput();
+    this.checkAdjusted();
   }
 
   markInput(): void {

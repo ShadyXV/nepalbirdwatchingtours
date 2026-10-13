@@ -1,0 +1,133 @@
+/*
+ * The trip overview's on-map navigator (StopStepper.tsx) and the story button (TripScreen).
+ * Design values through tokens. The room they take is in app/lib/mapLayout.ts (MAP_LAYOUT
+ * navigatorTopRem / stepperRem), so the camera keeps its subject clear of them.
+ *
+ *   top      the stepper pill, centred under the site header: compact, high contrast
+ *   bottom   "Start the journey", the prominent CTA, above the story's peek (left on phones, so it
+ *            never meets the orbit controls on the right; centred on desktop)
+ *   seam     the round story button, on the sheet's top edge (TripScreen), styled like a stop marker
+ */
+
+/* The navigator layer covers the stage; only its controls take the pointer. */
+.nbt-stage .nbt-stage__stepper {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  transform: none;
+  pointer-events: none;
+}
+
+.nbt-navigator__top {
+  position: absolute;
+  top: 0.625rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(22rem, calc(100% - 2 * var(--spacing-gutter)));
+  pointer-events: auto;
+}
+.nbt-navigator__top .nbt-stepper {
+  gap: 0.125rem;
+  padding: 0.125rem;
+  border-radius: 999px;
+  border-color: color-mix(in oklab, var(--color-snow) 34%, transparent);
+  background: color-mix(in oklab, var(--color-night) 94%, transparent);
+}
+.nbt-navigator__top .nbt-stepper__arrow {
+  border-radius: 999px;
+}
+.nbt-navigator__top .nbt-stepper__day {
+  color: color-mix(in oklab, var(--color-snow) 78%, transparent);
+}
+
+.nbt-navigator__bottom {
+  position: absolute;
+  left: var(--spacing-gutter);
+  /* Above the peek and clear of the sheet's soft top edge (6rem, layout.css). */
+  bottom: calc(var(--map-stage-h) - var(--map-visible-h) + var(--map-peek) + 6.25rem);
+  pointer-events: auto;
+}
+@media (min-width: 1024px) {
+  .nbt-navigator__bottom {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+.nbt-navigator__journey {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--spacing-tap);
+  padding: 0 1.125rem;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+  box-shadow: var(--shadow-card);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background-color var(--duration-micro) var(--ease-out);
+}
+.nbt-navigator__journey:hover {
+  background: var(--color-fg);
+}
+.nbt-navigator__journey svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/*
+ * The story button: a round stop-marker look (dark fill, bold snow outline, the map's marker
+ * tokens) with a chevron; on the sheet's top edge, half over the map. Up = bring the story up;
+ * once the story is up it flips (down = back to the map).
+ */
+.nbt-story-btn {
+  display: flex;
+  justify-content: center;
+  height: 0;
+}
+.nbt-story-btn a {
+  position: relative; /* above the sheet's soft top edge (a positioned ::before) */
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  margin-top: calc(-1.625rem - var(--story-btn-offset, 0.5rem));
+  border-radius: 999px;
+  color: var(--color-map-marker-ink);
+  filter: drop-shadow(0 2px 6px color-mix(in oklab, var(--color-night) 70%, transparent));
+  transition: transform var(--duration-ui) var(--ease-out);
+}
+.nbt-story-btn svg {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+.nbt-story-btn circle {
+  fill: var(--color-map-marker);
+  stroke: var(--color-map-marker-ink);
+  stroke-width: 2.25px;
+}
+.nbt-story-btn path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform-origin: 20px 20px;
+  transition: transform var(--duration-ui) var(--ease-out);
+}
+.nbt-story-btn a:hover circle {
+  stroke: var(--color-accent);
+}
+.nbt-story-btn[data-down] path {
+  transform: rotate(180deg);
+}

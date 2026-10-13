@@ -1,8 +1,7 @@
 import type { Landmark, Trip } from "~/content/types";
 import type { MapApi, StepState } from "./controller";
 
-export type { MapApi, StepOptions, StepperApi, StepSource, StepState } from "./controller";
-export type { AutoplayStatus } from "./tour";
+export type { DayStepOptions, JourneyApi, JourneyFootprint, JourneyListener, MapApi, OrbitApi, StepOptions, StepperApi, StepSource, StepState } from "./controller";
 
 export type MapAppearance = "solid" | "overlay"; // overlay = translucent background so a media layer beneath shows through
 
@@ -18,7 +17,7 @@ export type NepalMapProps = {
   onSelectTrip: (slug: string | null) => void;
   onSelectWaypoint: (id: string | null) => void;
   onSelectPlace: (id: string | null) => void;
-  /** The stepping engine's state (focused stop, autoplay status) on every change. */
+  /** The stepping engine's state (focused stop) on every change. */
   onStepChange?: (state: StepState) => void;
   /** The map's API (stepping engine, view tools) once created; null when it goes away. */
   onReady?: (api: MapApi | null) => void;

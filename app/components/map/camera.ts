@@ -10,6 +10,8 @@
  *   S1 trip      fit the route, pitched, bearing roughly along the route
  *   S2 stop      closer on the stop, turned and tilted so the stop is not hidden by a ridge
  *   S3 place     framed by kind; peaks seen from a low camera, looking at the face
+ *   day view     one day's walk, straightened: the bearing follows the direction of travel so the
+ *                walk runs up the screen, pitched, fitted to the clear band of the day layout
  */
 import type { Landmark, LngLat, Trip } from "~/content/types";
 import {
@@ -35,7 +37,7 @@ export const CAMERA = {
   hardBoundsMargin: [7, 5.5] as const,
   /** Zoom-out limit: this much below the "all of Nepal" fit for the current viewport. */
   minZoomSlack: 0.6,
-  /** Zoom-in limit. The DEM goes to z12; beyond ~z14.5 overzoomed relief gets soft. */
+  /** Zoom-in limit. Shading DEM tiles go to z14 (the 3D mesh to z11, look.ts DEM); beyond ~z14.5 relief gets soft. */
   maxZoom: 14.5,
   /** flyTo zoom-out curve (MapLibre default 1.42); lower = flatter arc. */
   flightCurve: 1.3,
@@ -83,8 +85,6 @@ export const CAMERA = {
     /** Visibility search: try every bearingStep around the current view, then lower pitches. */
     visibility: { pitches: [50, 43, 36, 28], bearingStep: 25, bearingSpan: 175 },
   },
-  /** Auto-tour framing: a little wider than a deliberate stop. */
-  tour: { zoomOut: 0.45, startDelayMs: 900 },
   place: {
     peak: { zoom: 11.2, pitch: 62 },
     range: { zoom: 9.3, pitch: 50 },
@@ -98,6 +98,46 @@ export const CAMERA = {
     /** Visibility search for a peak's face: stay near the face bearing, lower the camera if hidden. */
     visibility: { pitches: [62, 54, 46, 38], bearingStep: 20, bearingSpan: 60 },
   },
+  /**
+   * Day view ("the journey", docs/JOURNEY.md): one day's walk, straightened (bearing = direction of
+   * travel, so the walk runs up the screen), pitched like a view along the trail.
+   */
+  day: {
+    pitch: { desktop: 52, phone: 56 },
+    /** Bus days zoom out to minZoom; short birding days zoom in to maxZoom. */
+    minZoom: 10,
+    maxZoom: 13.4,
+    /** Rest days (no walk): this close on the stay. */
+    restZoom: 12.6,
+    margin: 24,
+    pitchSlack: 1.25,
+    /** A day whose start and end are closer than this has no direction: use the walk's axis. */
+    minChordKm: 0.3,
+    /**
+     * Visibility search, kept straight: bearings within ±20° of the travel bearing, and lowering
+     * the pitch is preferred over turning. Accept a view when the anchor and at least `minShare`
+     * of `samples` points along the walk are in sight.
+     */
+    visibility: { pitches: [52, 44, 36], bearingOffsets: [0, 10, -10, 20, -20], minShare: 0.7, samples: 8 },
+    /** Day-to-day move: base + perLog2Km·log2(1 + km/2) + perDeg·|Δbearing| ms, clamped. */
+    move: { baseMs: 900, perLog2Km: 300, perDeg: 4, minMs: 900, maxMs: 1800 },
+    /** Opening the day view from the overview: one longer flight. */
+    enterMs: 2000,
+    /** Tapping one of the day's other stops: the camera goes there, this much closer. */
+    midpointZoomIn: 0.7,
+  },
+  /**
+   * Orbit controls (↺ ↻, Q / E): turn the camera around the point in focus (the day's anchor or
+   * tapped stop, the focused stop, the place; else the screen centre), keeping pitch and zoom.
+   */
+  orbitStepDeg: 35,
+  /** One tap's turn, ms (--ease-map). */
+  orbitMs: 700,
+  /** Press and hold longer than this: keep orbiting, slowly, until release. */
+  orbitHoldMs: 320,
+  orbitDegPerSec: 24,
+  /** Reduced motion: one instant snap of this size per tap, no continuous orbit. */
+  orbitReducedDeg: 45,
   /** How long a camera move waits for the elevation data before going ahead without the check. */
   visibilityWaitMs: 450,
   /** Area around a trip / place for which elevation is fetched up front, km. */
@@ -303,4 +343,69 @@ export function placeCamera(place: Landmark, viewpoints: LngLat[], frame: Frame)
   const framing = CAMERA.place[place.kind];
   const bearing = place.kind === "peak" ? faceBearing(place, viewpoints) : CAMERA.overview.bearing / 2;
   return { center: place.coords, zoom: framing.zoom, bearing, pitch: framing.pitch, padding: frame.padding };
+}
+
+/* ------------------------------------------------------------ day view */
+
+export type DayFraming = {
+  /** The day's walk, from the previous anchor to this one (one point on a rest day). */
+  segment: LngLat[];
+  /** Every point that should be in the frame (the walk and the day's stops). */
+  points: LngLat[];
+  anchor: LngLat;
+};
+
+/**
+ * The direction of travel for a day: from the walk's start to its end. Loops and short days use
+ * the walk's long axis (the end nearer the previous bearing); rest days keep the previous bearing.
+ */
+export function dayBearing(day: DayFraming, previous: number | null): number {
+  const d = CAMERA.day;
+  const start = day.segment[0];
+  const end = day.segment[day.segment.length - 1];
+  if (day.segment.length > 1 && distanceKm(start, end) >= d.minChordKm) return wrapDegrees(bearingBetween(start, end));
+  const fallback = previous ?? CAMERA.trip.defaultBearing;
+  if (day.points.length < 2) return fallback;
+  const { bearing: axis, elongation } = principalAxis(day.points);
+  if (elongation < CAMERA.trip.minElongation) return fallback;
+  const flip = Math.abs(wrapDegrees(axis - fallback)) > 90 ? 180 : 0;
+  return wrapDegrees(axis + flip);
+}
+
+export function dayPitch(frame: Frame): number {
+  return frame.width >= 1024 ? CAMERA.day.pitch.desktop : CAMERA.day.pitch.phone;
+}
+
+/** Centre and zoom that fit a day for a bearing and pitch (used by the visibility search too). */
+export function fitDay(day: DayFraming, frame: Frame, bearing: number, pitch: number): { center: LngLat; zoom: number } {
+  const d = CAMERA.day;
+  if (day.points.length < 2 || boundsSpanKm(day.points) < 0.05) return { center: day.anchor, zoom: d.restZoom };
+  return fitPoints({
+    points: day.points,
+    bearing,
+    pitch,
+    ...frame,
+    margin: d.margin,
+    pitchSlack: d.pitchSlack,
+    minZoom: d.minZoom,
+    maxZoom: d.maxZoom,
+  });
+}
+
+/** The geometric day camera (before the visibility check). */
+export function dayCamera(day: DayFraming, frame: Frame, previousBearing: number | null): CameraTarget {
+  const bearing = dayBearing(day, previousBearing);
+  const pitch = dayPitch(frame);
+  return { ...fitDay(day, frame, bearing, pitch), bearing, pitch, padding: frame.padding };
+}
+
+/** Duration of a day-to-day camera move, ms. */
+export function dayMoveMs(km: number, turnDeg: number): number {
+  const m = CAMERA.day.move;
+  return clamp(m.baseMs + m.perLog2Km * Math.log2(1 + km / 2) + m.perDeg * Math.abs(turnDeg), m.minMs, m.maxMs);
+}
+
+function boundsSpanKm(points: LngLat[]): number {
+  const b = boundsOf(points);
+  return distanceKm([b.west, b.south], [b.east, b.north]);
 }

@@ -2,9 +2,11 @@ import "~/components/map/layout.css";
 
 import { lazy, Suspense, useCallback, useRef, useState, type CSSProperties } from "react";
 import { Outlet, useLocation, useNavigate, useParams, useSearchParams } from "react-router";
+import { Journey } from "~/components/journey/Journey";
 import type { MapLayoutContext } from "~/components/map/layoutContext";
 import { StopStepper } from "~/components/map/StopStepper";
 import type { MapApi, StepState } from "~/components/map/types";
+import { TerrainBackdrop } from "~/components/ui";
 import { getLandmarks, getPublishedTrips, getTrip } from "~/content";
 import { readDurationMs } from "~/design/tokens";
 import { t } from "~/i18n";
@@ -96,7 +98,8 @@ export default function MapLayout() {
     : 0;
 
   const fallback = (
-    <div className="h-full w-full bg-bg" role="status">
+    <div className="relative h-full w-full bg-bg" role="status">
+      <TerrainBackdrop />
       <span className="sr-only">{t("map.loading")}</span>
     </div>
   );
@@ -126,7 +129,7 @@ export default function MapLayout() {
         <div className="nbt-stage__dim" aria-hidden="true" />
         {hydrated && trip && (
           <div className="nbt-stage__stepper">
-            <StopStepper trip={trip} activeWaypointId={activeWaypointId} step={step} map={mapApi} onSelect={setActiveWaypoint} />
+            <StopStepper trip={trip} activeWaypointId={activeWaypointId} step={step} onSelect={setActiveWaypoint} />
           </div>
         )}
       </div>
@@ -142,6 +145,9 @@ export default function MapLayout() {
       >
         <Outlet context={context} />
       </div>
+
+      {/* The trip's day view (?day=n): a full-screen mode over the map, see components/journey. */}
+      {hydrated && trip && <Journey key={trip.slug} trip={trip} map={mapApi} mapReady={step?.tripSlug === trip.slug} />}
     </div>
   );
 }
