@@ -113,4 +113,8 @@
   --duration-map-return: 2200ms; /* back out to the overview */
   --duration-route-draw: 1400ms; /* route draws along its length */
   --duration-pop: 520ms; /* one stop marker popping in */
+  --duration-map-step: 1400ms; /* deliberate stop step: pan + turn + tilt */
+  --duration-tour-glide: 2400ms; /* auto-tour: glide to the next key stop */
+  --duration-tour-dwell: 2600ms; /* auto-tour: time at each stop after arriving */
+  --duration-soft-edge: 700ms; /* easing back inside the soft map edge */
 }

@@ -11,6 +11,8 @@ import { assetUrl } from "~/lib/site";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
+const formatAltitude = (m: number) => `${m.toLocaleString("en")} m`;
+
 /* ---------------------------------------------------------------- blobs */
 
 /**
@@ -124,12 +126,14 @@ export function createTripPin(trip: Trip, birdsLabel: string, birds: number): Ma
 /* ---------------------------------------------------------------- stops */
 
 /**
- * S1/S2 stop: an irregular blob. Stays (nights > 0) are filled rhododendron; pass-through birding
- * spots are smaller, hollow, monal-ringed. Anchor: center.
+ * S1/S2 stop: an irregular blob. Key stops (featured in the story) are full size: filled
+ * rhododendron for stays, hollow monal-ringed for pass-through birding spots. Other stops are small,
+ * quiet dots. Anchor: center.
  */
-export function createStopMarker(waypoint: Waypoint, index: number, ariaLabel: string): MarkerDom {
+export function createStopMarker(waypoint: Waypoint, index: number, ariaLabel: string, key: boolean): MarkerDom {
   const stay = waypoint.nights > 0;
-  const dom = shell(`nbt-stop ${stay ? "nbt-stop--stay" : "nbt-stop--spot"}`, ariaLabel);
+  const kind = key ? `nbt-stop--key ${stay ? "nbt-stop--stay" : "nbt-stop--spot"}` : "nbt-stop--minor";
+  const dom = shell(`nbt-stop ${kind}`, ariaLabel);
   dom.inner.style.setProperty("--i", String(index));
   const blob = svg("nbt-stop__blob");
   svgChild(blob, "path", { d: blobPath(waypoint.id) });
@@ -138,6 +142,23 @@ export function createStopMarker(waypoint: Waypoint, index: number, ariaLabel: s
   label.setAttribute("aria-hidden", "true");
   dom.inner.appendChild(label);
   return dom;
+}
+
+/**
+ * The auto-tour's tag over the current stop: `DAY 4` (accent italic) over `TADAPANI · 2,630 m`,
+ * plus a pulse ring. Lives inside the stop marker while the tour is there.
+ */
+export function createTourTag(waypoint: Waypoint, dayLabel: string): HTMLElement {
+  const tag = el("span", "nbt-tour");
+  tag.setAttribute("aria-hidden", "true");
+  const day = el("span", "nbt-tour__day");
+  const number = String(waypoint.day);
+  const at = dayLabel.lastIndexOf(number);
+  if (at >= 0) {
+    day.append(document.createTextNode(dayLabel.slice(0, at)), el("span", "nbt-tour__num", number), document.createTextNode(dayLabel.slice(at + number.length)));
+  } else day.textContent = dayLabel;
+  tag.append(el("span", "nbt-tour__pulse"), day, el("span", "nbt-tour__place", `${waypoint.name} · ${formatAltitude(waypoint.altitudeM)}`));
+  return tag;
 }
 
 /** The "lens" around the active stop: ring, faint grid, warm glow. Lives inside the stop marker. */
@@ -150,7 +171,6 @@ export function createLens(): HTMLElement {
 
 /* ---------------------------------------------------------- place labels */
 
-const formatAltitude = (m: number) => `${m.toLocaleString("en")} m`;
 
 /** Spoken label for a place, e.g. "Machhapuchhre, 6,993 m". */
 export function placeAriaLabel(place: Landmark): string {

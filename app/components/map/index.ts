@@ -1,2 +1,2 @@
 export { NepalMap } from "./NepalMap";
-export type { MapAppearance, NepalMapProps } from "./types";
+export type { AutoplayStatus, MapApi, MapAppearance, NepalMapProps, StepOptions, StepperApi, StepSource, StepState } from "./types";

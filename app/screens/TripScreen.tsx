@@ -7,12 +7,15 @@ import { getSpecies } from "~/content";
 import type { Sighting, SpeciesGroup, Trip, Waypoint } from "~/content/types";
 import { t } from "~/i18n";
 import { formatPrice, monthName } from "~/lib/format";
+import { isKeyStop } from "~/lib/tripStops";
 
 const perKey = { person: "trip.perPerson", group: "trip.perGroup", day: "trip.perDay" } as const;
 
 export function TripScreen({ trip }: { trip: Trip }) {
   const { openInquiry } = useInquiry();
-  const { activeWaypointId, setActiveWaypoint } = useMapLayoutContext();
+  const { activeWaypointId, setActiveWaypoint, step } = useMapLayoutContext();
+  // The stop the map is showing right now (chosen, or visited by the autoplay).
+  const focusedId = activeWaypointId ?? (step?.tripSlug === trip.slug ? step.waypointId : null);
   const { pricing } = trip;
 
   const facts: [string, string][] = [
@@ -73,6 +76,8 @@ export function TripScreen({ trip }: { trip: Trip }) {
               key={waypoint.id}
               waypoint={waypoint}
               active={waypoint.id === activeWaypointId}
+              focused={waypoint.id === focusedId}
+              keyStop={isKeyStop(trip, waypoint)}
               onToggle={() => setActiveWaypoint(waypoint.id === activeWaypointId ? null : waypoint.id)}
             />
           ))}
@@ -112,7 +117,9 @@ export function TripScreen({ trip }: { trip: Trip }) {
   );
 }
 
-function WaypointItem({ waypoint, active, onToggle }: { waypoint: Waypoint; active: boolean; onToggle: () => void }) {
+type WaypointItemProps = { waypoint: Waypoint; active: boolean; focused: boolean; keyStop: boolean; onToggle: () => void };
+
+function WaypointItem({ waypoint, active, focused, keyStop, onToggle }: WaypointItemProps) {
   const details = [
     t("trip.day", { day: waypoint.day }),
     `${waypoint.altitudeM.toLocaleString("en")} m`,
@@ -120,7 +127,7 @@ function WaypointItem({ waypoint, active, onToggle }: { waypoint: Waypoint; acti
   ].filter(Boolean);
 
   return (
-    <li className={`overflow-hidden rounded-card border ${active ? "border-route bg-bg" : "border-border"}`}>
+    <li className={`overflow-hidden rounded-card border ${active ? "border-route bg-bg" : focused ? "border-route/50" : "border-border"}`}>
       <button
         type="button"
         className="flex min-h-14 w-full items-center gap-3 px-3 py-3 text-left"
@@ -129,7 +136,7 @@ function WaypointItem({ waypoint, active, onToggle }: { waypoint: Waypoint; acti
       >
         <span
           aria-hidden="true"
-          className={`size-3.5 shrink-0 rounded-full border-2 border-fg ${active ? "bg-marker" : "bg-transparent"}`}
+          className={`shrink-0 rounded-full border-2 ${keyStop ? "size-3.5 border-fg" : "size-2.5 border-fg-muted"} ${active || focused ? "bg-marker" : "bg-transparent"}`}
         />
         <span className="min-w-0">
           <span className="block font-medium">{waypoint.name}</span>

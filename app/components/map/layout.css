@@ -6,15 +6,32 @@
  *                browser bars show / hide); a negative margin lets the content flow over it
  *   .nbt-spacer  transparent, taps go through to the map
  *   .nbt-sheet   the page, in normal flow: readable with or without JavaScript
+ *
+ * Every mode (home, trip, place) is the same shape: the map fills the screen and the content
+ * rises over it as a dark sheet. Only the peek differs.
  */
 
 .nbt-layout {
   --map-stage-h: calc(100vh - var(--spacing-header));
+  /* Visible screen below the header; the stage is taller by the mobile-bar strip. */
+  --map-visible-h: calc(100svh - var(--spacing-header));
+  --map-peek: var(--map-story-peek);
   position: relative;
 }
 @supports (height: 100lvh) {
   .nbt-layout {
     --map-stage-h: calc(100lvh - var(--spacing-header));
+  }
+}
+.nbt-layout[data-mode="home"] {
+  --map-peek: var(--map-home-peek);
+}
+@media (min-width: 1024px) {
+  .nbt-layout {
+    --map-peek: var(--map-story-peek-desktop);
+  }
+  .nbt-layout[data-mode="home"] {
+    --map-peek: var(--map-home-peek-desktop);
   }
 }
 
@@ -37,33 +54,33 @@
   opacity: calc(var(--map-dim, 0) * 0.7);
 }
 
+/* Trip pages: the stop stepper sits just above the content peek, centred on the map. */
+.nbt-stage__stepper {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(26rem, calc(100% - 2 * var(--spacing-gutter)));
+  /* From the bottom of the (taller) stage: hidden strip + peek + a small gap. */
+  bottom: calc(var(--map-stage-h) - var(--map-visible-h) + var(--map-peek) + 0.75rem);
+  z-index: 2;
+}
+
 .nbt-spacer {
   pointer-events: none;
-  height: calc(100svh - var(--spacing-header) - var(--map-sheet-peek));
-}
-.nbt-layout[data-mode="home"] .nbt-spacer {
-  height: calc(100svh - var(--spacing-header) - var(--map-home-peek));
+  height: calc(var(--map-visible-h) - var(--map-peek));
 }
 
 /* ------------------------------------------------------------- sheet */
 
+/* A dark sheet whose top edge melts into the map. */
 .nbt-sheet {
   position: relative;
   z-index: 1;
   /* Always at least a screen tall, so the sticky map never outlasts the content. */
   min-height: var(--map-stage-h);
-  background: var(--color-bg-raised);
-  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
-  box-shadow: var(--shadow-sheet);
-}
-
-/* Home: a dark sheet whose top edge melts into the map. */
-.nbt-layout[data-mode="home"] .nbt-sheet {
   background: var(--color-bg);
-  border-radius: 0;
-  box-shadow: none;
 }
-.nbt-layout[data-mode="home"] .nbt-sheet::before {
+.nbt-sheet::before {
   content: "";
   position: absolute;
   left: 0;
@@ -73,37 +90,10 @@
   pointer-events: none;
   background: linear-gradient(to bottom, transparent, var(--color-bg));
 }
-
-.nbt-sheet__handle {
-  display: flex;
-  justify-content: center;
-  padding: 0.625rem 0 0.25rem;
-}
-.nbt-sheet__handle > span {
-  width: 2.5rem;
-  height: 0.25rem;
-  border-radius: 999px;
-  background: color-mix(in oklab, var(--color-fg-muted) 60%, transparent);
-}
-
-/* Desktop: the trip / place story is a left column over the map; it scrolls with the page. */
-@media (min-width: 1024px) {
-  .nbt-layout[data-mode="sheet"] .nbt-spacer {
-    height: 0;
-  }
-  .nbt-layout[data-mode="sheet"] .nbt-sheet {
-    width: var(--map-column);
-    border-radius: 0;
-    border-right: 1px solid var(--color-border);
-    box-shadow: var(--shadow-card);
-    padding-top: 1rem;
-  }
-  .nbt-layout[data-mode="sheet"] .nbt-sheet__handle {
-    display: none;
-  }
-  .nbt-layout[data-mode="home"] .nbt-spacer {
-    height: calc(100svh - var(--spacing-header) - var(--map-home-peek-desktop));
-  }
+/* Trip and place stories: a readable column (the home page sets its own width). */
+.nbt-layout:not([data-mode="home"]) .nbt-sheet > * {
+  max-width: 48rem;
+  margin-inline: auto;
 }
 
 /* -------------------------------------------- entrance (client nav only) */
@@ -116,23 +106,12 @@
 }
 @keyframes nbt-sheet-rise {
   from {
-    transform: translateY(55svh);
+    transform: translateY(40svh);
   }
 }
 @keyframes nbt-headline-rise {
   from {
     transform: translateY(2.5rem);
-    opacity: 0;
-  }
-}
-@media (min-width: 1024px) {
-  .nbt-layout[data-mode="sheet"] .nbt-sheet[data-enter] {
-    animation-name: nbt-column-in;
-  }
-}
-@keyframes nbt-column-in {
-  from {
-    transform: translateX(-2rem);
     opacity: 0;
   }
 }
@@ -142,4 +121,113 @@
   .nbt-sheet[data-enter] h1 {
     animation: none;
   }
+}
+
+/* ------------------------------------------------------- stop stepper */
+
+.nbt-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: var(--radius-card);
+  background: color-mix(in oklab, var(--color-bg-raised) 94%, transparent);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+}
+.nbt-stepper__arrow,
+.nbt-stepper__play {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-width: var(--spacing-tap);
+  height: var(--spacing-tap);
+  border-radius: var(--radius-button);
+  color: var(--color-fg);
+  transition: background-color var(--duration-micro) var(--ease-out);
+}
+.nbt-stepper__arrow:hover:not(:disabled),
+.nbt-stepper__play:hover {
+  background: color-mix(in oklab, var(--color-fg) 10%, transparent);
+}
+.nbt-stepper__arrow:disabled {
+  opacity: 0.3;
+}
+.nbt-stepper svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.nbt-stepper__play {
+  padding-inline: 0.625rem;
+  color: var(--color-accent);
+  border-left: 1px solid var(--color-border);
+  border-radius: 0 var(--radius-button) var(--radius-button) 0;
+}
+.nbt-stepper__play svg {
+  fill: currentColor;
+}
+.nbt-stepper__play-text {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+/* Narrow phones: the play button keeps only its icon. */
+@media (max-width: 380px) {
+  .nbt-stepper__play-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+.nbt-stepper__now {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-style: normal;
+  line-height: 1.15;
+}
+.nbt-stepper__day {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-fg-muted);
+}
+.nbt-stepper__num {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: var(--font-accent--weight);
+  font-variation-settings: "WONK" 1;
+  font-size: 1.25rem;
+  letter-spacing: 0;
+  color: var(--color-accent);
+  margin-left: 0.1em;
+}
+.nbt-stepper__name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-fg);
 }

@@ -64,6 +64,10 @@ export const TOKEN_FALLBACKS = {
   "--duration-map-return": "2200ms",
   "--duration-route-draw": "1400ms",
   "--duration-pop": "520ms",
+  "--duration-map-step": "1400ms",
+  "--duration-tour-glide": "2400ms",
+  "--duration-tour-dwell": "2600ms",
+  "--duration-soft-edge": "700ms",
 } as const;
 
 export type TokenName = keyof typeof TOKEN_FALLBACKS;

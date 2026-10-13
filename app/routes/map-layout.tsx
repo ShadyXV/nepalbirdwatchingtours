@@ -1,9 +1,11 @@
 import "~/components/map/layout.css";
 
-import { lazy, Suspense, useRef, useState, type CSSProperties } from "react";
+import { lazy, Suspense, useCallback, useRef, useState, type CSSProperties } from "react";
 import { Outlet, useLocation, useNavigate, useParams, useSearchParams } from "react-router";
 import type { MapLayoutContext } from "~/components/map/layoutContext";
-import { getLandmarks, getPublishedTrips } from "~/content";
+import { StopStepper } from "~/components/map/StopStepper";
+import type { MapApi, StepState } from "~/components/map/types";
+import { getLandmarks, getPublishedTrips, getTrip } from "~/content";
 import { readDurationMs } from "~/design/tokens";
 import { t } from "~/i18n";
 import { mapLayoutCssVars, type MapLayoutMode } from "~/lib/mapLayout";
@@ -16,16 +18,19 @@ const NepalMap = lazy(() => import("~/components/map").then((m) => ({ default: m
 const trips = getPublishedTrips();
 const landmarks = getLandmarks();
 
+/** History state marking the entry pushed when a stop is opened (so closing it can go back). */
+type StopEntryState = { stopEntry?: boolean } | null;
+
 /**
  * The map layout (/, /trips/:slug, /places/:placeId). Native page scroll, never hijacked:
  *
- *   stage   the map, sticky behind everything (one MapLibre map, mounted once)
+ *   stage   the map, sticky behind everything (one MapLibre map, mounted once), plus on trip
+ *           pages a small stop stepper
  *   spacer  transparent, lets taps through to the map; its height is how much map shows
- *   sheet   the page content in normal document flow, rising over the map as you scroll
+ *   sheet   the page content in normal document flow, rising over the map as a dark sheet
  *
- * Home: the map is a backdrop (gestures off, pins tappable); the content rises as a dark sheet and
- * the map dims. Trip / place: the map is explorable above a sheet that peeks (phones), or the sheet
- * is a left column (>= 1024 px). See docs/MAP.md.
+ * Opening a stop pushes one history entry; stepping between stops replaces it; closing it (Esc,
+ * tapping the stop again, browser Back) pops it, and the camera returns to where it was.
  */
 export default function MapLayout() {
   const hydrated = useHydrated();
@@ -34,11 +39,14 @@ export default function MapLayout() {
   const { slug, placeId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const [previewTripSlug, setPreviewTripSlug] = useState<string | null>(null);
+  const [mapApi, setMapApi] = useState<MapApi | null>(null);
+  const [step, setStep] = useState<StepState | null>(null);
 
   const activeTripSlug = slug ?? null;
   const activePlaceId = placeId ?? null;
   const activeWaypointId = activeTripSlug ? searchParams.get("stop") : null;
-  const mode: MapLayoutMode = activeTripSlug || activePlaceId ? "sheet" : "home";
+  const mode: MapLayoutMode = activeTripSlug ? "trip" : activePlaceId ? "place" : "home";
+  const trip = activeTripSlug ? getTrip(activeTripSlug) : undefined;
 
   // Entrance animations only after a client-side navigation to a new page: a direct landing
   // (prerendered HTML) shows its content immediately, and ?stop= changes never replay them.
@@ -50,23 +58,41 @@ export default function MapLayout() {
   const spacerRef = useRef<HTMLDivElement>(null);
   useScrollDim(rootRef, spacerRef, mode);
 
-  function setActiveWaypoint(id: string | null) {
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        if (id) next.set("stop", id);
-        else next.delete("stop");
-        return next;
-      },
-      { replace: true, preventScrollReset: true },
-    );
-  }
+  const locationState = location.state as StopEntryState;
+  const setActiveWaypoint = useCallback(
+    (id: string | null) => {
+      const current = searchParams.get("stop");
+      if (id === current) return;
+      if (!id && locationState?.stopEntry) {
+        navigate(-1); // pop the entry pushed when the stop was opened
+        return;
+      }
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (id) next.set("stop", id);
+          else next.delete("stop");
+          return next;
+        },
+        id && !current
+          ? { preventScrollReset: true, state: { stopEntry: true } } // opening: one entry to go back to
+          : { replace: true, preventScrollReset: true, state: locationState },
+      );
+    },
+    [searchParams, setSearchParams, navigate, locationState],
+  );
 
-  const context: MapLayoutContext = { activeWaypointId, setActiveWaypoint, previewTrip: setPreviewTripSlug };
+  const context: MapLayoutContext = {
+    activeWaypointId,
+    setActiveWaypoint,
+    previewTrip: setPreviewTripSlug,
+    map: mapApi,
+    step,
+  };
 
   // The sheet rises about halfway through the camera flight (EXPERIENCE.md, Motion).
   const sheetDelay = animateEntrance
-    ? Math.round(mode === "sheet" ? readDurationMs("--duration-map-flight") * 0.5 : readDurationMs("--duration-map-return") * 0.35)
+    ? Math.round(mode === "home" ? readDurationMs("--duration-map-return") * 0.35 : readDurationMs("--duration-map-flight") * 0.5)
     : 0;
 
   const fallback = (
@@ -90,27 +116,30 @@ export default function MapLayout() {
               onSelectTrip={(next) => navigate(next ? `/trips/${next}` : "/")}
               onSelectWaypoint={setActiveWaypoint}
               onSelectPlace={(next) => navigate(next ? `/places/${next}` : "/")}
+              onStepChange={setStep}
+              onReady={setMapApi}
             />
           </Suspense>
         ) : (
           fallback
         )}
         <div className="nbt-stage__dim" aria-hidden="true" />
+        {hydrated && trip && (
+          <div className="nbt-stage__stepper">
+            <StopStepper trip={trip} activeWaypointId={activeWaypointId} step={step} map={mapApi} onSelect={setActiveWaypoint} />
+          </div>
+        )}
       </div>
 
       <div ref={spacerRef} className="nbt-spacer" aria-hidden="true" />
 
       <div
         key={location.pathname}
+        id="story"
         className="nbt-sheet"
         data-enter={animateEntrance ? "" : undefined}
         style={{ "--sheet-delay": `${sheetDelay}ms` } as CSSProperties}
       >
-        {mode === "sheet" && (
-          <div aria-hidden="true" className="nbt-sheet__handle">
-            <span />
-          </div>
-        )}
         <Outlet context={context} />
       </div>
     </div>
