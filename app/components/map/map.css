@@ -96,6 +96,10 @@
   cursor: pointer;
   font: inherit;
   -webkit-tap-highlight-color: transparent;
+  /* Press-and-hold reveals media (reveal.ts): no text selection or image callout. */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* Text on terrain: a soft night halo instead of a box. */
@@ -555,6 +559,115 @@
     0 0 18px color-mix(in oklab, var(--color-map-light) 55%, transparent);
 }
 
+/* ------------------------------------------------- hover media reveal */
+
+/*
+ * reveal.ts: a large photo / muted clip beside the hovered (or held) marker, its edges dissolving
+ * into the map. Not a card: no border, no shadow, no box; never hit-tested. Placed and sized in JS;
+ * data-side is where it sits relative to the marker, so it grows out of the marker's side.
+ */
+.nbt-reveal {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.96);
+  transition:
+    opacity var(--duration-ui) var(--ease-out),
+    transform var(--duration-ui) var(--ease-out);
+}
+.nbt-reveal.is-shown {
+  opacity: 1;
+  transform: none;
+}
+.nbt-reveal[data-side="right"] {
+  transform-origin: 0 50%;
+}
+.nbt-reveal[data-side="left"] {
+  transform-origin: 100% 50%;
+}
+.nbt-reveal[data-side="above"] {
+  transform-origin: 50% 100%;
+}
+.nbt-reveal[data-side="below"] {
+  transform-origin: 50% 0;
+}
+/* Reduced motion: one still, fade only. */
+.nbt-reveal.is-still {
+  transform: none;
+}
+
+/* Feathered edges: two soft ramps intersected, a rounded-rect falloff that works for img and video.
+   The bottom ramp is longer so the caption sits in the dissolve. (Mask alpha only, not a colour.) */
+.nbt-reveal__frame {
+  position: absolute;
+  inset: 0;
+  --feather-x: linear-gradient(to right, transparent, rgb(0 0 0 / 0.35) 7%, rgb(0 0 0 / 0.8) 15%, black 24%, black 76%, rgb(0 0 0 / 0.8) 85%, rgb(0 0 0 / 0.35) 93%, transparent);
+  --feather-y: linear-gradient(to bottom, transparent, rgb(0 0 0 / 0.35) 7%, rgb(0 0 0 / 0.8) 15%, black 24%, black 66%, rgb(0 0 0 / 0.8) 78%, rgb(0 0 0 / 0.3) 90%, transparent);
+  -webkit-mask-image: var(--feather-x), var(--feather-y);
+  -webkit-mask-composite: source-in;
+  mask-image: var(--feather-x), var(--feather-y);
+  mask-composite: intersect;
+}
+.nbt-reveal__media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity var(--duration-sheet) var(--ease-out);
+}
+.nbt-reveal__media.is-current {
+  opacity: 1;
+}
+
+/* Caption, inside the feathered bottom edge, aligned toward the marker. */
+.nbt-reveal__caption {
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: 7%;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  text-shadow:
+    0 0 2px var(--color-bg),
+    0 0 6px var(--color-bg),
+    0 0 14px color-mix(in oklab, var(--color-bg) 70%, transparent);
+}
+.nbt-reveal[data-side="right"] .nbt-reveal__caption {
+  justify-content: flex-start;
+}
+.nbt-reveal[data-side="left"] .nbt-reveal__caption {
+  justify-content: flex-end;
+}
+.nbt-reveal__day {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: var(--font-accent--weight);
+  font-variation-settings: "WONK" 1;
+  font-synthesis: none;
+  font-size: 1.125rem;
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--color-accent);
+}
+.nbt-reveal__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-fg);
+}
+
 /* ---------------------------------------------------------- keyframes */
 
 @keyframes nbt-pop {
@@ -687,5 +800,8 @@
   .nbt-lens,
   .nbt-pin.is-preview .nbt-pin__btn::before {
     animation: none;
+  }
+  .nbt-reveal {
+    transform: none;
   }
 }

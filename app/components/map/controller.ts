@@ -48,6 +48,7 @@ import { buildStyle, DEM, GRATICULE, LAYER, NEPAL_GEOJSON_URL, OUTSIDE, RANGE_GL
 import { createLens, createPlaceLabel, createStopMarker, createTourTag, createTripPin, placeAnchor, type MarkerDom } from "./markers";
 import { canAfford3D, initialPixelRatio, watchFrames } from "./perf";
 import { drawRoute, setRouteProgress, type RouteColors } from "./routeDraw";
+import { MediaReveal, type RevealContent } from "./reveal";
 import { Autoplay, type AutoplayStatus } from "./tour";
 import { chooseView } from "./visibility";
 
@@ -152,6 +153,9 @@ export type MapContent = {
   /** "Day 4". */
   dayLabel: (day: number) => string;
   hints: HintTexts;
+  /** Hover media reveal content (null = nothing to reveal for that marker). */
+  revealTrip: (trip: Trip) => RevealContent | null;
+  revealStop: (trip: Trip, waypoint: Waypoint, key: boolean) => RevealContent | null;
 };
 
 type MapStateName = "overview" | "trip" | "stop" | "place";
@@ -185,6 +189,7 @@ export class MapController {
   private readonly handlers: () => MapHandlers;
   private readonly gestures: Gestures;
   private readonly dem: DemSampler;
+  private readonly reveal: MediaReveal;
 
   private readonly tripsBySlug: Map<string, Trip>;
   private readonly placesById: Map<string, Landmark>;
@@ -273,6 +278,16 @@ export class MapController {
       onAdjusted: (adjusted) => this.handlers().onViewAdjusted(adjusted),
     });
     this.gestures.setMode(stateOf(initial) === "overview" ? "overview" : "explore");
+
+    // Hover media reveal: placed in the map wrapper, clear of the content peek and stepper.
+    this.reveal = new MediaReveal(container.parentElement ?? container, () => this.frameFor(stateOf(this.view)).padding);
+    this.map.on("movestart", () => this.reveal.hide());
+    const hideReveal = () => this.reveal.hide();
+    window.addEventListener("scroll", hideReveal, { passive: true });
+    this.disposers.push(() => {
+      window.removeEventListener("scroll", hideReveal);
+      this.reveal.destroy();
+    });
 
     this.map.on("load", () => this.onLoad());
     this.map.once("idle", () => {
@@ -397,6 +412,7 @@ export class MapController {
     const flightMs = readDurationMs("--duration-map-flight");
 
     this.container.dataset.state = state;
+    this.reveal.hide();
     this.gestures.setMode(state === "overview" ? "overview" : "explore");
 
     // Trip pins: only on the overview; the previewed one is raised.
@@ -866,6 +882,10 @@ export class MapController {
       const { label, count } = this.content.birds(trip);
       const dom = createTripPin(trip, label, count);
       dom.button.addEventListener("click", () => this.handlers().onSelectTrip(trip.slug));
+      // Hover media reveal (reveal.ts), on the overview, never while the camera moves the pin.
+      this.reveal.bind(dom.root, dom.button, () =>
+        stateOf(this.view) === "overview" && !this.map.isMoving() ? this.content.revealTrip(trip) : null,
+      );
       const marker = new Marker({ element: dom.root, anchor: "bottom", opacityWhenCovered: "1", subpixelPositioning: true })
         .setLngLat(tripAnchor(trip))
         .addTo(this.map);
@@ -889,6 +909,10 @@ export class MapController {
         const active = this.view.waypointId === waypoint.id;
         this.handlers().onSelectWaypoint(active ? null : waypoint.id);
       });
+      // Reveal on the trip overview (not over a focused stop, where the story already shows it).
+      this.reveal.bind(dom.root, dom.button, () =>
+        stateOf(this.view) === "trip" && !this.map.isMoving() ? this.content.revealStop(trip, waypoint, key) : null,
+      );
       // Covered stops stay fully visible (styled as "behind the ridge" in map.css), never silently hidden.
       const marker = new Marker({ element: dom.root, anchor: "center", opacityWhenCovered: "1", subpixelPositioning: true })
         .setLngLat(waypoint.coords)

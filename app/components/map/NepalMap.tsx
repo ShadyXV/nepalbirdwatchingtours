@@ -2,7 +2,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import "./map.css";
 
 import { useEffect, useRef, useState } from "react";
-import { speciesCountForTrip } from "~/content";
+import { getMemoriesForWaypoint, speciesCountForTrip } from "~/content";
 import { t } from "~/i18n";
 import { MapController, type MapApi, type MapContent, type MapHandlers, type MapView } from "./controller";
 import type { NepalMapProps } from "./types";
@@ -72,6 +72,13 @@ export function NepalMap({
       },
       dayLabel: (day) => t("trip.day", { day }),
       hints: { touch: t("map.hintTouch"), desktop: mac ? t("map.hintMac") : t("map.hintWindows") },
+      // Trips: their reel (or cover). Stops: their own media, then photos from memories there.
+      revealTrip: (trip) => ({ items: trip.reel.length > 0 ? trip.reel : [trip.cover], title: trip.title }),
+      revealStop: (trip, waypoint) => {
+        const items = [...waypoint.media, ...getMemoriesForWaypoint(trip.slug, waypoint.id).flatMap((m) => m.media)];
+        if (items.length === 0) return null; // stops without media (key or not) reveal nothing
+        return { items, title: waypoint.name, day: t("trip.day", { day: waypoint.day }) };
+      },
     };
     let controller: MapController;
     try {
