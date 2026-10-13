@@ -1,5 +1,7 @@
 # Nepal Birdwatching Tours — plan
 
+Vibe, aesthetics and interaction intent: **`VISION.md`** (wins any conflict). This file: stack, sitemap, phases.
+
 Site for **Krishna Thapa**, certified birding guide, artist and photographer, Nepal.
 Brand: **Nepal Birdwatching Tours**. English only (translation-ready). Static site on GitHub Pages.
 
@@ -15,7 +17,7 @@ place, altitude and date — light, never database-like (no coordinates or conse
 | Concern | Choice |
 |---|---|
 | Build | Vite + React + TypeScript, pnpm |
-| Styling | Tailwind CSS v4 (CSS-first `@theme` tokens in `app/app.css`) |
+| Styling | Tailwind CSS v4 (CSS-first `@theme` tokens in `app/design/tokens.css`) |
 | Routing/output | React Router v7 framework mode, `ssr: false`, every route prerendered to static HTML |
 | Map | MapLibre GL — label-free paper-style terrain; may swap in a baked relief image layer |
 | Dates | react-day-picker (range mode) + date-fns |
@@ -47,7 +49,7 @@ place, altitude and date — light, never database-like (no coordinates or conse
 
 ## Core architecture rule
 
-The map is mounted **once** in a layout route shared by `/` and `/trips/:slug`. Navigating between them
+The map is mounted **once** in a layout route shared by `/`, `/trips/:slug` and `/places/:id`. Navigating between them
 never remounts the map — it flies the camera and swaps the surrounding panels. Map code is client-only
 (prerendered HTML carries the textual itinerary for crawlers and agents).
 

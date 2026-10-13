@@ -1,0 +1,28 @@
+# Nepal Birdwatching Tours
+
+Static React site for Krishna Thapa, a birding guide in Nepal. Built incrementally by an orchestrating
+agent with subagents.
+
+## Read first, every session
+
+1. `docs/VISION.md`: the owner's intent for vibe, aesthetics and interaction. It wins any conflict.
+2. `docs/PLAN.md`: stack, sitemap, phases.
+3. `docs/EXPERIENCE.md`: map states, phone layouts, URLs/SEO, motion.
+4. `docs/STYLE_GUIDE.md`: type, colour, field labels, map styling. Tokens live in `app/design/tokens.css`.
+5. `app/content/types.ts`: the content contract.
+
+At the start of a session, briefly remind the owner of the next phase and of the open items in
+`docs/VISION.md` → "Still to decide".
+
+## Working rules
+
+- Mobile-first; most visitors are on phones.
+- No pop-ups or modal cards. Trips and places share one interaction: map fly-to plus a rising sheet. The
+  inquiry drawer is the only overlay.
+- Paths for things, query params for states. Every page must be fully readable without JavaScript.
+- Field labels: name, italic scientific name, place, altitude, date. Never coordinates or conservation codes.
+- Design values only through tokens; no hard-coded colours or fonts in components.
+- No unit tests, analytics or server. Commands: `pnpm dev`, `pnpm typecheck`, `pnpm build`.
+- Commit frequently with the git-commit skill (conventional commits, explicit file staging).
+- Verification: wrap heavy commands in `timeout <s> taskpolicy -b …`. No long headless-browser runs.
+  Kill anything you start. Never send the owner's personal data off the machine.
