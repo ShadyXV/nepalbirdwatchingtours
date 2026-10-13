@@ -12,7 +12,10 @@ Technique source: `research/SANRITA_INTERACTION.md` (we borrow choreography, not
 3. **One gesture, one meaning (mobile).** Where the map is a backdrop, touches scroll the page. Where
    the map is explorable, the content sheet is a separate, always-visible drag target.
 4. **Every state has a URL.** `/`, `/trips/:slug`, `/trips/:slug?stop=<id>`. Back button = fly back.
-5. **Content first, map as enhancement.** Prerendered HTML carries everything. The map chunk loads after
+5. **Personal, not a brochure.** Each trip and stop leads with *memories*: past trips with real guests,
+   their photos, the birds and animals seen together, told in Krishna's voice. Altitude, stays and
+   checklists are supporting detail in a compact strip.
+6. **Content first, map as enhancement.** Prerendered HTML carries everything. The map chunk loads after
    first paint; reduced-motion gets jumps instead of flights.
 
 ## Map states
@@ -77,12 +80,16 @@ well. The card carousel is the primary picker and the map follows it.
 └──────────────────────────┘
    ↑ drag or scroll the sheet: it expands into the trip story (page scroll)
 ┌──────────────────────────┐
-│ LANGTANG VALLEY          │  giant headline over a gradient seam into the map
-│ summary · highlights     │
+│ ANNAPURNA BIRDING TREK   │  giant headline over a gradient seam into the map
+│ a short personal intro   │
 │ ▶ reel: Ken Burns stills + ambient clips (map tinted over video)
-│ ITINERARY  day by day: stay, altitude, nights, habitat
+│ MEMORIES ON THIS TRAIL   │  photo-led stories with past guests, stop by stop
+│  "April 2025 · Tadapani — Anna & Tom saw their first Satyr Tragopan…"
+│  [photo stack] · guests' review quote · birds seen that day
+│ THE WAY  day by day, compact: stop · altitude · nights · stay
 │ WHAT YOU MIGHT SEE  chips: Birds 142 · Mammals 12 · Plants 30
-│ reviews from this trip · price (only if shown) · [Inquire]
+│                     (★ = seen with guests here)
+│ price (only if shown) · [Inquire]
 └──────────────────────────┘
 ```
 
@@ -90,13 +97,13 @@ well. The card carousel is the primary picker and the map follows it.
 
 ```
 ├──── sheet (half) ────────┤
-│ DAY 3 · LAMA HOTEL       │
-│ 2,470 m · 1 night · teahouse
-│ oak–rhododendron forest  │
+│ DAY 4 · TADAPANI         │
+│ 2,630 m · 1 night · teahouse · oak–rhododendron   ← supporting strip
+│ [memory carousel]        │  past guests here: photos, short story, date
+│  "Mist lifted at dawn and a Kalij pair walked…"
 │ [Birds][Mammals][Plants] │  filter chips
-│ ● Himalayan Monal  common│  likelihood dots, months
-│ ◐ Red Panda      possible│  tap → species card (photo, note, eBird link)
-│ [stop photos carousel]   │
+│ ★ Kalij Pheasant   common│  ★ seen with guests here · likelihood · months
+│ ◐ Himalayan Monal  likely│  tap → species card (photo, note, eBird link)
 │ ‹ prev stop   next stop ›│
 └──────────────────────────┘
 ```
