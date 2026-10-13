@@ -27,6 +27,10 @@ Technique source: `research/SANRITA_INTERACTION.md` (we borrow choreography, not
 | **S2 Stop** | `?stop=<id>` | Ease to stop, closer, slight orbit | On | Lens ring + grid around the stop; other stops dimmed |
 | **Ambient** | `/about` | Slow, gentle drift over Krishna's home hills, dimmed | Off | Terrain only |
 
+**Places (overlay on any state, `?place=<id>`):** mountains, ranges, parks and one-off points of
+interest are tappable hubs outside the itineraries. Tapping one eases the camera a little toward it and
+opens a small **place card**. It does not navigate away; close returns to where you were.
+
 Route-to-route moves: S0→S1 `flyTo` about 2.4–3 s; S1→S2 `easeTo` about 0.9 s; S1→S0 fly back out;
 trip→trip flies through S0 (handled by `flyTo` curve).
 
@@ -107,6 +111,23 @@ well. The card carousel is the primary picker and the map follows it.
 │ ‹ prev stop   next stop ›│
 └──────────────────────────┘
 ```
+
+### Place card (mountains, ranges, points of interest)
+
+```
+├──── sheet (half) / popover on desktop ┤
+│ [landscape media carousel]            │  Everest at dawn, the range from Kala Patthar…
+│ MOUNT EVEREST · 8,849 m               │  field-label style
+│ Mahalangur Himal                       │
+│ one or two warm sentences             │
+│ AROUND HERE  Himalayan Monal · Snow Partridge · Himalayan Tahr · …  (6–12, light)
+│ TRIPS NEARBY  [Annapurna trek card] or "none yet"
+│ [Plan a trip here]  → inquiry drawer prefilled with the place
+└───────────────────────────────────────┘
+```
+
+Mountains get special love: big peaks stay labelled on the overview, and ranges glow subtly when one of
+their peaks is tapped. Not a full page; just enough to see the beauty and want to go.
 
 ### Persistent mobile actions
 
