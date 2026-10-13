@@ -156,6 +156,8 @@ Tadapani, Annapurna · 2,630 m · APR 2025 small, fg-muted
 ```
 
 - Scientific names are always in the accent italic (`accent`, about 18px).
+- **Not in the day view.** The full-screen day view shows common names only; scientific names live in
+  the "This day" sheet, checklists and species details. Keep on-map screens light on text.
 - **Never shown:** coordinates, conservation-status codes (IUCN), or other database-style fields.
 - Altitude with thousands separator and ` m`. Dates `APR 2025`, or `14 APR 2025` when the day is known.
 - Mountains: `MACHHAPUCHHRE · 6,993 m`; no scientific line.
