@@ -9,4 +9,6 @@ export default [
   route("anywhere", "routes/anywhere.tsx"),
   route("about", "routes/about.tsx"),
   route("privacy", "routes/privacy.tsx"),
+  // Dev-only inspection page for the contour texture; never part of the build.
+  ...(import.meta.env.DEV ? [route("lab/terrain", "routes/lab.terrain.tsx")] : []),
 ] satisfies RouteConfig;
