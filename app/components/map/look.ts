@@ -4,7 +4,8 @@
  * this file holds the numbers: elevation stops, light directions, opacities, widths.
  *
  * Retuning the terrain: change the colours in tokens.css, the elevation stops in RELIEF_STOPS,
- * the light in HILLSHADE. Nothing else needs to change.
+ * the sun in LIGHT (pick the preset with DEFAULT_LIGHT; `?light=dawn|sunset` in development).
+ * Nothing else needs to change.
  */
 import type { StyleSpecification } from "maplibre-gl";
 import { readToken, type TokenName } from "~/design/tokens";
@@ -33,7 +34,10 @@ export const DEM = {
 /** 3D terrain exaggeration (used only on devices that can afford 3D, see perf.ts). */
 export const TERRAIN_EXAGGERATION = 1.3;
 
-/** Elevation (m) → relief colour token. Natural colours: Terai greens → ochre ridges → greys → snow. */
+/**
+ * Elevation (m) → relief colour token. Golden-hour colours: dark olive lowland forest → khaki
+ * mid-hills → rosy-ochre high ridges → pale rose scree → warm-white snow.
+ */
 export const RELIEF_STOPS: [elevationM: number, token: TokenName][] = [
   [80, "--color-map-terai"],
   [500, "--color-map-lowland"],
@@ -46,20 +50,107 @@ export const RELIEF_STOPS: [elevationM: number, token: TokenName][] = [
   [6000, "--color-map-snow"],
 ];
 
+/* ---------------------------------------------------------------- light */
+
 /**
- * Multidirectional hillshade: several lights, averaged. The first is the warm "low sun" from the
- * north-west that gives the San Rita-like raking read of the ridges; the others fill in.
- * Directions are relative to the screen (anchor "viewport"), so light always falls from the
- * upper left however the camera is turned.
+ * GOLDEN-HOUR LIGHT. A low warm sun rakes the ridges (golden highlights on the slopes facing it,
+ * cool blue-violet shadows on the slopes turned away), and a faint cool sky fill keeps the
+ * shadow side from going black.
+ *
+ * MapLibre's `multidirectional` hillshade averages its lights, so each light is worth 1/n. The
+ * sun is entered twice (a low and a slightly higher ray, a few degrees apart): that gives it two
+ * thirds of the weight and softens the terminator, like a sun disc rather than a point.
+ *
+ * Directions are degrees clockwise from the top of the SCREEN (`anchor: "viewport"`), so the light
+ * always falls from the upper half however the camera is turned: light from below the horizon
+ * line makes valleys read as ridges (relief inversion). Dawn comes from the upper right, sunset
+ * from the upper left. Altitudes are degrees above the horizon.
  */
-export const HILLSHADE = {
-  exaggeration: 0.55,
-  lights: [
-    { direction: 315, altitude: 30, highlight: 0.42, shadow: 0.62 },
-    { direction: 270, altitude: 40, highlight: 0.18, shadow: 0.36 },
-    { direction: 350, altitude: 45, highlight: 0.14, shadow: 0.3 },
-  ],
+export type LightPreset = {
+  /** Sun direction, degrees clockwise from the top of the screen. */
+  azimuth: number;
+  /** Sun height above the horizon, degrees (golden hour: ~15–25). */
+  altitude: number;
+  /** Sun colour on lit slopes, and how strongly it tints them (0–1). */
+  sun: TokenName;
+  sunStrength: number;
+  /** Cool shadow on slopes turned away from the sun (0–1). */
+  shadowStrength: number;
+  /** Cool sky fill on the shadow side (0–1). */
+  skyStrength: number;
+  /** Glow where the land meets the sky at pitched views. */
+  horizon: TokenName;
 };
+
+export const LIGHT = {
+  /** Pale peach-gold sun from the upper right, a touch higher and softer; rosy horizon. */
+  dawn: {
+    azimuth: 55,
+    altitude: 22,
+    sun: "--color-map-sun-dawn",
+    sunStrength: 0.7,
+    shadowStrength: 0.68,
+    skyStrength: 0.26,
+    horizon: "--color-map-horizon-dawn",
+  },
+  /** Deep amber sun from the upper left, lower and warmer; amber horizon. */
+  sunset: {
+    azimuth: 300,
+    altitude: 17,
+    sun: "--color-map-sun-sunset",
+    sunStrength: 0.78,
+    shadowStrength: 0.74,
+    skyStrength: 0.22,
+    horizon: "--color-map-horizon-sunset",
+  },
+} as const satisfies Record<string, LightPreset>;
+
+export type LightPresetName = keyof typeof LIGHT;
+
+/** THE DEFAULT LIGHT. Change this one word to switch the whole map. */
+export const DEFAULT_LIGHT: LightPresetName = "sunset";
+
+/**
+ * The preset in use: DEFAULT_LIGHT, or in development `?light=dawn|sunset` in the page URL, so both
+ * can be compared on the live map (reload the page after changing it).
+ */
+export function activeLight(): LightPresetName {
+  if (import.meta.env.DEV && typeof window !== "undefined") {
+    const asked = new URLSearchParams(window.location.search).get("light");
+    if (asked && Object.hasOwn(LIGHT, asked)) return asked as LightPresetName;
+  }
+  return DEFAULT_LIGHT;
+}
+
+/** How the preset becomes hillshade lights: the second sun ray and the sky fill, relative to the sun. */
+export const HILLSHADE = {
+  /** Strength of the relief derived from the DEM (MapLibre default 0.5). */
+  exaggeration: 0.6,
+  /** Second, slightly higher sun ray: offsets from the preset's azimuth / altitude. */
+  sunSpread: { azimuth: 14, altitude: 9 },
+  /** Sky fill: comes from the opposite side, high up. */
+  sky: { azimuthOffset: 180, altitude: 55, shadow: 0.25 },
+};
+
+function hillshadeLights(light: LightPreset) {
+  const sun = { highlight: light.sun, highlightAlpha: light.sunStrength, shadowAlpha: light.shadowStrength };
+  return [
+    { direction: light.azimuth, altitude: light.altitude, ...sun },
+    {
+      // Turned toward the top of the screen, so the softened sun stays in the upper half.
+      direction: (light.azimuth - HILLSHADE.sunSpread.azimuth * Math.sign(180 - light.azimuth) + 360) % 360,
+      altitude: light.altitude + HILLSHADE.sunSpread.altitude,
+      ...sun,
+    },
+    {
+      direction: (light.azimuth + HILLSHADE.sky.azimuthOffset) % 360,
+      altitude: HILLSHADE.sky.altitude,
+      highlight: "--color-map-skylight" as TokenName,
+      highlightAlpha: light.skyStrength,
+      shadowAlpha: HILLSHADE.sky.shadow,
+    },
+  ];
+}
 
 /* --------------------------------------------------------------- layers */
 
@@ -88,8 +179,11 @@ export const ROUTE = {
 /** Soft glow along a mountain range while one of its peaks (or the range itself) is open. */
 export const RANGE_GLOW = { opacity: 0.32, width: [[7, 40], [10, 120], [12, 260]] as const, blur: 1 };
 
-/** Sky and haze at pitched views (horizon blends into the dark page). */
-export const SKY = { fogGroundBlend: 0.4, horizonFogBlend: 0.7, skyHorizonBlend: 0.75 };
+/**
+ * Sky and haze at pitched views: warm fog over the distant ground, a low glow in the light
+ * preset's horizon colour, fading up into the dark page.
+ */
+export const SKY = { fogGroundBlend: 0.45, horizonFogBlend: 0.6, skyHorizonBlend: 0.7 };
 
 /* --------------------------------------------------------- source / ids */
 
@@ -155,6 +249,8 @@ export function buildStyle({ terrain }: { terrain: boolean }): StyleSpecificatio
   const relief = RELIEF_STOPS.flatMap(([m, token]) => [m, c(token)]);
   const route = c("--color-route");
   const night = c("--color-night");
+  const light = LIGHT[activeLight()];
+  const lights = hillshadeLights(light);
 
   return {
     version: 8,
@@ -186,7 +282,7 @@ export function buildStyle({ terrain }: { terrain: boolean }): StyleSpecificatio
     ...(terrain ? { terrain: { source: SRC.demTerrain, exaggeration: TERRAIN_EXAGGERATION } } : {}),
     sky: {
       "sky-color": night,
-      "horizon-color": c("--color-map-haze"),
+      "horizon-color": c(light.horizon),
       "fog-color": c("--color-map-haze"),
       "fog-ground-blend": SKY.fogGroundBlend,
       "horizon-fog-blend": SKY.horizonFogBlend,
@@ -208,10 +304,10 @@ export function buildStyle({ terrain }: { terrain: boolean }): StyleSpecificatio
           "hillshade-method": "multidirectional",
           "hillshade-exaggeration": HILLSHADE.exaggeration,
           "hillshade-illumination-anchor": "viewport",
-          "hillshade-illumination-direction": HILLSHADE.lights.map((l) => l.direction),
-          "hillshade-illumination-altitude": HILLSHADE.lights.map((l) => l.altitude),
-          "hillshade-highlight-color": HILLSHADE.lights.map((l) => withAlpha(c("--color-map-light"), l.highlight)),
-          "hillshade-shadow-color": HILLSHADE.lights.map((l) => withAlpha(c("--color-map-shade"), l.shadow)),
+          "hillshade-illumination-direction": lights.map((l) => l.direction),
+          "hillshade-illumination-altitude": lights.map((l) => l.altitude),
+          "hillshade-highlight-color": lights.map((l) => withAlpha(c(l.highlight), l.highlightAlpha)),
+          "hillshade-shadow-color": lights.map((l) => withAlpha(c("--color-map-shade"), l.shadowAlpha)),
         },
       },
       {

@@ -94,19 +94,25 @@
 
   /* ---- 4. MAP (docs/MAP.md). Terrain colours by elevation band, light, haze, camera motion. ----
      Elevation stops for the relief bands live in app/components/map/look.ts. */
-  --color-map-terai: #3d5a3c; /* ~100 m: Terai plains, sal forest */
-  --color-map-lowland: #4b6943; /* ~500 m: Churia / inner Terai */
-  --color-map-hills: #5e7a52; /* ~1,100 m: middle hills, terraces */
-  --color-map-midhills: #77794c; /* ~1,900 m: oak-rhododendron, green-brown */
-  --color-map-ridge: #9a8653; /* ~2,900 m: ochre ridges */
-  --color-map-alpine: #a8936a; /* ~3,800 m: dry alpine meadows */
-  --color-map-rock: #8e8f88; /* ~4,600 m: cool grey rock */
-  --color-map-scree: #b4bab6; /* ~5,400 m: scree, ice */
-  --color-map-snow: var(--color-snow); /* 6,000 m+: snow */
-  --color-map-light: #ffd9a8; /* warm sun on slopes (hillshade highlight) */
-  --color-map-shade: #1a1410; /* warm-dark slope shadow */
+  /* Golden hour: dark olive forest below, khaki mid-hills, rosy-ochre ridges, warm-white snow. */
+  --color-map-terai: #34432c; /* ~100 m: Terai plains, sal forest (dark olive) */
+  --color-map-lowland: #3a4a2e; /* ~500 m: Churia / inner Terai forest */
+  --color-map-hills: #4f5a36; /* ~1,100 m: middle hills, terraces */
+  --color-map-midhills: #6a6a3f; /* ~1,900 m: oak-rhododendron, olive-khaki */
+  --color-map-ridge: #96834f; /* ~2,900 m: khaki-ochre ridges */
+  --color-map-alpine: #ab8a5f; /* ~3,800 m: dry alpine meadows, rosy ochre */
+  --color-map-rock: #a5806c; /* ~4,600 m: rosy rock */
+  --color-map-scree: #c9b2a2; /* ~5,400 m: pale rose scree, ice */
+  --color-map-snow: #f3eadf; /* 6,000 m+: warm-white snow */
+  --color-map-light: #ffd29a; /* warm glow (range glow, map accents) */
+  --color-map-sun-dawn: #ffd0a0; /* dawn sun on slopes: pale peach gold */
+  --color-map-sun-sunset: #ffb465; /* sunset sun on slopes: deep amber gold */
+  --color-map-shade: #2a2650; /* cool blue-violet slope shadow */
+  --color-map-skylight: #9db3d8; /* cool sky fill on the shadow side */
   --color-map-outside: #111714; /* veil over land outside Nepal */
-  --color-map-haze: #2a332f; /* fog / horizon haze at pitched views */
+  --color-map-haze: #3a312b; /* warm fog at pitched views */
+  --color-map-horizon-dawn: #5b4650; /* rosy dawn glow at the horizon */
+  --color-map-horizon-sunset: #6b4a30; /* amber sunset glow at the horizon */
   --ease-map: cubic-bezier(0.6, 0, 0.25, 1); /* camera flights */
   --ease-pop: cubic-bezier(0.34, 1.7, 0.6, 1); /* back-out overshoot for markers, lens */
   --duration-map-flight: 2600ms; /* S0 -> S1, trip -> trip, -> place */
