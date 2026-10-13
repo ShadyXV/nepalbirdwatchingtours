@@ -1,7 +1,7 @@
 import { format, parseISO } from "date-fns";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { DayPicker, type DateRange } from "react-day-picker";
-import { getPublishedTrips, guide } from "~/content";
+import { getOffering, getPlace, getPublishedTrips, guide } from "~/content";
 import type { Inquiry } from "~/content/types";
 import { t } from "~/i18n";
 import { Button, ButtonLink } from "../ui/Button";
@@ -23,6 +23,9 @@ function DrawerPanel({ prefill, onClose }: { prefill: Partial<Inquiry>; onClose:
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const [tripSlug, setTripSlug] = useState(prefill.tripSlug ?? "");
+  // What the inquiry is about besides the trip: a place ("Plan a trip here") or an Anywhere offering.
+  const [placeId, setPlaceId] = useState(prefill.placeId);
+  const [offeringId, setOfferingId] = useState(prefill.offeringId);
   const [range, setRange] = useState<DateRange | undefined>(
     prefill.from
       ? { from: parseISO(prefill.from), to: prefill.to ? parseISO(prefill.to) : undefined }
@@ -47,6 +50,8 @@ function DrawerPanel({ prefill, onClose }: { prefill: Partial<Inquiry>; onClose:
 
   const inquiry: Partial<Inquiry> = {
     tripSlug: tripSlug || undefined,
+    placeId,
+    offeringId,
     from: range?.from && toIso(range.from),
     to: range?.to && toIso(range.to),
     partySize: Number.parseInt(party, 10) || undefined,
@@ -88,6 +93,13 @@ function DrawerPanel({ prefill, onClose }: { prefill: Partial<Inquiry>; onClose:
   const field =
     "min-h-tap w-full rounded-field border border-border bg-bg px-3 py-2 text-body text-fg placeholder:text-fg-muted focus-visible:border-route";
   const label = "eyebrow mb-1.5 block text-fg-muted";
+  const place = placeId ? getPlace(placeId) : undefined;
+  const offering = offeringId ? getOffering(offeringId) : undefined;
+  const topic = place
+    ? t("inquiry.topicPlace", { name: place.name })
+    : offering
+      ? offering.title
+      : undefined;
 
   return (
     <div className="fixed inset-0 z-50" onKeyDown={onKeyDown}>
@@ -114,6 +126,26 @@ function DrawerPanel({ prefill, onClose }: { prefill: Partial<Inquiry>; onClose:
         <p className="mb-5 text-small text-fg-muted">{t("inquiry.intro")}</p>
 
         <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
+          {topic && (
+            <div className="flex items-center justify-between gap-3 rounded-field border border-route px-3 py-2">
+              <p className="min-w-0">
+                <span className="eyebrow block text-fg-muted">{t("inquiry.topic")}</span>
+                <span className="font-medium">{topic}</span>
+              </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label={`${t("inquiry.clearTopic")}: ${topic}`}
+                onClick={() => {
+                  setPlaceId(undefined);
+                  setOfferingId(undefined);
+                }}
+              >
+                {t("inquiry.clearTopic")}
+              </Button>
+            </div>
+          )}
+
           <div>
             <label htmlFor="inq-trip" className={label}>
               {t("inquiry.trip")}
