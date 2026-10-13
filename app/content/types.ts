@@ -26,8 +26,29 @@ export type VideoSource =
   | { host: "uploadthing"; src: string; type?: "video/mp4" | "video/webm" }
   | { host: "youtube"; id: string };
 
+/**
+ * Field-record caption for a photo or clip: what was observed, where and when.
+ * Rendered as a notebook-style label (common name, italic scientific name, place, altitude,
+ * coordinates, date) — the site's "serious birder" signature.
+ */
+export type Observation = {
+  /** Species in frame; the first is the subject. */
+  speciesIds?: Species["id"][];
+  /** Peak or park in frame. */
+  landmarkId?: Landmark["id"];
+  /** Human place name, e.g. "Tadapani, Annapurna". */
+  place?: string;
+  coords?: LngLat;
+  altitudeM?: number;
+  /** "2025-04" or a full IsoDate. */
+  date?: string;
+  /** Short field note, e.g. "pair foraging in moss, 06:40". */
+  note?: string;
+};
+
 export type ImageAsset = {
   kind: "image";
+  observation?: Observation;
   /** Path under /media (local) or absolute URL. */
   src: string;
   alt: string;
@@ -40,6 +61,7 @@ export type ImageAsset = {
 
 export type VideoAsset = {
   kind: "video";
+  observation?: Observation;
   /** First playable source wins; list local/uploadthing variants in preference order. */
   sources: VideoSource[];
   /** Still frame shown before play and as reduced-motion fallback. */
