@@ -133,6 +133,27 @@ Keep map labels in the Label / caps style, and use `night` halos behind them for
 
 ---
 
+## 3b. Field label (site signature)
+
+Every photo, clip, species, flower, butterfly and mountain gets a notebook-style observation label. It
+signals a serious birder, not a tour seller. Data: `Observation` on media, `Species`, `Landmark`.
+
+```
+HIMALAYAN MONAL                          label/caps, fg
+Lophophorus impejanus · LC               mono italic, fg-muted; IUCN code as a small tag
+Tadapani, Annapurna · 2,630 m            small, fg-muted
+28.3986° N  83.7731° E · APR 2025        small, tabular figures, fg-muted
+"male displaying on the ridge, 06:40"    small, fg
+```
+
+- Scientific names are always italic. Load DM Mono italic (`@fontsource/dm-mono/400-italic.css`).
+- Coordinates: 4 decimals, hemisphere letters (`28.3986° N 83.7731° E`). Altitude: thousands separator,
+  ` m`. Dates: `APR 2025`, or `14 APR 2025` when the day is known.
+- Mountains: `MACHHAPUCHHRE · 6,993 m` + coordinates; no scientific line.
+- Placement: overlaid bottom-left of media on a scrim gradient, or beneath it in lists. Compact variant
+  (name + scientific name only) for chips and map tooltips.
+- IUCN tag colours: LC muted, NT ochre, VU monal, EN/CR rhodo.
+
 ## 4. Layout and motion
 
 ### 4.1 Layout

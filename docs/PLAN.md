@@ -5,6 +5,11 @@ Brand: **Nepal Birdwatching Tours**. English only (translation-ready). Static si
 
 Tone: plain, warm, friendly, professional — openly excited about birds and nature.
 
+**Promise:** not an ordinary trip runner. Krishna is a passionate, serious birder and naturalist: if you're
+into birds, he can make your trip — in any season, anywhere in Nepal. The site proves it through
+observation: every bird, animal, butterfly, flower and mountain shown carries its name, scientific name,
+place, altitude, coordinates and date (see "Field label" in STYLE_GUIDE.md; `Observation` in types.ts).
+
 ## Stack
 
 | Concern | Choice |
@@ -60,5 +65,6 @@ schema.org JSON-LD per page, documented inquiry deep-link contract. Optional Web
 6. Media — reel, ambient video, map/video overlay scene
 7. Reviews (TripAdvisor import script from pasted content), about, art
 8. Real content, schedule sync, deploy
+9. Ideas: "This month in Nepal" (what's showing now, from species months), seasonal birding calendar
 
 Inspiration screenshots and wireframes: to be supplied by the owner before phases 2/6.
