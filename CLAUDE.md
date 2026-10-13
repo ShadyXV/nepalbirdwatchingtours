@@ -22,7 +22,11 @@ At the start of a session, briefly remind the owner of the next phase and of the
 - Paths for things, query params for states. Every page must be fully readable without JavaScript.
 - Field labels: name, italic scientific name, place, altitude, date. Never coordinates or conservation codes.
 - Design values only through tokens; no hard-coded colours or fonts in components.
-- No unit tests, analytics or server. Commands: `pnpm dev`, `pnpm typecheck`, `pnpm build`.
+- **No tests, for now.** No unit, integration or e2e tests, no test frameworks, no test files. Don't spend
+  tokens on elaborate verification. Put the effort into clear, understandable components and scripts.
+  Verification is `pnpm typecheck` and `pnpm build`, plus a quick look when something is visual.
+- Technical details are decided at implementation time; the docs hold intent, not task lists.
+- No analytics or server. Commands: `pnpm dev`, `pnpm typecheck`, `pnpm build`.
 - Commit frequently with the git-commit skill (conventional commits, explicit file staging).
 - Verification: wrap heavy commands in `timeout <s> taskpolicy -b …`. No long headless-browser runs.
   Kill anything you start. Never send the owner's personal data off the machine.
