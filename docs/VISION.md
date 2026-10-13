@@ -95,6 +95,10 @@ screens kept cleanly separated so the site can grow.
 - About page: over a softly drifting, dimmed map, or a plain page.
 - Terrain look once seen live: natural colours with paper grain and grid (recommended) vs. other blends.
 - Name for the "Anywhere" page (working title; alternatives: "Ways to go", "Field work", "Beyond the trips").
+- **Experiment, after the foundation (today/tomorrow): "the land becomes the photo."** On the desktop home
+  page, hovering a trip (card or pin) fades a large photo from that trip, such as a bird, in behind the
+  map: strongly visible **outside Nepal's border**, faintly through the terrain inside it; crossfades
+  between trips. Phone equivalent to decide (e.g. the card in view while swiping).
 - **Soundscapes:** when working on the itinerary/trip view, bring this up and show a few versions (e.g. a
   listen toggle on the trip scene, a sound per stop as you step through, sound fading with scroll).
 - Optional delights: "seen it" ticks on checklists; "This month in Nepal"; a seasonal birding calendar.
