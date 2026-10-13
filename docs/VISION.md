@@ -43,6 +43,9 @@ with whom.
 - **Lots of moving imagery.** Wide landscape photos and short high-quality clips of birds, animals and
   landscapes. Even stills feel alive (slow pan and zoom, crossfades). Video and map can overlap and blend.
   Many images per section, in swipeable carousels.
+- **Sound of the place.** Ambient field recordings for each itinerary (birdsong, the river, wind in the
+  trees), whole recordings that set the mood, not a library of separate bird calls. Always opt-in, never
+  autoplaying with sound. How it's presented is still to be explored: try a few versions.
 - **Easy to retune.** The look will be iterated on, so colours, fonts and motion live as named constants.
 
 ## Interaction
@@ -92,5 +95,7 @@ screens kept cleanly separated so the site can grow.
 - About page: over a softly drifting, dimmed map, or a plain page.
 - Terrain look once seen live: natural colours with paper grain and grid (recommended) vs. other blends.
 - Name for the "Anywhere" page (working title; alternatives: "Ways to go", "Field work", "Beyond the trips").
+- **Soundscapes:** when working on the itinerary/trip view, bring this up and show a few versions (e.g. a
+  listen toggle on the trip scene, a sound per stop as you step through, sound fading with scroll).
 - Optional delights: "seen it" ticks on checklists; "This month in Nepal"; a seasonal birding calendar.
 - Screen recording of San Rita from the owner, to tune timing and feel.
