@@ -6,3 +6,5 @@ build
 # Original photos/clips (large, personal) — only generated web copies are used
 media-source/*
 !media-source/README.md
+# Mock-up web copies of Krishna's photos (local until publishing is confirmed)
+public/media/mock/
