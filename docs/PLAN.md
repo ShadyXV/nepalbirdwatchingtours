@@ -8,7 +8,7 @@ Tone: plain, warm, friendly, professional — openly excited about birds and nat
 **Promise:** not an ordinary trip runner. Krishna is a passionate, serious birder and naturalist: if you're
 into birds, he can make your trip — in any season, anywhere in Nepal. The site proves it through
 observation: every bird, animal, butterfly, flower and mountain shown carries its name, scientific name,
-place, altitude, coordinates and date (see "Field label" in STYLE_GUIDE.md; `Observation` in types.ts).
+place, altitude and date — light, never database-like (no coordinates or conservation codes; see "Field label" in STYLE_GUIDE.md; `Observation` in types.ts).
 
 ## Stack
 

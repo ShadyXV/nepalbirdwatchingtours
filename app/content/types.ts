@@ -28,8 +28,8 @@ export type VideoSource =
 
 /**
  * Field-record caption for a photo or clip: what was observed, where and when.
- * Rendered as a notebook-style label (common name, italic scientific name, place, altitude,
- * coordinates, date) — the site's "serious birder" signature.
+ * Rendered as a light notebook-style label (common name, italic scientific name, place, altitude,
+ * date) — the site's "serious birder" signature. No coordinates or conservation codes on labels.
  */
 export type Observation = {
   /** Species in frame; the first is the subject. */
@@ -38,7 +38,6 @@ export type Observation = {
   landmarkId?: Landmark["id"];
   /** Human place name, e.g. "Tadapani, Annapurna". */
   place?: string;
-  coords?: LngLat;
   altitudeM?: number;
   /** "2025-04" or a full IsoDate. */
   date?: string;
@@ -79,9 +78,6 @@ export type MediaAsset = ImageAsset | VideoAsset;
 
 export type SpeciesGroup = "bird" | "mammal" | "reptile" | "amphibian" | "butterfly" | "plant";
 
-/** IUCN Red List category. */
-export type IucnStatus = "LC" | "NT" | "VU" | "EN" | "CR";
-
 export type Species = {
   /** Stable slug, e.g. "himalayan-monal". */
   id: string;
@@ -90,7 +86,6 @@ export type Species = {
   scientificName: string;
   /** Nepali name, if commonly used. */
   localName?: string;
-  iucn?: IucnStatus;
   /** eBird species code, for linking out. */
   ebirdCode?: string;
   image?: ImageAsset;
