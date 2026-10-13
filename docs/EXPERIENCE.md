@@ -123,8 +123,8 @@ well. The card carousel is the primary picker and the map follows it.
    experience, not a pop-up or overlay card. The camera zooms in and **straightens the route**: it turns
    so the day's segment runs straight through the frame (as in San Rita's projects page). Scroll, swipe,
    keys or next/prev move **strictly in sequence**, one day per step, with no jumping around (that's what
-   the overview is for). Each day: headline (`DAY 4 · TADAPANI · 2,630 m`), photos with feathered edges
-   placed in open space, and the birding diary (tally plus checklist) in the negative space.
+   the overview is for). Each day: headline (`DAY 4 · TADAPANI · 2,630 m`), **two media** (images or short
+   ambient videos) with feathered edges placed far apart in open space, and the birding diary (tally plus checklist) in the negative space.
    - Enter: a prominent "Start the journey" button in the overview, a "Day n →" link on each itinerary
      line, and deep links. Exit: an "Overview" button, Esc, or browser back, returning to the overview
      exactly as it was.
