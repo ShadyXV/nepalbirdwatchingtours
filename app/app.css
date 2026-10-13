@@ -43,6 +43,23 @@
   }
 }
 
+/* Accent italic (Fraunces Thin). Use sparingly: big numbers, dates, short quotes, scientific names.
+   `accent-sm` for small sizes, where Thin gets faint. */
+@utility accent {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: var(--font-accent--weight);
+  letter-spacing: 0;
+  text-transform: none;
+}
+@utility accent-sm {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: var(--font-accent--weight-small);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
 /* Labels / eyebrows: mono, 12px, 500, uppercase, 0.12em tracking */
 @utility eyebrow {
   font-family: var(--font-mono);

@@ -3,4 +3,5 @@
 import "@fontsource/anton/400.css";
 import "@fontsource/dm-mono/400.css";
 import "@fontsource/dm-mono/500.css";
-import "@fontsource/dm-mono/400-italic.css"; // scientific names in field labels
+// Accent: Fraunces italic, variable weight + optical size (browsers set opsz automatically).
+import "@fontsource-variable/fraunces/opsz-italic.css";

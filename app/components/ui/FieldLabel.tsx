@@ -7,7 +7,7 @@ import { monthName } from "~/lib/format";
  * The site's signature notebook-style caption (STYLE_GUIDE 3b):
  *
  *   HIMALAYAN MONAL                          name, label caps
- *   Lophophorus impejanus                    scientific name, mono italic, muted
+ *   Lophophorus impejanus                    scientific name, accent italic (Fraunces), muted
  *   Tadapani, Annapurna · 2,630 m · APR 2025 place · altitude · date, small, muted
  *   "male displaying on the ridge, 06:40"    optional field note
  *
@@ -99,7 +99,7 @@ export function FieldLabel({ variant = "full", as, className = "", ...subject }:
           {titleAltitude !== undefined && ` · ${formatAltitude(titleAltitude)}`}
         </p>
       )}
-      {scientificName && <p className="text-small italic text-fg-muted">{scientificName}</p>}
+      {scientificName && <p className="accent-sm text-body leading-snug text-fg-muted">{scientificName}</p>}
       {full && details.length > 0 && <p className="mt-0.5 text-small text-fg-muted">{details.join(" · ")}</p>}
       {full && note && <p className="mt-0.5 text-small text-fg">&ldquo;{note}&rdquo;</p>}
     </Tag>

@@ -35,6 +35,14 @@ Why these:
 - **Anton** is the closest free match for an ultra-compressed, very heavy display cut. Its proportions are very tall and dense, like F37 Stout Black Compressed.
 - **DM Mono** is a neutral geometric mono with a clean, modern feel, close to Centra Mono's sans-like mono forms. It reads well at small sizes.
 
+### 1.2b Accent italic (owner's pick)
+
+**Fraunces Italic, Thin (100)**, `@fontsource-variable/fraunces/opsz-italic.css` (weight + optical size
+axes). Token `--font-accent`, utilities `accent` (Thin) and `accent-sm` (300, for text under ~16px).
+Used sparingly and only for short text: big numbers (bird counts, altitudes, days), dates and "with
+Anna & Tom" lines on memories, short guest quotes and asides, and scientific names in field labels.
+Never for body copy or headlines.
+
 ### 1.3 Runners-up
 
 | Role | Family | Packages | Why it could be better |
@@ -141,12 +149,12 @@ into a database. Every bird is celebrated equally. Data: `Observation` on media,
 
 ```
 HIMALAYAN MONAL                          label/caps, fg
-Lophophorus impejanus                    mono italic, fg-muted
+Lophophorus impejanus                    accent italic (Fraunces), fg-muted
 Tadapani, Annapurna · 2,630 m · APR 2025 small, fg-muted
 "male displaying on the ridge, 06:40"    small, fg (optional field note)
 ```
 
-- Scientific names are always italic. Load DM Mono italic (`@fontsource/dm-mono/400-italic.css`).
+- Scientific names are always in the accent italic (`accent-sm`).
 - **Never shown:** coordinates, conservation-status codes (IUCN), or other database-style fields.
 - Altitude with thousands separator and ` m`. Dates `APR 2025`, or `14 APR 2025` when the day is known.
 - Mountains: `MACHHAPUCHHRE · 6,993 m`; no scientific line.

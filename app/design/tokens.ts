@@ -35,6 +35,7 @@ export const TOKEN_FALLBACKS = {
   // fonts
   "--font-display": '"Anton", "Impact", "Haettenschweiler", "Arial Narrow Bold", sans-serif',
   "--font-mono": '"DM Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace',
+  "--font-accent": '"Fraunces Variable", "Iowan Old Style", Georgia, serif',
   // motion
   "--ease-sheet": "cubic-bezier(0.22, 1, 0.36, 1)",
   "--ease-out": "cubic-bezier(0.16, 1, 0.3, 1)",
@@ -43,6 +44,26 @@ export const TOKEN_FALLBACKS = {
   "--duration-sheet": "700ms",
   "--duration-map": "900ms",
   "--duration-stagger": "70ms",
+  // map (tokens.css group 4)
+  "--color-map-terai": "#3d5a3c",
+  "--color-map-lowland": "#4b6943",
+  "--color-map-hills": "#5e7a52",
+  "--color-map-midhills": "#77794c",
+  "--color-map-ridge": "#9a8653",
+  "--color-map-alpine": "#a8936a",
+  "--color-map-rock": "#8e8f88",
+  "--color-map-scree": "#b4bab6",
+  "--color-map-snow": "#eef4f1",
+  "--color-map-light": "#ffd9a8",
+  "--color-map-shade": "#1a1410",
+  "--color-map-outside": "#111714",
+  "--color-map-haze": "#2a332f",
+  "--ease-map": "cubic-bezier(0.6, 0, 0.25, 1)",
+  "--ease-pop": "cubic-bezier(0.34, 1.7, 0.6, 1)",
+  "--duration-map-flight": "2600ms",
+  "--duration-map-return": "2200ms",
+  "--duration-route-draw": "1400ms",
+  "--duration-pop": "520ms",
 } as const;
 
 export type TokenName = keyof typeof TOKEN_FALLBACKS;
