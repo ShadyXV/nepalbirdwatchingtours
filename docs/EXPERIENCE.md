@@ -223,6 +223,14 @@ headline overlapping the map's edge, then memories and photos, then the compact 
 might see, and practical facts. Scroll back up and the map is whole again. Pins are big enough alone, so
 the home card carousel becomes a hover-synced list. An optional cursor-following lens appears in S1/S2.
 
+## Hover media reveal (map markers)
+
+Hovering a trip pin or stop marker (desktop; press-and-hold on phones) reveals a large photo or muted
+video snippet, about 5× the thumbnail, whose edges feather and dissolve into the map. It's a reveal, not a
+pop-up: it never takes the pointer and lasts only while the pointer is over the original small marker.
+Trips crossfade through their reel; stops show their own media and memories. Inspired by San Rita's map
+hovers. Related experiment: "the land becomes the photo" (`VISION.md`).
+
 ## Motion (tokens in `app/design/tokens.css`)
 
 | Moment | Motion |
