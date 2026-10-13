@@ -8,3 +8,5 @@ media-source/*
 !media-source/README.md
 # Mock-up web copies of Krishna's photos (local until publishing is confirmed)
 public/media/mock/
+# Local design specimens (preview only, never published)
+public/_specimen/
