@@ -1,7 +1,8 @@
 import { Link } from "react-router";
 import { useInquiry } from "~/components/inquiry";
 import { useMapLayoutContext } from "~/components/map/layoutContext";
-import { Button } from "~/components/ui/Button";
+import { MediaCarousel } from "~/components/media";
+import { Button, Heading } from "~/components/ui";
 import { getSpecies } from "~/content";
 import type { Sighting, SpeciesGroup, Trip, Waypoint } from "~/content/types";
 import { t } from "~/i18n";
@@ -22,22 +23,33 @@ export function TripScreen({ trip }: { trip: Trip }) {
     [t("trip.bestMonths"), trip.bestMonths.map(monthName).join(", ")],
   ];
 
+  const list = "mt-3 list-disc space-y-1.5 pl-5 marker:text-accent";
+
   return (
-    <article className="space-y-6 p-5">
-      <Link to="/" className="text-sm font-semibold text-forest hover:underline">
+    <article className="space-y-8 px-gutter pt-2">
+      <Link to="/" className="eyebrow inline-flex min-h-tap items-center text-accent hover:underline">
+        <span aria-hidden="true">&larr;&nbsp;</span>
         {t("trip.back")}
       </Link>
 
-      <header>
-        <h1 className="text-3xl">{trip.title}</h1>
-        <p className="mt-1 text-ink-soft">{trip.tagline}</p>
+      <header className="-mt-4">
+        <Heading level="h1" className="md:text-h2">
+          {trip.title}
+        </Heading>
+        <p className="mt-3 text-fg-muted">{trip.tagline}</p>
       </header>
 
-      <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+      <MediaCarousel
+        label={t("media.photos")}
+        items={trip.reel}
+        slideClassName="basis-[88%]"
+      />
+
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-4 border-y border-border py-5">
         {facts.map(([label, value]) => (
           <div key={label}>
-            <dt className="text-ink-soft">{label}</dt>
-            <dd className="font-semibold">{value}</dd>
+            <dt className="eyebrow text-fg-muted">{label}</dt>
+            <dd className="mt-1 text-small font-medium text-fg">{value}</dd>
           </div>
         ))}
       </dl>
@@ -45,8 +57,8 @@ export function TripScreen({ trip }: { trip: Trip }) {
       <p>{trip.summary}</p>
 
       <section>
-        <h2 className="text-xl">{t("trip.highlights")}</h2>
-        <ul className="mt-2 list-disc space-y-1 pl-5">
+        <Heading level="h3" as="h2">{t("trip.highlights")}</Heading>
+        <ul className={list}>
           {trip.highlights.map((highlight) => (
             <li key={highlight}>{highlight}</li>
           ))}
@@ -54,7 +66,7 @@ export function TripScreen({ trip }: { trip: Trip }) {
       </section>
 
       <section>
-        <h2 className="text-xl">{t("trip.itinerary")}</h2>
+        <Heading level="h3" as="h2">{t("trip.itinerary")}</Heading>
         <ol className="mt-3 space-y-2">
           {trip.waypoints.map((waypoint) => (
             <WaypointItem
@@ -69,8 +81,8 @@ export function TripScreen({ trip }: { trip: Trip }) {
 
       {trip.includes && (
         <section>
-          <h2 className="text-xl">{t("trip.includes")}</h2>
-          <ul className="mt-2 list-disc space-y-1 pl-5">
+          <Heading level="h3" as="h2">{t("trip.includes")}</Heading>
+          <ul className={list}>
             {trip.includes.map((item) => (
               <li key={item}>{item}</li>
             ))}
@@ -80,13 +92,22 @@ export function TripScreen({ trip }: { trip: Trip }) {
 
       {pricing?.show && (
         <p>
-          <span className="text-ink-soft">{t("trip.price")}: </span>
-          <strong>{formatPrice(pricing.amount, pricing.currency)}</strong> {t(perKey[pricing.per])}
-          {pricing.note && <span className="block text-sm text-ink-soft">{pricing.note}</span>}
+          <span className="eyebrow text-fg-muted">{t("trip.price")}: </span>
+          <strong className="font-medium">{formatPrice(pricing.amount, pricing.currency)}</strong> {t(perKey[pricing.per])}
+          {pricing.note && <span className="mt-1 block text-small text-fg-muted">{pricing.note}</span>}
         </p>
       )}
 
-      <Button onClick={() => openInquiry({ tripSlug: trip.slug })}>{t("trip.inquire")}</Button>
+      <Button className="hidden md:inline-flex" onClick={() => openInquiry({ tripSlug: trip.slug })}>
+        {t("trip.inquire")}
+      </Button>
+
+      {/* Mobile: thumb-reachable bar that sticks to the bottom of the sheet; in flow at the end, so it never covers content. */}
+      <div className="sticky bottom-0 z-10 -mx-gutter border-t border-border bg-bg-raised/95 px-gutter pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur md:hidden">
+        <Button className="w-full" onClick={() => openInquiry({ tripSlug: trip.slug })}>
+          {t("trip.inquire")}
+        </Button>
+      </div>
     </article>
   );
 }
@@ -99,22 +120,28 @@ function WaypointItem({ waypoint, active, onToggle }: { waypoint: Waypoint; acti
   ].filter(Boolean);
 
   return (
-    <li className={`rounded-lg border ${active ? "border-forest bg-snow" : "border-ink/15"}`}>
+    <li className={`overflow-hidden rounded-card border ${active ? "border-route bg-bg" : "border-border"}`}>
       <button
         type="button"
-        className="w-full px-3 py-2 text-left"
+        className="flex min-h-14 w-full items-center gap-3 px-3 py-3 text-left"
         aria-expanded={active}
         onClick={onToggle}
       >
-        <span className="block font-semibold">{waypoint.name}</span>
-        <span className="block text-sm text-ink-soft">{details.join(" · ")}</span>
+        <span
+          aria-hidden="true"
+          className={`size-3.5 shrink-0 rounded-full border-2 border-fg ${active ? "bg-marker" : "bg-transparent"}`}
+        />
+        <span className="min-w-0">
+          <span className="block font-medium">{waypoint.name}</span>
+          <span className="eyebrow mt-0.5 block text-fg-muted">{details.join(" · ")}</span>
+        </span>
       </button>
 
       {/* Always in the DOM so the prerendered HTML carries the full itinerary. */}
-      <div hidden={!active} className="space-y-3 px-3 pb-3 text-sm">
+      <div hidden={!active} className="space-y-3 px-3 pb-4 text-small">
         {waypoint.stay && (
           <p>
-            <span className="text-ink-soft">{t("trip.stay")}: </span>
+            <span className="eyebrow text-fg-muted">{t("trip.stay")}: </span>
             {waypoint.stay.name ?? waypoint.stay.kind}
           </p>
         )}
@@ -138,14 +165,14 @@ function Sightings({ sightings }: { sightings: Sighting[] }) {
 
   return (
     <div>
-      <h3 className="mb-1 text-base">{t("trip.seen")}</h3>
+      <h3 className="eyebrow mb-1 font-mono text-fg">{t("trip.seen")}</h3>
       {[...groups].map(([group, items]) => (
         <section key={group} className="mt-2">
-          <h4 className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{t(`group.${group}`)}</h4>
+          <h4 className="eyebrow font-mono text-fg-muted">{t(`group.${group}`)}</h4>
           <ul>
             {items.map(({ name, sighting }) => (
               <li key={sighting.speciesId}>
-                {name} <span className="text-ink-soft">({t(`likelihood.${sighting.likelihood}`)})</span>
+                {name} <span className="text-fg-muted">({t(`likelihood.${sighting.likelihood}`)})</span>
               </li>
             ))}
           </ul>

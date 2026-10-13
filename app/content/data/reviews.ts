@@ -12,6 +12,6 @@ export const reviews: Review[] = [
     text: "Krishna spotted birds long before we could see them and shared his love for them all week. Placeholder review.",
     tripSlug: "langtang-valley",
     source: { name: "Direct" },
-    media: [],
+    media: [{ kind: "image", src: "/media/placeholder-snow.svg", alt: "Snow peaks (placeholder)" }],
   },
 ];

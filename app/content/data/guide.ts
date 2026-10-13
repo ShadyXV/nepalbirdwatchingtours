@@ -15,7 +15,7 @@ export const guide: Guide = {
   specialties: ["Himalayan birds", "Photography walks", "Forest and wetland birding"],
   portrait: {
     kind: "image",
-    src: "/media/placeholder.svg",
+    src: "/media/placeholder-forest.svg",
     alt: "Portrait of Krishna Thapa (placeholder)",
   },
   art: [],

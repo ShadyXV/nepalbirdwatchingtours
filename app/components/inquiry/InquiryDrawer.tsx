@@ -5,6 +5,7 @@ import { getPublishedTrips, guide } from "~/content";
 import type { Inquiry } from "~/content/types";
 import { t } from "~/i18n";
 import { Button, ButtonLink } from "../ui/Button";
+import { Heading } from "../ui/Heading";
 import { instagramUrl, mailtoUrl, whatsappUrl } from "./channels";
 import { composeMessage } from "./composeMessage";
 import { useInquiry } from "./InquiryProvider";
@@ -83,28 +84,34 @@ function DrawerPanel({ prefill, onClose }: { prefill: Partial<Inquiry>; onClose:
     }
   }
 
-  const field = "w-full rounded-md border border-ink/30 bg-snow px-3 py-2 text-sm";
-  const label = "mb-1 block text-sm font-medium";
+  // text-body is >= 16px, which stops iOS Safari zooming focused inputs.
+  const field =
+    "min-h-tap w-full rounded-field border border-border bg-bg px-3 py-2 text-body text-fg placeholder:text-fg-muted focus-visible:border-route";
+  const label = "eyebrow mb-1.5 block text-fg-muted";
 
   return (
     <div className="fixed inset-0 z-50" onKeyDown={onKeyDown}>
-      <div className="absolute inset-0 bg-ink/40" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-scrim" onClick={onClose} aria-hidden="true" />
       <div
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="absolute inset-x-0 bottom-0 flex max-h-[92svh] flex-col overflow-y-auto rounded-t-2xl bg-paper p-5 shadow-xl sm:inset-y-0 sm:left-auto sm:right-0 sm:max-h-none sm:w-[28rem] sm:rounded-none"
+        className="sheet absolute inset-x-0 bottom-0 top-3 flex flex-col overflow-y-auto overscroll-contain rounded-t-sheet bg-bg-raised px-gutter pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-sheet md:inset-y-0 md:left-auto md:right-0 md:w-[28rem] md:rounded-none md:px-gutter-lg"
       >
-        <div className="mb-1 flex items-start justify-between gap-4">
-          <h2 id={titleId} className="text-2xl">
+        {/* Drag handle: visual affordance only. */}
+        <div aria-hidden="true" className="flex justify-center pb-1 pt-2.5 md:hidden">
+          <span className="h-1 w-10 rounded-full bg-fg-muted/60" />
+        </div>
+        <div className="mb-2 flex items-center justify-between gap-4 pt-2">
+          <Heading level="h2" id={titleId}>
             {t("inquiry.title")}
-          </h2>
-          <Button variant="ghost" onClick={onClose} className="px-3 py-1">
+          </Heading>
+          <Button variant="ghost" size="sm" onClick={onClose}>
             {t("inquiry.close")}
           </Button>
         </div>
-        <p className="mb-4 text-sm text-ink-soft">{t("inquiry.intro")}</p>
+        <p className="mb-5 text-small text-fg-muted">{t("inquiry.intro")}</p>
 
         <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
           <div>
@@ -123,12 +130,12 @@ function DrawerPanel({ prefill, onClose }: { prefill: Partial<Inquiry>; onClose:
 
           <fieldset>
             <legend className={label}>{t("inquiry.dates")}</legend>
-            <p className="mb-1 text-xs text-ink-soft">{t("inquiry.datesHint")}</p>
-            <div className="rounded-md border border-ink/30 bg-snow p-2">
+            <p className="mb-2 text-small text-fg-muted">{t("inquiry.datesHint")}</p>
+            <div className="flex justify-center rounded-field border border-border bg-bg p-2">
               <DayPicker mode="range" selected={range} onSelect={setRange} disabled={{ before: new Date() }} />
             </div>
             {range && (
-              <button type="button" className="mt-1 text-xs underline" onClick={() => setRange(undefined)}>
+              <button type="button" className="eyebrow mt-1 inline-flex min-h-tap items-center text-accent underline" onClick={() => setRange(undefined)}>
                 {t("inquiry.clearDates")}
               </button>
             )}
@@ -179,21 +186,22 @@ function DrawerPanel({ prefill, onClose }: { prefill: Partial<Inquiry>; onClose:
 
           <div>
             <p className={label}>{t("inquiry.sendVia")}</p>
-            <div className="flex flex-wrap gap-2">
-              <ButtonLink href={whatsappUrl(guide.contact, text)} target="_blank" rel="noopener noreferrer">
+            <div className="flex flex-col gap-2 md:flex-row md:flex-wrap">
+              <ButtonLink className="w-full md:w-auto" href={whatsappUrl(guide.contact, text)} target="_blank" rel="noopener noreferrer">
                 {t("inquiry.whatsapp")}
               </ButtonLink>
               <ButtonLink
+                className="w-full md:w-auto"
                 href={mailtoUrl(guide.contact, t("inquiry.emailSubject"), text)}
                 variant="ghost"
               >
                 {t("inquiry.email")}
               </ButtonLink>
-              <Button variant="ghost" onClick={sendInstagram}>
+              <Button variant="ghost" className="w-full md:w-auto" onClick={sendInstagram}>
                 {t("inquiry.instagram")}
               </Button>
             </div>
-            <p role="status" className="mt-2 min-h-5 text-sm text-ink-soft">
+            <p role="status" className="mt-2 min-h-5 text-small text-fg-muted">
               {copied === "ok" && t("inquiry.copied")}
               {copied === "failed" && t("inquiry.copyFailed")}
             </p>

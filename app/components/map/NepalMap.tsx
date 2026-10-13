@@ -12,8 +12,9 @@ export function NepalMap({
   className = "",
 }: NepalMapProps) {
   const activeTrip = trips.find((trip) => trip.slug === activeTripSlug);
-  const surface = appearance === "overlay" ? "bg-paper/70" : "bg-paper";
-  const item = "rounded-full border border-ink/30 px-3 py-1 text-sm hover:bg-paper-deep aria-pressed:bg-forest aria-pressed:text-snow";
+  const surface = appearance === "overlay" ? "bg-bg/70" : "bg-bg";
+  const item =
+    "eyebrow min-h-tap rounded-button border border-border px-4 py-2 transition-colors duration-(--duration-micro) hover:border-route aria-pressed:border-route aria-pressed:bg-route aria-pressed:text-accent-fg";
 
   return (
     <div
@@ -21,10 +22,10 @@ export function NepalMap({
       aria-label={t("map.label")}
       className={`flex h-full w-full flex-col items-center justify-center gap-6 p-6 text-center ${surface} ${className}`}
     >
-      <p className="font-display text-2xl text-ink-soft">{t("map.comingSoon")}</p>
+      <p className="font-display text-h2 uppercase text-fg-muted">{t("map.comingSoon")}</p>
 
       <div>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-soft">{t("map.trips")}</p>
+        <p className="eyebrow mb-2 text-fg-muted">{t("map.trips")}</p>
         <ul className="flex flex-wrap justify-center gap-2">
           {trips.map((trip) => (
             <li key={trip.slug}>
@@ -43,7 +44,7 @@ export function NepalMap({
 
       {activeTrip && (
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-soft">{t("map.stops")}</p>
+          <p className="eyebrow mb-2 text-fg-muted">{t("map.stops")}</p>
           <ul className="flex flex-wrap justify-center gap-2">
             {activeTrip.waypoints.map((waypoint) => (
               <li key={waypoint.id}>

@@ -9,6 +9,17 @@ export const en = {
     inquire: "Inquire",
     primary: "Main navigation",
     home: "Home",
+    menu: "Menu",
+    menuClose: "Close menu",
+  },
+  media: {
+    video: "Video",
+    carousel: "{label} carousel",
+    slide: "Slide {current} of {total}",
+    counter: "{current} / {total}",
+    prev: "Previous slide",
+    next: "Next slide",
+    photos: "Photos",
   },
   home: {
     metaTitle: "Birdwatching tours in Nepal",

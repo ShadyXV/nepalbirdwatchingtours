@@ -181,6 +181,8 @@ Also disable parallax and camera auto-pans. Route lines and markers appear witho
 
 ## 5. Tailwind v4 tokens
 
+The tokens now live in `app/design/tokens.css` (single `@theme` block, with semantic aliases); JS mirror in `app/design/tokens.ts`.
+
 Paste this into the project's global stylesheet. It is the proposed palette from section 2b and is pending owner approval. Do not edit `app/app.css` until the palette is approved.
 
 ```css

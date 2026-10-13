@@ -1,48 +1,112 @@
 @import "tailwindcss";
 @import "react-day-picker/style.css";
+@import "./design/tokens.css";
 
-@theme {
-  --color-paper: #f3ecdf;
-  --color-paper-deep: #e8dcc6;
-  --color-ink: #2a2722;
-  --color-ink-soft: #5b554b;
-  --color-forest: #3e5a3f;
-  --color-moss: #7a8a4f;
-  --color-rhodo: #b8432f;
-  --color-sky: #8fb3c4;
-  --color-snow: #fbf9f4;
-
-  --font-display: "Fraunces Variable", Georgia, serif;
-  --font-body: "Public Sans Variable", system-ui, sans-serif;
-
-  --spacing-header: 3.5rem;
-}
+/* Base / global styles only. All design values live in design/tokens.css. */
 
 @layer base {
   html {
-    background: var(--color-paper);
-    color: var(--color-ink);
-    font-family: var(--font-body);
+    background: var(--color-bg);
+    color: var(--color-fg);
+    color-scheme: dark;
+    font-family: var(--font-mono);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    font-synthesis: none; /* Anton has one weight; never fake bold */
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
   }
-  h1, h2, h3 {
+  body {
+    min-height: 100svh;
+    overflow-x: clip; /* no horizontal page scroll on phones */
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
-    line-height: 1.15;
+    font-weight: 400;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+  a {
+    text-underline-offset: 0.2em;
+  }
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
   }
   :focus-visible {
-    outline: 2px solid var(--color-rhodo);
+    outline: 2px solid var(--color-focus);
     outline-offset: 2px;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
   }
 }
 
-/* react-day-picker, restyled with site tokens */
+/* Labels / eyebrows: mono, 12px, 500, uppercase, 0.12em tracking */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  font-weight: var(--text-label--font-weight);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* STYLE_GUIDE 4.4 reduced motion, verbatim */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .photo-stack > * {
+    transform: none !important;
+  }
+  .sheet {
+    transform: none !important;
+  } /* fade in opacity only, max 150ms */
+}
+
+/* react-day-picker, restyled with semantic tokens */
 .rdp-root {
-  --rdp-accent-color: var(--color-forest);
-  --rdp-accent-background-color: var(--color-paper-deep);
-  --rdp-day_button-border-radius: 0.375rem;
-  --rdp-range_middle-color: var(--color-ink);
-  font-size: 0.875rem;
+  --rdp-accent-color: var(--color-accent);
+  --rdp-accent-background-color: color-mix(in oklab, var(--color-accent) 22%, transparent);
+  --rdp-range_start-color: var(--color-accent-fg);
+  --rdp-range_end-color: var(--color-accent-fg);
+  --rdp-range_middle-color: var(--color-fg);
+  --rdp-today-color: var(--color-route);
+  --rdp-day_button-border-radius: var(--radius-field);
+  --rdp-day-height: var(--spacing-tap);
+  /* 7 columns must fit the narrowest drawer (360px viewport) */
+  --rdp-day-width: min(var(--spacing-tap), calc((100vw - 4.5rem) / 7));
+  --rdp-day_button-height: calc(var(--rdp-day-height) - 2px);
+  --rdp-day_button-width: calc(var(--rdp-day-width) - 2px);
+  --rdp-nav_button-height: var(--spacing-tap);
+  --rdp-nav_button-width: var(--spacing-tap);
+  font-size: var(--text-small);
+  font-family: var(--font-mono);
+}
+.rdp-root .rdp-caption_label {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.25rem;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+.rdp-root .rdp-weekday {
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-fg-muted);
 }

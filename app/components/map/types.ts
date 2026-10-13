@@ -1,6 +1,6 @@
 import type { Landmark, Trip } from "~/content/types";
 
-export type MapAppearance = "solid" | "overlay"; // overlay = translucent paper so a media layer beneath shows through
+export type MapAppearance = "solid" | "overlay"; // overlay = translucent background so a media layer beneath shows through
 
 export type NepalMapProps = {
   trips: Trip[];

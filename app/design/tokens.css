@@ -1,0 +1,90 @@
+/*
+ * DESIGN TOKENS: the single source of truth for the site's look.
+ * Spec: docs/STYLE_GUIDE.md. JS mirror (for MapLibre etc.): app/design/tokens.ts,
+ * keep the hex values there in sync with the raw palette below.
+ *
+ * Layers:
+ *   1. raw palette    (--color-night, --color-monal, ...)  change a colour HERE
+ *   2. semantic roles (--color-bg, --color-accent, ...)    components use ONLY these
+ *   3. fonts, type scale, spacing, radii, shadows, motion
+ *
+ * `static` makes Tailwind emit every variable (even unused ones), so
+ * getComputedStyle can read them at runtime.
+ */
+@theme static {
+  /* ---- 1. Raw palette (STYLE_GUIDE 2b) ---- */
+  --color-night: #0d1210;
+  --color-surface: #18211d;
+  --color-snow: #eef4f1;
+  --color-mist: #9aa8a2;
+  --color-line: #3fb8ae;
+  --color-monal: #c9803f;
+  --color-violet: #7d6bc4;
+  --color-rhodo: #c8323c;
+  --color-forest: #2f5d46;
+  --color-ochre: #b8934a;
+
+  /* ---- 2. Semantic roles (utilities: bg-bg, text-fg, text-fg-muted, bg-accent, border-border ...) ---- */
+  --color-bg: var(--color-night);
+  --color-bg-raised: var(--color-surface); /* cards, sheets, drawers */
+  --color-fg: var(--color-snow);
+  --color-fg-muted: var(--color-mist);
+  --color-accent: var(--color-monal); /* CTAs, links, highlights */
+  --color-accent-fg: var(--color-night); /* text on accent fills */
+  --color-route: var(--color-line); /* main route line, primary highlights */
+  --color-route-alt: var(--color-violet); /* alternative routes */
+  --color-marker: var(--color-rhodo); /* waypoint markers, alerts */
+  --color-feature: var(--color-forest); /* feature bands, dark fills */
+  --color-ridge: var(--color-ochre); /* dividers, ridge terrain */
+  --color-focus: var(--color-line); /* focus ring */
+  --color-border: color-mix(in oklab, var(--color-mist) 28%, transparent);
+  --color-scrim: color-mix(in oklab, var(--color-night) 72%, transparent);
+
+  /* ---- 3a. Fonts ---- */
+  --font-display: "Anton", "Impact", "Haettenschweiler", "Arial Narrow Bold", sans-serif;
+  --font-mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* ---- 3b. Type scale (STYLE_GUIDE 1.4). Phones use the clamp() minimums. ---- */
+  --text-hero: clamp(4.5rem, 20vw, 16rem);
+  --text-hero--line-height: 0.85;
+  --text-hero--letter-spacing: -0.005em;
+  --text-h1: clamp(2.5rem, 9vw, 6rem);
+  --text-h1--line-height: 0.9;
+  --text-h2: clamp(1.75rem, 5vw, 3.5rem);
+  --text-h2--line-height: 0.95;
+  --text-h3: clamp(1.25rem, 2.6vw, 2rem);
+  --text-h3--line-height: 1.05;
+  --text-h3--letter-spacing: 0.01em;
+  --text-body: clamp(1rem, 0.95rem + 0.2vw, 1.0625rem); /* never below 16px: stops iOS input zoom */
+  --text-body--line-height: 1.6;
+  --text-small: 0.8125rem;
+  --text-small--line-height: 1.5;
+  --text-label: 0.75rem;
+  --text-label--line-height: 1.2;
+  --text-label--font-weight: 500;
+  --text-label--letter-spacing: 0.12em;
+  --tracking-label: 0.12em; /* same value, for the .eyebrow utility */
+
+  /* ---- 3c. Layout / spacing (utilities: h-header, min-h-tap, px-gutter ...) ---- */
+  --spacing-header: 3.5rem;
+  --spacing-tap: 2.75rem; /* 44px minimum touch target */
+  --spacing-gutter: 1rem; /* page side padding on phones */
+  --spacing-gutter-lg: 1.5rem; /* page side padding from sm up */
+
+  /* ---- 3d. Radii and shadows ---- */
+  --radius-button: 0.25rem;
+  --radius-field: 0.25rem;
+  --radius-card: 0.5rem;
+  --radius-sheet: 1.5rem; /* top corners of bottom sheets */
+  --shadow-card: 0 8px 24px -12px rgb(0 0 0 / 0.6);
+  --shadow-sheet: 0 -16px 48px -12px rgb(0 0 0 / 0.65);
+
+  /* ---- 3e. Motion (STYLE_GUIDE 4.2) ---- */
+  --ease-sheet: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-micro: 150ms; /* hover, focus */
+  --duration-ui: 250ms; /* toggles, tabs */
+  --duration-sheet: 700ms; /* content sheet rise */
+  --duration-map: 900ms; /* camera moves */
+  --duration-stagger: 70ms; /* per child */
+}

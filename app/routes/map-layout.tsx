@@ -36,14 +36,14 @@ export default function MapLayout() {
   const isTrip = activeTripSlug !== null;
 
   const fallback = (
-    <div className="flex h-full w-full items-center justify-center bg-paper text-ink-soft" role="status">
+    <div className="flex h-full w-full items-center justify-center bg-bg text-fg-muted" role="status">
       {t("map.loading")}
     </div>
   );
 
   return (
     <>
-      <div className="relative h-[calc(100svh-var(--spacing-header))] bg-paper">
+      <div className="relative h-[calc(100svh-var(--spacing-header))] bg-bg">
         {hydrated ? (
           <Suspense fallback={fallback}>
             <NepalMap
@@ -60,7 +60,11 @@ export default function MapLayout() {
         )}
 
         {isTrip && (
-          <div className="absolute inset-x-0 bottom-0 max-h-[60%] overflow-y-auto border-t border-ink/10 bg-paper/95 shadow-lg md:inset-y-0 md:right-auto md:max-h-none md:w-[26rem] md:border-r md:border-t-0">
+          <div className="sheet absolute inset-x-0 bottom-0 max-h-[64%] overflow-y-auto overscroll-contain rounded-t-sheet border-t border-border bg-bg-raised shadow-sheet md:inset-y-0 md:right-auto md:max-h-none md:w-[26rem] md:rounded-none md:border-r md:border-t-0">
+            {/* Drag handle: visual affordance only (sheet gestures come later). */}
+            <div aria-hidden="true" className="sticky top-0 z-10 flex justify-center bg-bg-raised pb-1 pt-2.5 md:hidden">
+              <span className="h-1 w-10 rounded-full bg-fg-muted/60" />
+            </div>
             <Outlet context={context} />
           </div>
         )}

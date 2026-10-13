@@ -1,9 +1,9 @@
-import "@fontsource-variable/fraunces";
-import "@fontsource-variable/public-sans";
+import "~/design/fonts";
 import "./app.css";
 
 import { isRouteErrorResponse, Link, Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { Footer, Header } from "~/components/layout";
+import { Heading } from "~/components/ui";
 import { InquiryDrawer, InquiryProvider } from "~/components/inquiry";
 import { t } from "~/i18n";
 import { assetUrl } from "~/lib/site";
@@ -44,10 +44,10 @@ export function ErrorBoundary({ error }: { error: unknown }) {
   const notFound =
     (isRouteErrorResponse(error) && error.status === 404) || (error instanceof Response && error.status === 404);
   return (
-    <main className="mx-auto max-w-3xl px-4 py-24 text-center">
-      <h1 className="text-4xl">{notFound ? t("error.notFound") : t("error.generic")}</h1>
-      {notFound && <p className="mt-3 text-ink-soft">{t("error.notFoundBody")}</p>}
-      <Link to="/" className="mt-6 inline-block font-semibold text-forest underline">
+    <main className="mx-auto max-w-3xl px-gutter py-24 text-center sm:px-gutter-lg">
+      <Heading level="h1">{notFound ? t("error.notFound") : t("error.generic")}</Heading>
+      {notFound && <p className="mt-3 text-fg-muted">{t("error.notFoundBody")}</p>}
+      <Link to="/" className="eyebrow mt-6 inline-flex min-h-tap items-center text-accent underline">
         {t("nav.home")}
       </Link>
     </main>

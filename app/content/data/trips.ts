@@ -22,10 +22,15 @@ export const trips: Trip[] = [
     ],
     cover: {
       kind: "image",
-      src: "/media/placeholder.svg",
+      src: "/media/placeholder-ridge.svg",
       alt: "Langtang valley (placeholder)",
     },
-    reel: [],
+    reel: [
+      { kind: "image", src: "/media/placeholder-ridge.svg", alt: "Ridge at dawn (placeholder)" },
+      { kind: "image", src: "/media/placeholder-forest.svg", alt: "Rhododendron forest (placeholder)" },
+      { kind: "image", src: "/media/placeholder-snow.svg", alt: "Snow peaks (placeholder)" },
+      { kind: "image", src: "/media/placeholder.svg", alt: "Valley mist (placeholder)" },
+    ],
     waypoints: [
       {
         id: "syabrubesi",

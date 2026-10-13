@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { useInquiry } from "~/components/inquiry";
-import { Button } from "~/components/ui/Button";
+import { Carousel, MediaFrame } from "~/components/media";
+import { Button, Heading } from "~/components/ui";
 import { getPublishedTrips, getReviews, guide, speciesCountForTrip } from "~/content";
 import { t } from "~/i18n";
 import { assetUrl } from "~/lib/site";
@@ -13,82 +14,82 @@ export function HomeScreen() {
   const reviews = getReviews();
 
   return (
-    <div className="mx-auto max-w-5xl space-y-16 px-4 py-14 sm:px-6">
+    <div className="mx-auto max-w-5xl space-y-16 px-gutter py-12 sm:px-gutter-lg md:space-y-24 md:py-20">
       <section id="trips" className="scroll-mt-20">
-        <h2 className="text-3xl">{t("home.tripsHeading")}</h2>
-        <p className="mt-2 text-ink-soft">{t("home.tripsIntro")}</p>
-        <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <Heading level="h2">{t("home.tripsHeading")}</Heading>
+        <p className="mt-3 max-w-prose text-fg-muted">{t("home.tripsIntro")}</p>
+        <Carousel label={t("home.tripsHeading")} className="mt-6">
           {trips.map((trip) => (
-            <li key={trip.slug} className="overflow-hidden rounded-xl bg-snow shadow-sm">
-              <Link to={`/trips/${trip.slug}`} className="block">
-                <img
-                  src={assetUrl(trip.cover.src)}
-                  alt={trip.cover.alt}
-                  loading="lazy"
-                  className="aspect-[4/3] w-full object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="text-xl">{trip.title}</h3>
-                  <p className="mt-1 text-sm text-ink-soft">{trip.tagline}</p>
-                  <p className="mt-3 text-sm font-semibold text-forest">
-                    {t("home.birds", { count: speciesCountForTrip(trip, "bird") })}
-                  </p>
-                </div>
-              </Link>
-            </li>
+            <Link
+              key={trip.slug}
+              to={`/trips/${trip.slug}`}
+              className="block h-full overflow-hidden rounded-card bg-bg-raised shadow-card transition-colors duration-(--duration-ui) hover:bg-feature/40"
+            >
+              <MediaFrame asset={trip.cover} />
+              <div className="p-4">
+                <Heading level="h3">{trip.title}</Heading>
+                <p className="mt-2 text-small text-fg-muted">{trip.tagline}</p>
+                <p className="eyebrow mt-4 text-accent">{t("home.birds", { count: speciesCountForTrip(trip, "bird") })}</p>
+              </div>
+            </Link>
           ))}
-        </ul>
+        </Carousel>
       </section>
 
-      <section className="grid items-center gap-8 sm:grid-cols-[14rem_1fr]">
+      <section className="grid items-center gap-8 md:grid-cols-[16rem_1fr] md:gap-12">
         <img
           src={assetUrl(guide.portrait.src)}
           alt={guide.portrait.alt}
           loading="lazy"
-          className="aspect-square w-full rounded-xl object-cover"
+          decoding="async"
+          className="aspect-[3/2] w-full rounded-card object-cover md:aspect-square"
         />
         <div>
-          <h2 className="text-3xl">{t("home.introHeading")}</h2>
-          <p className="mt-3">{guide.bio[0]}</p>
-          <Link to="/about" className="mt-3 inline-block font-semibold text-forest underline">
+          <Heading level="h2">{t("home.introHeading")}</Heading>
+          <p className="mt-4 max-w-prose">{guide.bio[0]}</p>
+          <Link to="/about" className="eyebrow mt-4 inline-flex min-h-tap items-center text-accent underline">
             {t("home.introLink")}
           </Link>
         </div>
       </section>
 
       <section>
-        <h2 className="text-3xl">{t("home.servicesHeading")}</h2>
-        <ul className="mt-6 grid gap-6 sm:grid-cols-3">
-          {services.map((key) => (
-            <li key={key}>
-              <h3 className="text-xl">{t(`home.services.${key}.title`)}</h3>
-              <p className="mt-1 text-ink-soft">{t(`home.services.${key}.body`)}</p>
+        <Heading level="h2">{t("home.servicesHeading")}</Heading>
+        <ul className="mt-6 grid gap-4 md:grid-cols-3">
+          {services.map((key, i) => (
+            <li key={key} className="rounded-card border border-border p-5">
+              <p className="eyebrow text-accent">{String(i + 1).padStart(2, "0")}</p>
+              <Heading level="h3" className="mt-3">
+                {t(`home.services.${key}.title`)}
+              </Heading>
+              <p className="mt-2 text-small text-fg-muted">{t(`home.services.${key}.body`)}</p>
             </li>
           ))}
         </ul>
       </section>
 
       <section>
-        <h2 className="text-3xl">{t("home.reviewsHeading")}</h2>
-        <ul className="mt-6 grid gap-6 sm:grid-cols-2">
+        <Heading level="h2">{t("home.reviewsHeading")}</Heading>
+        <Carousel label={t("home.reviewsHeading")} slideClassName="basis-[85%] md:basis-[60%]" className="mt-6">
           {reviews.map((review) => (
-            <li key={review.id}>
-              <figure className="rounded-xl bg-paper-deep p-5">
-                <blockquote>{review.text}</blockquote>
-                <figcaption className="mt-3 text-sm text-ink-soft">
+            <figure key={review.id} className="flex h-full flex-col overflow-hidden rounded-card bg-bg-raised">
+              {review.media[0] && <MediaFrame asset={review.media[0]} />}
+              <div className="flex flex-1 flex-col p-5">
+                <blockquote className="flex-1">{review.text}</blockquote>
+                <figcaption className="eyebrow mt-4 text-fg-muted">
                   {review.author}
                   {review.country && `, ${review.country}`}
                 </figcaption>
-              </figure>
-            </li>
+              </div>
+            </figure>
           ))}
-        </ul>
+        </Carousel>
       </section>
 
-      <section className="rounded-2xl bg-forest p-8 text-snow">
-        <h2 className="text-3xl">{t("home.ctaHeading")}</h2>
-        <p className="mt-2 max-w-prose">{t("home.ctaBody")}</p>
-        <Button variant="ghost" className="mt-5 border-snow/60 text-snow hover:bg-snow/10" onClick={() => openInquiry()}>
+      <section className="rounded-card bg-feature p-6 md:p-10">
+        <Heading level="h2">{t("home.ctaHeading")}</Heading>
+        <p className="mt-3 max-w-prose">{t("home.ctaBody")}</p>
+        <Button className="mt-6 w-full md:w-auto" onClick={() => openInquiry()}>
           {t("nav.inquire")}
         </Button>
       </section>
