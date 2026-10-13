@@ -130,6 +130,19 @@ well. The card carousel is the primary picker and the map follows it.
      exactly as it was.
    - Design and input mechanics: `research/SANRITA_PROJECTS_ABOUT.md`.
 
+   - **Decisions (owner, 2026-10-13):**
+     - Strict stepping, one day per gesture.
+     - Progress dots are display-only, not clickable.
+     - Still organic feathered edges on media, with no animating wobble loop.
+     - The map is muted in the day view and overlaid with the real Nepal contour lines.
+     - A final **"The whole way"** card after the last day: full route, total birds, Inquire.
+     - The day's walk always runs up the screen.
+     - "Seen from here" mountains are computed from distance and line of sight; an optional curated
+       per-stop list can override them.
+     - A "This day ↑" sheet holds the day's own text and full checklist; trip-level facts stay in the
+       overview's rising content.
+     - About page: a fixed photo of Krishna behind it, with the spiral photo fan over it.
+
 ### Key stops
 
 Not every stop gets rich content. **Key stops** (`waypoint.key`) carry the photos, story text, memories
