@@ -155,10 +155,11 @@ on the map. What you might see across the whole trip is still summarised at trip
 
 ### Birds of the day
 
-Each day in the day view shows one obvious count, `78 birds possible`, and below it a single line of
-bird names that scrolls slowly sideways like a gentle ticker (never wrapping; paused off-screen, on
-hover/focus and under reduced motion). An icon at its end opens the "This day" sheet with the full list.
-(The earlier "today · new · so far" tally was dropped by the owner: it isn't meaningful at a glance.)
+Each day in the day view shows one obvious count, `78 birds possible`, and below it a small window of
+**three bird names at a time** (each on one line, never wrapping) that scrolls slowly **vertically**,
+cycling through the day's birds; paused on hover/focus, off-screen and under reduced motion. A plain
+"+74 more birds →" link opens the "This day" sheet with the full list. (The earlier "today · new · so
+far" tally was dropped by the owner: it isn't meaningful at a glance.)
 
 ### S1 auto-tour (removed)
 
