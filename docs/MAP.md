@@ -7,11 +7,15 @@ How the map is built, its states, and where to retune it. Intent lives in `VISIO
 
 - **MapLibre GL 6**, client only. `app/routes/map-layout.tsx` lazy-loads `NepalMap` after hydration,
   so prerendered pages never touch `window` and the ~290 kB (gzip) map chunk loads after first paint.
-- **No basemap.** The look is two layers over one elevation source (`look.ts`):
-  - `color-relief`: natural colours by elevation (Terai greens → green-brown hills → ochre ridges →
-    cool greys → snow);
-  - `hillshade`, `multidirectional` method: a warm low "sun" from the upper left plus two fill lights,
-    anchored to the viewport so light always falls from the top left.
+- **No basemap.** The look is two layers over one elevation source (`look.ts`), lit for golden hour:
+  - `color-relief`: colours by elevation: dark olive lowland forest → khaki mid-hills → rosy-ochre
+    high ridges → pale rose scree → warm-white snow;
+  - `hillshade`, `multidirectional` method: a low warm sun (two close rays, so it has two thirds of
+    the weight and a soft terminator) gives golden lit slopes and cool blue-violet shadows, plus a
+    faint cool sky fill from the opposite side. Anchored to the viewport so the light always comes
+    from the upper half of the screen (light from below makes valleys read as ridges).
+  - Sky / fog at pitched views: warm haze on the distant ground, a dawn-rose or sunset-amber glow at
+    the horizon, fading into the dark page.
   - Elevation: public Terrarium tiles (AWS Terrain Tiles / Mapzen), limited to a box around Nepal.
 - **Outside Nepal** is muted by its own layer, `outside-veil` (a world rectangle with Nepal cut out,
   from `public/geo/nepal.geojson`: Natural Earth 1:10m, simplified to ~630 points, 11 kB), plus a soft
@@ -61,6 +65,26 @@ The map is always a real, explorable map; automatic moves never fight the user.
   from where the app put the camera: north up, the state's default tilt. Zoom +/− show on desktop.
 - **User first**: any user camera input pauses the autoplay and cancels a pending start; the home
   preview easing waits until the user has been idle for `CAMERA.userIdleMs`.
+
+## Hover reveal (`reveal.ts`)
+
+Hovering a trip pin (home) or a stop with media (trip overview: key stops, and minor ones that have
+media) shows a large photo or muted clip beside it, edges feathered into the map (`mask-image`, two
+intersected soft ramps; `.nbt-reveal` in `map.css`). No card, no pointer events: it lasts only while
+the pointer is over the small marker and fades out (`--duration-ui`) when it leaves, the camera
+moves, the state changes, the page scrolls or the tab hides. One at a time. Phones: press and hold;
+release ends it and the hold never becomes a tap. Placed on the marker's roomiest side inside the
+free area (peek, stepper and control column excluded), shrunk to fit, never over the marker; no room
+for the minimum size → no reveal. Trips crossfade through `trip.reel` (cover if empty); stops show
+their media, then their memories' media; caption `Day n` (accent italic, stops) + name (label caps).
+Media load only on intent; videos are released when hidden. Save-Data: stills only. Reduced motion:
+one still, fade only. Content comes from `MapContent.revealTrip / revealStop` (`NepalMap.tsx`).
+
+`REVEAL` constants: `intentMs` 150 (hover delay), `holdMs` 350 (press-and-hold), `holdMovePx` 10
+(a hold that moves is a pan), `swallowClickMs` 600 (click after a hold ignored), `longSideShare`
+0.4 of the map width clamped to `longSidePx` [300, 480], `minLongSidePx` 180, `aspect` 3:2,
+`gapPx` 14 (to the marker), `edgePx` 12 (to the free area's edge), `intervalMs` 1800 (crossfade
+every; the fade itself is `--duration-sheet`), `maxItems` 6. Feather ramps and caption: `map.css`.
 
 ## Visibility-aware camera (`visibility.ts`, `dem.ts`)
 
@@ -130,7 +154,8 @@ Peek sizes live in `app/lib/mapLayout.ts`, shared by the CSS and the camera padd
 |---|---|
 | Terrain colours, light/shade colours, outside veil, haze | `app/design/tokens.css`, group 4 "MAP" (mirror in `tokens.ts`) |
 | Elevation stops of the colour bands | `RELIEF_STOPS` in `components/map/look.ts` |
-| Light directions and strengths | `HILLSHADE` in `look.ts` |
+| Sun: direction, height, colour, strength of light / shadow / sky fill, horizon glow | `LIGHT` presets in `look.ts` (`dawn`, `sunset`); `DEFAULT_LIGHT` picks one; `?light=dawn\|sunset` in development compares them (reload) |
+| Hillshade mechanics: relief strength, second sun ray, sky fill direction | `HILLSHADE` in `look.ts` |
 | Outside-Nepal veil, border, graticule, route widths, range glow, sky/fog | `OUTSIDE`, `GRATICULE`, `ROUTE`, `RANGE_GLOW`, `SKY` in `look.ts` |
 | 3D exaggeration | `TERRAIN_EXAGGERATION` in `look.ts` |
 | Pitch, bearing, zoom limits, margins per state | `CAMERA` in `components/map/camera.ts` |
@@ -141,9 +166,59 @@ Peek sizes live in `app/lib/mapLayout.ts`, shared by the CSS and the camera padd
 | Flight / ease / draw / pop timings and easings | `--duration-map-*`, `--duration-route-draw`, `--duration-pop`, `--duration-soft-edge`, `--ease-map`, `--ease-pop` in tokens |
 | When the route draws / stops pop during a flight | `DRAW_AT`, `POP_AT` in `controller.ts` |
 | Label tiers by zoom, label priority | top of `controller.ts`, `labelPriority()` |
+| Hover reveal: delays, sizes, crossfade interval / feather and caption | `REVEAL` in `components/map/reveal.ts` / `.nbt-reveal` in `map.css` |
 | Pin, stop (key / minor / covered), lens, autoplay tag, label, map controls look | `components/map/map.css`; stepper in `layout.css` |
 | Peeks, stepper room | `MAP_LAYOUT` in `app/lib/mapLayout.ts` |
 | Frame-rate budget for dropping 3D | `perf.ts` |
+
+## Golden-hour light
+
+`LIGHT` in `look.ts` holds two presets; `DEFAULT_LIGHT` (one word) chooses the one the site uses.
+
+| Preset | Sun | Look |
+|---|---|---|
+| `sunset` (default) | from the upper left (300°), 17° up, deep amber `--color-map-sun-sunset` | warmer, longer shadows, amber horizon |
+| `dawn` | from the upper right (55°), 22° up, pale peach-gold `--color-map-sun-dawn` | softer and a little paler, rosy horizon |
+
+Shadows are `--color-map-shade` (cool blue-violet), the sky fill is `--color-map-skylight`. In
+development, add `?light=dawn` or `?light=sunset` to any map URL and reload to compare; production
+builds ignore the parameter. Directions are relative to the screen, so the light stays the same
+however the camera turns (a deliberate trade against real-world sun positions).
+
+## Golden-hour relief (planned refinement)
+
+The live hillshade can only tint slopes by their angle to the sun. The next step towards the
+"painted" San Rita-like terrain (their approach: a baked diffuse texture and normal map lit by one
+low warm light with real shadows; we would build our own on real Nepal data, never their assets)
+is a **baked relief raster**, rendered once on the owner's machine and draped over the 3D terrain:
+
+- **Albedo from land cover**: forest deep olive with a fine canopy stipple, shrub and grass khaki,
+  bare rock and sparse vegetation rosy ochre, snow and ice warm white, water deep navy, built-up
+  muted. Colours from the MAP tokens.
+- **Light**: Lambert diffuse from DEM normals with the `LIGHT` preset's sun (azimuth, altitude,
+  colour); **cast shadows** by sweeping along the sun direction (a horizon / line-sweep algorithm,
+  not a per-pixel march) with a soft penumbra; **sky ambient occlusion** from a few horizon
+  directions so valleys are softer and darker, with a cool ambient fill in shadow; light aerial
+  haze with distance / low elevation and a gentle grade towards gold.
+- **Output**: 256 px WebP tiles per preset (`public/relief/{preset}/{z}/{x}/{y}.webp`, z8–z12 or
+  z13), a small `relief.ts` module adding them as a `raster` source and layer bounded to the baked
+  region and zooms, blending into the live golden hillshade outside it. Start with one region
+  (Annapurna: ~83.55–84.25 E, 28.15–28.75 N), then decide on all of Nepal by tile size.
+- **Script**: a re-runnable Node script (`scripts/relief/bake.mjs`), time-boxed and run at low
+  priority (`timeout … taskpolicy -b`), checked by viewing downscaled preview images.
+- **Data**:
+  - Elevation: AWS Terrain Tiles, Terrarium encoding (`elevation = R·256 + G + B/256 − 32768`),
+    z12; sources SRTM and others, compiled by Mapzen
+    ([attribution](https://github.com/tilezen/joerd/blob/master/docs/attribution.md)). Decode with
+    ImageMagick (`magick … -depth 8 rgb:`); no GDAL needed.
+  - Land cover: ESA WorldCover 2021 v200, 10 m, **CC BY 4.0** (attribution required: "© ESA
+    WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA
+    WorldCover consortium"). Public Cloud-Optimized GeoTIFFs on AWS
+    (`esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/…`); read only the needed window
+    with HTTP range requests (e.g. the `geotiff` npm package). Fallbacks: Copernicus Global Land
+    Cover 100 m, or a pseudo land cover from elevation and slope.
+  - The attribution goes into the raster source's `attribution` field so it shows in the map's
+    attribution control.
 
 ## Hooks for later
 
@@ -161,8 +236,7 @@ Peek sizes live in `app/lib/mapLayout.ts`, shared by the CSS and the camera padd
 - **Self-host the DEM before launch**: a Nepal-only Terrarium (or Mapbox-RGB) tile set cut with GDAL
   from SRTM / Copernicus GLO-30, z0–12, served from `public/` or a CDN. Removes the third-party
   runtime dependency and usage-policy risk; keep the attribution.
-- Optional **baked relief raster** (hillshade + colour + paper grain, made at build time) for the
-  closest "printed paper" look; decide once the live look is judged.
+- Optional **baked relief raster**: see "Golden-hour relief (planned refinement)" above.
 - **Cloud parallax** bound to zoom (DOM, cheap), **cursor lens** on desktop S1/S2, **ink-blot page
   transitions** to /about and /anywhere.
 - Boundary: Natural Earth's de facto line (the Kalapani area follows it). Revisit if needed.
