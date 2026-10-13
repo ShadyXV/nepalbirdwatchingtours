@@ -78,6 +78,34 @@ export function getReviewsForTrip(slug: string): Review[] {
   return reviews.filter((r) => trip.reviewIds.includes(r.id));
 }
 
+export type StopSightingStats = {
+  /** Species possible at this stop. */
+  total: number;
+  /** Of those, species not possible at any earlier stop on the trip. */
+  newIds: string[];
+  /** Unique species possible from the start of the trip up to and including this stop. */
+  soFar: number;
+};
+
+/**
+ * Per-stop running tally along the route: how many species each stop offers, how many are new on the
+ * trip, and the running total. Powers "38 birds today · 12 new · 96 so far" in the journey.
+ */
+export function sightingStatsByStop(trip: Trip, group?: SpeciesGroup): Map<string, StopSightingStats> {
+  const seen = new Set<string>();
+  const stats = new Map<string, StopSightingStats>();
+  for (const waypoint of trip.waypoints) {
+    const ids = waypoint.sightings
+      .map((s) => s.speciesId)
+      .filter((id) => !group || getSpecies(id)?.group === group);
+    const unique = [...new Set(ids)];
+    const newIds = unique.filter((id) => !seen.has(id));
+    newIds.forEach((id) => seen.add(id));
+    stats.set(waypoint.id, { total: unique.length, newIds, soFar: seen.size });
+  }
+  return stats;
+}
+
 /** Unique species across a trip's waypoints, optionally limited to one group. */
 export function speciesCountForTrip(trip: Trip, group?: SpeciesGroup): number {
   const ids = new Set<string>();

@@ -121,6 +121,13 @@ and a full checklist; they're what the story features, the auto-tour visits and 
 through. Other stops stay a quiet line in the itinerary (day · name · altitude · stay) and a minor marker
 on the map. What you might see across the whole trip is still summarised at trip level.
 
+### A birding diary that grows along the route
+
+Each day/stop in the journey shows its sightings in the generous empty space around the photos, as a
+running tally: `38 birds today · 12 new · 96 so far`, with the new species highlighted. You watch the
+list grow as the trip climbs through habitats. Data: `sightingStatsByStop(trip, group?)` in
+`app/content/index.ts`. Mountains seen from that stop can join the list as field labels.
+
 ### S1 auto-tour: the trip plays itself
 
 After the fly-in, route draw and stop pop, the trip **plays itself** until the visitor interacts:
