@@ -42,7 +42,8 @@ WONK axes). Token `--font-accent`, utility `accent`. **Thin only: never bold or 
 at sizes where hairlines read (about 16px and up).
 Used sparingly and only for short text: big numbers (bird counts, altitudes, days), dates and "with
 Anna & Tom" lines on memories, short guest quotes and asides, and scientific names in field labels.
-Never for body copy or headlines. **Not for day numbers**: `DAY 1` is set entirely in the label style (DM Mono caps),
+Never for body copy or page headlines. **Exception: home section titles** (`SectionTitle`, sentence case, e.g. "Hello, I'm
+Krishna"), because Anton caps read too shouty there (owner, 2026-10-15). **Not for day numbers**: `DAY 1` is set entirely in the label style (DM Mono caps),
 number included (owner, 2026-10-13).
 
 ### 1.3 Runners-up
