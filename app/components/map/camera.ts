@@ -197,12 +197,18 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
 
 /** Where a trip's pin sits on the overview: the centre of its stops. */
 export function tripAnchor(trip: Trip): LngLat {
-  return boundsCenter(boundsOf(trip.waypoints.map((w) => w.coords)));
+  return boundsCenter(boundsOf(fieldStops(trip).map((w) => w.coords)));
 }
 
 /** Every point that should be in view for a trip. */
 export function tripPoints(trip: Trip): LngLat[] {
-  return [...(trip.route ?? []), ...trip.waypoints.map((w) => w.coords)];
+  return [...(trip.route ?? []), ...fieldStops(trip).map((w) => w.coords)];
+}
+
+/** Stops in the trip's field area; transit stops (e.g. a Kathmandu arrival night) would drag the frame. */
+function fieldStops(trip: Trip) {
+  const field = trip.waypoints.filter((w) => !w.transit);
+  return field.length > 0 ? field : trip.waypoints;
 }
 
 /* ------------------------------------------------------------------ S0 */

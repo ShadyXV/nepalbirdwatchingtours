@@ -136,6 +136,11 @@ export type Waypoint = {
   id: string;
   /** Key stop: featured in the story, the auto-tour and the stop stepper. */
   key?: boolean;
+  /**
+   * Gateway stop (arrival or departure city, airport) outside the trip's field area. Shown in the
+   * itinerary, but left out of the trip's map pin, camera framing and max altitude.
+   */
+  transit?: boolean;
   name: string;
   kind: WaypointKind;
   coords: LngLat;

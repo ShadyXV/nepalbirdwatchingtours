@@ -154,6 +154,7 @@ export const trip = {
   waypoints: [
     {
       id: "kathmandu",
+      transit: true,
       name: "Kathmandu",
       kind: "town",
       coords: [85.3123, 27.7154],
@@ -412,6 +413,7 @@ export const trip = {
     },
     {
       id: "kathmandu-return",
+      transit: true,
       name: "Kathmandu",
       kind: "town",
       coords: [85.3123, 27.7154],
@@ -428,6 +430,7 @@ export const trip = {
     },
     {
       id: "kathmandu-departure",
+      transit: true,
       name: "Kathmandu",
       kind: "town",
       coords: [85.3123, 27.7154],

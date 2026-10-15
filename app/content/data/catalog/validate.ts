@@ -84,7 +84,7 @@ export function validateSeed(): SeedReport {
       nights += w.nights;
       if (w.day > trip.durationDays) errors.push(`${where}: day ${w.day} beyond durationDays ${trip.durationDays}`);
       if (!inNepal(w.coords)) errors.push(`${where}: coords outside Nepal`);
-      if (w.altitudeM > trip.maxAltitudeM) errors.push(`${where}: altitude ${w.altitudeM} above trip max ${trip.maxAltitudeM}`);
+      if (!w.transit && w.altitudeM > trip.maxAltitudeM) errors.push(`${where}: altitude ${w.altitudeM} above trip max ${trip.maxAltitudeM}`);
       const seenHere = new Set<string>();
       for (const s of w.sightings) {
         checkSighting(where, s);
@@ -95,7 +95,7 @@ export function validateSeed(): SeedReport {
       checkMedia(where, w.media, 1, 3);
     }
     if (nights > trip.durationDays) errors.push(`${t}: ${nights} nights exceed durationDays ${trip.durationDays}`);
-    const top = Math.max(...trip.waypoints.map((w) => w.altitudeM));
+    const top = Math.max(...trip.waypoints.filter((w) => !w.transit).map((w) => w.altitudeM));
     if (top !== trip.maxAltitudeM) warnings.push(`${t}: maxAltitudeM ${trip.maxAltitudeM} differs from highest waypoint ${top}`);
     (trip.route ?? []).forEach((p, i) => {
       if (!inNepal(p)) errors.push(`${t}.route[${i}]: outside Nepal`);

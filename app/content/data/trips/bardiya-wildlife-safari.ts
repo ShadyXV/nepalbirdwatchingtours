@@ -105,7 +105,7 @@ export const trip = {
   region: "Bardiya National Park",
   durationDays: 9,
   difficulty: "easy",
-  maxAltitudeM: 1400,
+  maxAltitudeM: 200,
   bestMonths: [2, 3, 4, 5, 10, 11],
   summary:
     "Bardiya National Park, the largest national park in Nepal's lowlands and the least crowded, has one of the highest tiger densities in South Asia. This 9-day photography-focused tour is built around maximizing your chances of photographing wild Bengal tigers, alongside rhinos, elephants, and outstanding birdlife.",
@@ -156,6 +156,7 @@ export const trip = {
   waypoints: [
     {
       id: "kathmandu",
+      transit: true,
       name: "Kathmandu",
       kind: "town",
       coords: [85.3123, 27.7154],
@@ -173,6 +174,7 @@ export const trip = {
     },
     {
       id: "nepalgunj",
+      transit: true,
       name: "Nepalgunj",
       kind: "town",
       coords: [81.6669, 28.1036],
@@ -338,6 +340,7 @@ export const trip = {
     },
     {
       id: "nepalgunj-return",
+      transit: true,
       name: "Nepalgunj",
       kind: "town",
       coords: [81.6669, 28.1036],
@@ -354,6 +357,7 @@ export const trip = {
     },
     {
       id: "kathmandu-return",
+      transit: true,
       name: "Kathmandu",
       kind: "town",
       coords: [85.3123, 27.7154],
@@ -370,6 +374,7 @@ export const trip = {
     },
     {
       id: "kathmandu-departure",
+      transit: true,
       name: "Kathmandu",
       kind: "town",
       coords: [85.3123, 27.7154],
