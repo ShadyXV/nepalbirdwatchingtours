@@ -17,12 +17,16 @@ import type { NepalMapProps } from "./types";
  */
 export function NepalMap({
   trips,
+  regions,
   landmarks,
   activeTripSlug,
   activeWaypointId,
   activePlaceId,
+  activeRegionSlug,
   previewTripSlug = null,
   onSelectTrip,
+  onSelectRegion,
+  onPreviewTrip,
   onSelectWaypoint,
   onSelectPlace,
   onStepChange,
@@ -39,6 +43,8 @@ export function NepalMap({
   const handlersRef = useRef<MapHandlers>(null!);
   handlersRef.current = {
     onSelectTrip,
+    onSelectRegion,
+    onPreviewTrip: (slug) => onPreviewTrip?.(slug),
     onSelectWaypoint,
     onSelectPlace,
     onStepChange: (state) => onStepChange?.(state),
@@ -51,6 +57,7 @@ export function NepalMap({
     tripSlug: activeTripSlug,
     waypointId: activeWaypointId,
     placeId: activePlaceId,
+    regionSlug: activeRegionSlug,
     previewSlug: previewTripSlug,
   };
   const viewRef = useRef(view);
@@ -63,7 +70,9 @@ export function NepalMap({
     const mac = /Mac|iPhone|iPad/.test(navigator.userAgent);
     const content: MapContent = {
       trips,
+      regions,
       landmarks,
+      regionTrips: (_region, count) => (count === 1 ? t("tripsPage.countOne") : t("tripsPage.count", { count })),
       birds: (trip) => {
         const count = speciesCountForTrip(trip, "bird");
         return { count, label: t("home.birds", { count }) };
@@ -76,6 +85,8 @@ export function NepalMap({
       hints: { touch: t("map.hintTouch"), desktop: mac ? t("map.hintMac") : t("map.hintWindows") },
       // Trips: their reel (or cover). Stops: their own media, then photos from memories there.
       revealTrip: (trip) => ({ items: trip.reel.length > 0 ? trip.reel : [trip.cover], title: trip.title }),
+      // Regions: the region's cover, then its trips' covers.
+      revealRegion: (region, regionTrips) => ({ items: [region.cover, ...regionTrips.map((trip) => trip.cover)], title: region.name }),
       revealStop: (trip, waypoint) => {
         const items = [...waypoint.media, ...getMemoriesForWaypoint(trip.slug, waypoint.id).flatMap((m) => m.media)];
         if (items.length === 0) return null; // stops without media (key or not) reveal nothing
@@ -103,7 +114,7 @@ export function NepalMap({
 
   useEffect(() => {
     controllerRef.current?.setView(viewRef.current);
-  }, [activeTripSlug, activeWaypointId, activePlaceId, previewTripSlug]);
+  }, [activeTripSlug, activeWaypointId, activePlaceId, activeRegionSlug, previewTripSlug]);
 
   const orbit = useOrbitPress(apiRef);
 

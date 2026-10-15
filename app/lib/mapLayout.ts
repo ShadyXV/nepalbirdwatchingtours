@@ -18,7 +18,7 @@ export const MAP_LAYOUT = {
   homePeekDesktop: 0,
   /** Home: room the bottom-left corner (line + "Browse all trips") takes at the foot of the map, rem. */
   homeCornerRem: 7,
-  /** Trip / place: share of the screen the story's first lines cover, phones / desktop. */
+  /** Region / trip / place: share of the screen the story's first lines cover, phones / desktop. */
   storyPeekPhone: 0.26,
   storyPeekDesktop: 0.16,
   /**
@@ -32,7 +32,8 @@ export const MAP_LAYOUT = {
   desktopFrom: 1024,
 } as const;
 
-export type MapLayoutMode = "home" | "trip" | "place";
+/** "region": a region page (/regions/:slug); shaped like a place page (story peek, no stepper). */
+export type MapLayoutMode = "home" | "region" | "trip" | "place";
 
 /** CSS custom properties for the layout root (read by app/components/map/layout.css). */
 export function mapLayoutCssVars(): Record<string, string> {

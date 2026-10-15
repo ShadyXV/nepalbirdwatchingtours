@@ -5,7 +5,7 @@
  * goes into a maplibregl.Marker plus the inner element we style (MapLibre writes `transform`
  * and `opacity` on the root, so our classes go on the inner one).
  */
-import type { Landmark, Trip, Waypoint } from "~/content/types";
+import type { Landmark, Region, Trip, Waypoint } from "~/content/types";
 import { seededRandom } from "~/lib/geo";
 import { assetUrl } from "~/lib/site";
 
@@ -79,40 +79,42 @@ function shell(kindClass: string, label: string): MarkerDom {
   return { root, inner, button };
 }
 
-/* ------------------------------------------------------------ trip pins */
+/* -------------------------------------------------- region and trip pins */
 
-export type TripPinDom = MarkerDom & { leader: HTMLElement };
+export type PinDom = MarkerDom & { leader: HTMLElement };
 
 /**
- * S0 trip pin: the cover photo in a square frame CENTRED on the trip's location, with a caption
- * plate beside it: the trip name and how many birds you might meet (`birdsLabel` is the full
- * phrase, e.g. "142 birds"; `birds` the number in it, set in the accent face). Anchor: center.
+ * A photo pin: a cover photo in a square frame CENTRED on its location, with a caption plate
+ * beside it (name over a count). Home shows one per region; a region view shows its trips with
+ * the smaller variant (`small`). Anchor: center.
  *
- * The inner element is a zero-size point at the trip's location. When pins would overlap, the
- * layout pass (pinLayout.ts) moves the photo, up first (`--pin-dx`, `--pin-dy`); a thin leader runs
- * from the photo back to a small mark on the true point.
+ * `count` is the full phrase ("142 birds", "3 trips"); when `accentNumber` is given, that number
+ * inside it is set in the accent italic (bird counts), otherwise the line stays quiet.
+ *
+ * The inner element is a zero-size point at the location. When pins would overlap, the layout pass
+ * (pinLayout.ts) moves the photo, up first (`--pin-dx`, `--pin-dy`); a thin leader runs from the
+ * photo back to a small mark on the true point.
  */
-export function createTripPin(trip: Trip, birdsLabel: string, birds: number): TripPinDom {
-  const dom = shell("nbt-pin", `${trip.title}, ${birdsLabel}`);
+function createPhotoPin(o: { name: string; count: string; accentNumber?: number; image: string; small?: boolean }): PinDom {
+  const dom = shell(o.small ? "nbt-pin nbt-pin--small" : "nbt-pin", `${o.name}, ${o.count}`);
   const photo = el("img", "nbt-pin__photo");
-  photo.src = assetUrl(trip.cover.src);
+  photo.src = assetUrl(o.image);
   photo.alt = "";
   photo.decoding = "async";
   photo.draggable = false;
 
   const label = el("span", "nbt-pin__label");
-  // "142 birds": the number in the accent italic, the word as a mono label.
   const count = el("span", "nbt-pin__count");
-  const number = String(birds);
-  const at = birdsLabel.indexOf(number);
+  const number = o.accentNumber === undefined ? "" : String(o.accentNumber);
+  const at = number ? o.count.indexOf(number) : -1;
   if (at >= 0) {
     count.append(
-      document.createTextNode(birdsLabel.slice(0, at)),
+      document.createTextNode(o.count.slice(0, at)),
       el("span", "nbt-pin__number", number),
-      document.createTextNode(birdsLabel.slice(at + number.length)),
+      document.createTextNode(o.count.slice(at + number.length)),
     );
-  } else count.textContent = birdsLabel;
-  label.append(el("span", "nbt-pin__name", trip.title), count);
+  } else count.textContent = o.count;
+  label.append(el("span", "nbt-pin__name", o.name), count);
   label.setAttribute("aria-hidden", "true");
 
   dom.button.append(photo, label);
@@ -123,6 +125,16 @@ export function createTripPin(trip: Trip, birdsLabel: string, birds: number): Tr
   leader.setAttribute("aria-hidden", "true");
   dom.inner.prepend(leader, point);
   return { ...dom, leader };
+}
+
+/** Home: a region's pin (its cover, name and a quiet "3 trips"). */
+export function createRegionPin(region: Region, tripsLabel: string): PinDom {
+  return createPhotoPin({ name: region.name, count: tripsLabel, image: region.cover.src });
+}
+
+/** Region view: one of its trips (smaller; "142 birds" with the number in the accent italic). */
+export function createTripPin(trip: Trip, birdsLabel: string, birds: number): PinDom {
+  return createPhotoPin({ name: trip.title, count: birdsLabel, accentNumber: birds, image: trip.cover.src, small: true });
 }
 
 /* ---------------------------------------------------------------- stops */

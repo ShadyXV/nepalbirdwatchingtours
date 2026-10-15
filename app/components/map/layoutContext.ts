@@ -8,10 +8,16 @@ export type MapLayoutContext = {
   /** Deliberately choose a stop (writes ?stop=; closing returns the camera to where it was). */
   setActiveWaypoint: (id: string | null) => void;
   /**
-   * Home trip-card carousel → map: the trip whose card is in view (null = none).
-   * Raises that trip's pin; on phones the camera eases towards it when the user is idle.
+   * Single out one trip on the map (null = none). Region page (its trip list: hover / focus a trip):
+   * that trip's route stays bright and its pin is raised, the region's other routes dim. Home:
+   * raises the trip's region pin. Cleared on every navigation.
    */
   previewTrip: (slug: string | null) => void;
+  /**
+   * The trip singled out right now, from the page (`previewTrip`) or from the map itself (hovering
+   * a route or trip pin in the region view). Lets the region page's list mark the same trip.
+   */
+  previewedTrip: string | null;
   /**
    * The map's engines and view tools: stop stepping, the day view (`openJourney`, `goToDay`, …,
    * docs/JOURNEY.md), orbit, reset / zoom. Null until the map exists (and without JS).

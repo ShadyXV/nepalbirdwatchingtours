@@ -203,6 +203,10 @@ export const ROUTE = {
   faintWidth: [[6, 1], [12, 1.8]] as const,
   /** Dash and gap, in line widths (other trips' routes; reuse for alternatives / side trips). */
   dash: [2.2, 2] as const,
+  /** Region view: while one trip is highlighted, the region's other routes fade to this (line and casing scale). */
+  dimmedOpacity: 0.22,
+  /** Region view: invisible hover / tap band along each route, px wide. */
+  hitWidth: 18,
 };
 
 /** Soft glow along a mountain range while one of its peaks (or the range itself) is open. */
@@ -241,6 +245,8 @@ export const LAYER = {
   routesFaint: "routes-faint",
   routeCasing: "route-casing",
   route: "route",
+  /** Region view: invisible, wider band along each active route that takes hover and taps. */
+  routeHit: "route-hit",
 } as const;
 
 export const NEPAL_GEOJSON_URL = assetUrl("/geo/nepal.geojson");
@@ -445,6 +451,14 @@ export function buildStyle({ terrain }: { terrain: boolean }): StyleSpecificatio
           "line-width": byZoom(ROUTE.width),
           "line-blur": ROUTE.blur,
         },
+      },
+      {
+        id: LAYER.routeHit,
+        type: "line",
+        source: SRC.routes,
+        filter: ["==", ["get", "slug"], ""],
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": route, "line-width": ROUTE.hitWidth, "line-opacity": 0 },
       },
     ],
   };

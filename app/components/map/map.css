@@ -114,7 +114,7 @@
     visibility 0s linear var(--duration-ui);
 }
 
-/* --------------------------------------------------------- trip pins */
+/* ------------------------------------- photo pins (home: regions; region view: trips) */
 
 /*
  * The inner element is a zero-size point at the trip's location. The photo (the button) is centred
@@ -273,6 +273,15 @@
   }
   .nbt-pin {
     --pin-size: 4.8125rem;
+  }
+}
+/* Region view: its trips' pins are smaller, so the routes they sit on stay readable. */
+.nbt-pin.nbt-pin--small {
+  --pin-size: 3.5rem;
+}
+@container nbt-map (max-width: 40rem) {
+  .nbt-pin.nbt-pin--small {
+    --pin-size: 3rem;
   }
 }
 

@@ -1,13 +1,13 @@
 import "~/components/map/layout.css";
 
-import { lazy, Suspense, useCallback, useRef, useState, type CSSProperties } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { Outlet, useLocation, useNavigate, useParams, useSearchParams } from "react-router";
 import { Journey } from "~/components/journey/Journey";
 import type { MapLayoutContext } from "~/components/map/layoutContext";
 import { StopStepper } from "~/components/map/StopStepper";
 import type { MapApi, StepState } from "~/components/map/types";
 import { TerrainBackdrop } from "~/components/ui";
-import { getLandmarks, getPublishedTrips, getTrip } from "~/content";
+import { getLandmarks, getPublishedTrips, getRegions, getTrip } from "~/content";
 import { readDurationMs } from "~/design/tokens";
 import { t } from "~/i18n";
 import { mapLayoutCssVars, type MapLayoutMode } from "~/lib/mapLayout";
@@ -18,13 +18,15 @@ import { useScrollDim } from "~/lib/useScrollDim";
 const NepalMap = lazy(() => import("~/components/map").then((m) => ({ default: m.NepalMap })));
 
 const trips = getPublishedTrips();
+const regions = getRegions();
 const landmarks = getLandmarks();
 
 /** History state marking the entry pushed when a stop is opened (so closing it can go back). */
 type StopEntryState = { stopEntry?: boolean } | null;
 
 /**
- * The map layout (/, /trips/:slug, /places/:placeId). Native page scroll, never hijacked:
+ * The map layout (/, /regions/:regionSlug, /trips/:slug, /places/:placeId). Native page scroll,
+ * never hijacked:
  *
  *   stage   the map, sticky behind everything (one MapLibre map, mounted once), plus on trip
  *           pages a small stop stepper
@@ -38,7 +40,7 @@ export default function MapLayout() {
   const hydrated = useHydrated();
   const navigate = useNavigate();
   const location = useLocation();
-  const { slug, placeId } = useParams();
+  const { slug, placeId, regionSlug } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const [previewTripSlug, setPreviewTripSlug] = useState<string | null>(null);
   const [mapApi, setMapApi] = useState<MapApi | null>(null);
@@ -46,8 +48,11 @@ export default function MapLayout() {
 
   const activeTripSlug = slug ?? null;
   const activePlaceId = placeId ?? null;
+  const activeRegionSlug = regionSlug ?? null;
   const activeWaypointId = activeTripSlug ? searchParams.get("stop") : null;
-  const mode: MapLayoutMode = activeTripSlug ? "trip" : activePlaceId ? "place" : "home";
+  const mode: MapLayoutMode = activeTripSlug ? "trip" : activePlaceId ? "place" : activeRegionSlug ? "region" : "home";
+  // A highlighted trip belongs to the page it was chosen on.
+  useEffect(() => setPreviewTripSlug(null), [location.pathname]);
   const trip = activeTripSlug ? getTrip(activeTripSlug) : undefined;
 
   // Entrance animations only after a client-side navigation to a new page: a direct landing
@@ -88,6 +93,7 @@ export default function MapLayout() {
     activeWaypointId,
     setActiveWaypoint,
     previewTrip: setPreviewTripSlug,
+    previewedTrip: previewTripSlug,
     map: mapApi,
     step,
   };
@@ -115,8 +121,12 @@ export default function MapLayout() {
               activeTripSlug={activeTripSlug}
               activeWaypointId={activeWaypointId}
               activePlaceId={activePlaceId}
-              previewTripSlug={mode === "home" ? previewTripSlug : null}
+              activeRegionSlug={activeRegionSlug}
+              regions={regions}
+              previewTripSlug={mode === "home" || mode === "region" ? previewTripSlug : null}
               onSelectTrip={(next) => navigate(next ? `/trips/${next}` : "/")}
+              onSelectRegion={(next) => navigate(`/regions/${next}`)}
+              onPreviewTrip={setPreviewTripSlug}
               onSelectWaypoint={setActiveWaypoint}
               onSelectPlace={(next) => navigate(next ? `/places/${next}` : "/")}
               onStepChange={setStep}

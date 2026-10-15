@@ -2,7 +2,9 @@
  * MapController: the imperative side of the map. Owns the MapLibre instance, the DOM markers and
  * the camera, and turns a declarative `MapView` (what the URL says) into the map states:
  *
- *   S0 overview  /                     trip pins, few labels, faint routes; home gestures
+ *   S0 overview  /                     region pins, few labels, faint routes; home gestures
+ *   region       /regions/:slug        all the region's trips: routes drawn, trip pins; hover
+ *                                      (map or the page's list) highlights one route
  *   S1 trip      /trips/:slug          route draws in, stops pop in
  *   S2 stop      /trips/:slug?stop=id  focus on the stop (lens), camera chosen so it is visible
  *   S3 place     /places/:id           place framed (peaks: an unobstructed face), range lit
@@ -21,7 +23,7 @@
  */
 import { Map as MapLibreMap, Marker, setWorkerUrl } from "maplibre-gl";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
-import type { Landmark, LngLat, Trip, Waypoint } from "~/content/types";
+import type { Landmark, LngLat, Region, Trip, Waypoint } from "~/content/types";
 import { readDurationMs, readToken } from "~/design/tokens";
 import { parseEasing } from "~/lib/easing";
 import { boundsOf, distanceKm, graticule, handDrawn, maskOutside, outerRings, wrapDegrees, type Bounds, type LineFeature } from "~/lib/geo";
@@ -42,6 +44,7 @@ import {
   overviewCamera,
   placeCamera,
   previewCamera,
+  regionCamera,
   stopCamera,
   travelBearing,
   tripAnchor,
@@ -54,8 +57,8 @@ import {
 import { DemSampler } from "./dem";
 import { Gestures, type HintTexts } from "./gestures";
 import { placeLabels, type LabelCandidate } from "./labels";
-import { buildStyle, DEM, drawnGradient, GRATICULE, HILLSHADE, LAYER, NEPAL_GEOJSON_URL, OUTSIDE, RANGE_GLOW, SRC, TERRAIN_EXAGGERATION } from "./look";
-import { createLens, createPlaceLabel, createStopMarker, createTourTag, createTripPin, placeAnchor, type MarkerDom, type TripPinDom } from "./markers";
+import { buildStyle, DEM, drawnGradient, GRATICULE, HILLSHADE, LAYER, NEPAL_GEOJSON_URL, OUTSIDE, RANGE_GLOW, ROUTE, SRC, TERRAIN_EXAGGERATION } from "./look";
+import { createLens, createPlaceLabel, createRegionPin, createStopMarker, createTourTag, createTripPin, placeAnchor, type MarkerDom, type PinDom } from "./markers";
 import { layoutPins, type PinInput } from "./pinLayout";
 import { canAfford3D, initialPixelRatio, watchFrames } from "./perf";
 import { Orbit } from "./orbit";
@@ -127,6 +130,12 @@ export type MapView = {
   tripSlug: string | null;
   waypointId: string | null;
   placeId: string | null;
+  /** Open region (/regions/:slug), or null. */
+  regionSlug: string | null;
+  /**
+   * A trip singled out from outside the map. Region view: its route is highlighted, the others dim
+   * (the page's trip list, or hovering a route / trip pin). Home: raises its region's pin.
+   */
   previewSlug: string | null;
 };
 
@@ -240,6 +249,9 @@ export type MapApi = StepperApi &
 
 export type MapHandlers = {
   onSelectTrip: (slug: string | null) => void;
+  onSelectRegion: (slug: string) => void;
+  /** Region view: a route or trip pin is hovered (null = left); the layout feeds it back as `previewSlug`. */
+  onPreviewTrip: (slug: string | null) => void;
   onSelectWaypoint: (id: string | null) => void;
   onSelectPlace: (id: string | null) => void;
   onStepChange: (state: StepState) => void;
@@ -249,7 +261,11 @@ export type MapHandlers = {
 
 export type MapContent = {
   trips: Trip[];
+  /** Regions with trips (home pins). */
+  regions: Region[];
   landmarks: Landmark[];
+  /** "3 trips" for a region (already translated). */
+  regionTrips: (region: Region, count: number) => string;
   /** "142 birds" for a trip (already translated) and the number in it. */
   birds: (trip: Trip) => { label: string; count: number };
   /** Accessible name of a stop, e.g. "Day 4, Tadapani". */
@@ -259,13 +275,15 @@ export type MapContent = {
   hints: HintTexts;
   /** Hover media reveal content (null = nothing to reveal for that marker). */
   revealTrip: (trip: Trip) => RevealContent | null;
+  revealRegion: (region: Region, trips: Trip[]) => RevealContent | null;
   revealStop: (trip: Trip, waypoint: Waypoint, key: boolean) => RevealContent | null;
 };
 
-type MapStateName = "overview" | "trip" | "stop" | "place";
+type MapStateName = "overview" | "region" | "trip" | "stop" | "place";
 
 type PlacedMarker = { marker: Marker; dom: MarkerDom };
-type PlacedPin = { marker: Marker; dom: TripPinDom; trip: Trip };
+/** A photo pin (home: a region; region view: a trip) and where its true point is. */
+type PlacedPin = { marker: Marker; dom: PinDom; id: string; anchor: LngLat };
 type StopMarker = PlacedMarker & { waypoint: Waypoint; key: boolean };
 type CameraSnapshot = { center: LngLat; zoom: number; bearing: number; pitch: number };
 
@@ -293,10 +311,14 @@ type Journey = {
 };
 
 const stateOf = (v: MapView): MapStateName =>
-  v.placeId ? "place" : v.tripSlug ? (v.waypointId ? "stop" : "trip") : "overview";
+  v.placeId ? "place" : v.tripSlug ? (v.waypointId ? "stop" : "trip") : v.regionSlug ? "region" : "overview";
 
 const layoutModeOf = (state: MapStateName): MapLayoutMode =>
-  state === "overview" ? "home" : state === "place" ? "place" : "trip";
+  state === "overview" ? "home" : state === "place" ? "place" : state === "region" ? "region" : "trip";
+
+/** Two views that differ only in the previewed trip (hover / list highlight: no camera, no reset). */
+const onlyPreviewChanged = (a: MapView, b: MapView) =>
+  a.previewSlug !== b.previewSlug && a.tripSlug === b.tripSlug && a.waypointId === b.waypointId && a.placeId === b.placeId && a.regionSlug === b.regionSlug;
 
 const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -321,7 +343,9 @@ export class MapController {
 
   private readonly tripsBySlug: Map<string, Trip>;
   private readonly placesById: Map<string, Landmark>;
-  /** The trip pins: what the portrait overview frames. */
+  private readonly regionsBySlug: Map<string, Region>;
+  private readonly tripsByRegion: Map<string, Trip[]>;
+  /** The region pins: what the portrait overview frames. */
   private readonly focusPoints: LngLat[];
   /** Trip stops and cities: where peaks are looked at from. */
   private readonly viewpoints: LngLat[];
@@ -332,7 +356,13 @@ export class MapController {
   private terrainOn: boolean;
   private colors: RouteColors;
 
+  /** Home: one pin per region. */
+  private regionPins = new Map<string, PlacedPin>();
+  /** Region view: one pin per trip (only the open region's are shown). */
   private pins = new Map<string, PlacedPin>();
+  /** Which routes are drawn as active ("trip:<slug>", "region:<slug>" or ""), and the highlighted one. */
+  private routesKey = "";
+  private highlighted: string | null = null;
   private places = new Map<string, PlacedMarker>();
   private stops: { slug: string; items: StopMarker[] } | null = null;
   private lens: HTMLElement | null = null;
@@ -372,7 +402,9 @@ export class MapController {
     this.view = initial;
     this.tripsBySlug = new Map(content.trips.map((t) => [t.slug, t]));
     this.placesById = new Map(content.landmarks.map((l) => [l.id, l]));
-    this.focusPoints = content.trips.map(tripAnchor);
+    this.regionsBySlug = new Map(content.regions.map((r) => [r.slug, r]));
+    this.tripsByRegion = new Map(content.regions.map((r) => [r.slug, content.trips.filter((t) => t.regionSlug === r.slug)]));
+    this.focusPoints = content.regions.map((r) => r.coords);
     this.viewpoints = [
       ...content.trips.flatMap((t) => t.waypoints.map((w) => w.coords)),
       ...content.landmarks.filter((l) => l.kind === "city").map((l) => l.coords),
@@ -537,6 +569,7 @@ export class MapController {
       ),
     });
     this.createPins();
+    this.bindRouteHits();
     this.createPlaceLabels();
 
     this.loaded = true;
@@ -568,25 +601,27 @@ export class MapController {
     const state = stateOf(next);
     const prevState = prev ? stateOf(prev) : null;
     const trip = next.tripSlug ? this.tripsBySlug.get(next.tripSlug) : undefined;
+    const region = state === "region" && next.regionSlug ? this.regionsBySlug.get(next.regionSlug) : undefined;
     const tripChanged = !prev || (prev.tripSlug ?? null) !== (trip?.slug ?? null);
     const flightMs = readDurationMs("--duration-map-flight");
+
+    this.updatePins(state, next);
+    this.highlightRoute(region ? next.previewSlug : null);
+    // A highlight from the page's list or a hovered route: nothing else changes (and a media
+    // reveal open on a trip pin stays).
+    if (prev && onlyPreviewChanged(prev, next)) {
+      if (state === "overview") this.moveCamera(prev, prevState, next, animate);
+      return;
+    }
 
     if (this.journey && tripChanged) this.dropJourney();
     this.container.dataset.state = state;
     this.reveal.hide();
     this.gestures.setMode(this.journey ? "journey" : state === "overview" ? "overview" : "explore");
 
-    // Trip pins: only on the overview; the previewed one is raised.
-    for (const [slug, { marker, dom }] of this.pins) {
-      const preview = slug === next.previewSlug;
-      dom.inner.classList.toggle("is-shown", state === "overview");
-      dom.inner.classList.toggle("is-preview", preview);
-      marker.getElement().style.zIndex = preview ? "3" : "2";
-      dom.button.tabIndex = state === "overview" ? 0 : -1;
-    }
-
     if (tripChanged) this.enterTrip(trip ?? null, animate, flightMs);
-    this.updatePlaceStates(next, trip);
+    this.showRoutes(trip ? [trip] : region ? (this.tripsByRegion.get(region.slug) ?? []) : [], trip ? `trip:${trip.slug}` : region ? `region:${region.slug}` : "", animate, flightMs);
+    this.updatePlaceStates(next, trip, region);
 
     // Camera.
     if (trip && !tripChanged && next.waypointId !== (prev?.waypointId ?? null)) {
@@ -605,28 +640,69 @@ export class MapController {
     if (!animate || !this.map.isMoving()) this.later(() => this.updateLabels(), 0);
   }
 
-  /** Route, stops and stepping engine for a newly opened trip (or none). */
-  private enterTrip(trip: Trip | null, animate: boolean, flightMs: number): void {
+  /**
+   * Pins for a state: region pins on the overview, the open region's trip pins in the region view,
+   * none elsewhere. The previewed one is raised (home: the previewed trip's region).
+   */
+  private updatePins(state: MapStateName, view: MapView): void {
+    const previewRegion = view.previewSlug ? (this.tripsBySlug.get(view.previewSlug)?.regionSlug ?? view.previewSlug) : null;
+    const show = (pins: Map<string, PlacedPin>, shown: (id: string) => boolean, preview: string | null) => {
+      for (const [id, { marker, dom }] of pins) {
+        const on = shown(id);
+        const raised = on && id === preview;
+        dom.inner.classList.toggle("is-shown", on);
+        dom.inner.classList.toggle("is-preview", raised);
+        marker.getElement().style.zIndex = raised ? "3" : "2";
+        dom.button.tabIndex = on ? 0 : -1;
+      }
+    };
+    show(this.regionPins, () => state === "overview", previewRegion);
+    show(this.pins, (slug) => state === "region" && this.tripsBySlug.get(slug)?.regionSlug === view.regionSlug, view.previewSlug);
+  }
+
+  /**
+   * The active routes: one trip's, or all of a region's trips at once (everything else faint).
+   * They draw in during a flight; nothing happens when the set did not change.
+   */
+  private showRoutes(trips: Trip[], key: string, animate: boolean, flightMs: number): void {
+    if (key === this.routesKey) return;
+    this.routesKey = key;
     this.cancelDraw?.();
     this.cancelDraw = null;
+    const slugs = trips.map((t) => t.slug);
+    const active = ["in", ["get", "slug"], ["literal", slugs]] as never;
+    this.map.setFilter(LAYER.route, active);
+    this.map.setFilter(LAYER.routeCasing, active);
+    this.map.setFilter(LAYER.routesFaint, ["!", ["in", ["get", "slug"], ["literal", slugs]]] as never);
+    // Only a region's routes take hover and taps (a trip's own route is the page itself).
+    this.map.setFilter(LAYER.routeHit, key.startsWith("region:") ? active : ["==", ["get", "slug"], ""]);
+    if (slugs.length === 0) return;
+    if (animate) {
+      const drawMs = readDurationMs("--duration-route-draw");
+      this.cancelDraw = drawRoute(this.map, this.colors, { delayMs: flightMs * DRAW_AT, durationMs: drawMs, easing: parseEasing(readToken("--ease-sheet")) });
+    } else {
+      setRouteProgress(this.map, this.colors, 1);
+    }
+  }
+
+  /** Region view: one route stays bright, the region's others dim (null = all bright). */
+  private highlightRoute(slug: string | null): void {
+    if (slug === this.highlighted) return;
+    this.highlighted = slug;
+    const dimmed = (full: number) => (slug ? (["case", ["==", ["get", "slug"], slug], full, full * ROUTE.dimmedOpacity] as never) : full);
+    this.map.setPaintProperty(LAYER.route, "line-opacity", dimmed(1));
+    this.map.setPaintProperty(LAYER.routeCasing, "line-opacity", dimmed(ROUTE.casingOpacity));
+  }
+
+  /** Stops and stepping engine for a newly opened trip (or none). */
+  private enterTrip(trip: Trip | null, animate: boolean, flightMs: number): void {
     this.trip = trip;
     this.step = { waypointId: null, source: null };
     this.beforeStepping = null;
-
-    const slug = trip?.slug ?? "";
-    this.map.setFilter(LAYER.route, ["==", ["get", "slug"], slug]);
-    this.map.setFilter(LAYER.routeCasing, ["==", ["get", "slug"], slug]);
-    this.map.setFilter(LAYER.routesFaint, ["!=", ["get", "slug"], slug]);
     this.clearStops(animate);
     this.setFocusHighlight(null, null);
 
     if (trip) {
-      const drawMs = readDurationMs("--duration-route-draw");
-      if (animate) {
-        this.cancelDraw = drawRoute(this.map, this.colors, { delayMs: flightMs * DRAW_AT, durationMs: drawMs, easing: parseEasing(readToken("--ease-sheet")) });
-      } else {
-        setRouteProgress(this.map, this.colors, 1);
-      }
       this.createStops(trip, animate ? flightMs * POP_AT : null);
       if (this.terrainOn) void this.dem.load(grow(tripPoints(trip), CAMERA.visibilityMarginKm), 15000);
     }
@@ -656,7 +732,9 @@ export class MapController {
       return;
     }
 
-    const duration = state === "overview" ? readDurationMs("--duration-map-return") : readDurationMs("--duration-map-flight");
+    // Zooming out (back to a region from one of its trips, or home) takes the calmer return flight.
+    const zoomingOut = state === "overview" || (state === "region" && (prevState === "trip" || prevState === "stop"));
+    const duration = zoomingOut ? readDurationMs("--duration-map-return") : readDurationMs("--duration-map-flight");
     void this.visibleTarget(next, frame, CAMERA.visibilityWaitMs).then((checked) => {
       if (generation !== this.moveGeneration) return;
       this.animate(checked ?? this.targetFor(next, frame), duration, "fly");
@@ -671,10 +749,10 @@ export class MapController {
       this.previewTimer = window.setTimeout(() => this.previewWhenIdle(slug), wait);
       return;
     }
-    const trip = this.tripsBySlug.get(slug);
-    if (!trip || stateOf(this.view) !== "overview" || this.view.previewSlug !== slug) return;
+    const pin = this.regionPins.get(this.tripsBySlug.get(slug)?.regionSlug ?? slug);
+    if (!pin || stateOf(this.view) !== "overview" || this.view.previewSlug !== slug) return;
     const overview = this.targetFor(this.view, this.frameFor("overview"));
-    this.animate(previewCamera(overview, tripAnchor(trip)), readDurationMs("--duration-map"), "ease");
+    this.animate(previewCamera(overview, pin.anchor), readDurationMs("--duration-map"), "ease");
   }
 
   /** Re-frame the current state after a resize (e.g. phone rotation). */
@@ -704,10 +782,12 @@ export class MapController {
   private targetFor(view: MapView, frame: Frame): CameraTarget {
     const trip = view.tripSlug ? this.tripsBySlug.get(view.tripSlug) : undefined;
     const place = view.placeId ? this.placesById.get(view.placeId) : undefined;
+    const region = view.regionSlug ? this.regionsBySlug.get(view.regionSlug) : undefined;
     let target: CameraTarget;
     if (place) target = placeCamera(place, this.viewpoints, frame);
     else if (trip && view.waypointId) target = stopCamera(trip, view.waypointId, frame) ?? tripCamera(trip, frame);
     else if (trip) target = tripCamera(trip, frame);
+    else if (region) target = regionCamera(this.tripsByRegion.get(region.slug) ?? [], region.coords, frame);
     else target = overviewCamera({ nepal: NEPAL_FRAME, focus: this.focusPoints }, frame);
     return this.flatten(target);
   }
@@ -1448,21 +1528,64 @@ export class MapController {
 
   /* ================================================================== pins */
 
+  /**
+   * Home: one pin per region (→ the region page). Region view: one smaller pin per trip (→ the trip
+   * page; hovering it highlights the trip's route). Both reveal media on hover / hold, never while
+   * the camera moves the pin. Anchor: the photo's centre is the location (the inner element is a
+   * zero-size point).
+   */
   private createPins(): void {
+    const place = (dom: PinDom, at: LngLat) =>
+      new Marker({ element: dom.root, anchor: "center", opacityWhenCovered: "1", subpixelPositioning: true }).setLngLat(at).addTo(this.map);
+    const still = (state: MapStateName) => stateOf(this.view) === state && !this.map.isMoving();
+
+    for (const region of this.content.regions) {
+      const trips = this.tripsByRegion.get(region.slug) ?? [];
+      const dom = createRegionPin(region, this.content.regionTrips(region, trips.length));
+      dom.button.addEventListener("click", () => this.handlers().onSelectRegion(region.slug));
+      this.reveal.bind(dom.root, dom.button, () => (still("overview") ? this.content.revealRegion(region, trips) : null));
+      this.regionPins.set(region.slug, { marker: place(dom, region.coords), dom, id: region.slug, anchor: region.coords });
+    }
+
     for (const trip of this.content.trips) {
       const { label, count } = this.content.birds(trip);
       const dom = createTripPin(trip, label, count);
       dom.button.addEventListener("click", () => this.handlers().onSelectTrip(trip.slug));
-      // Hover media reveal (reveal.ts), on the overview, never while the camera moves the pin.
-      this.reveal.bind(dom.root, dom.button, () =>
-        stateOf(this.view) === "overview" && !this.map.isMoving() ? this.content.revealTrip(trip) : null,
-      );
-      // Anchor: the photo's centre is the trip's location (the inner element is a zero-size point).
-      const marker = new Marker({ element: dom.root, anchor: "center", opacityWhenCovered: "1", subpixelPositioning: true })
-        .setLngLat(tripAnchor(trip))
-        .addTo(this.map);
-      this.pins.set(trip.slug, { marker, dom, trip });
+      const hover = (on: boolean) => () => {
+        if (stateOf(this.view) === "region") this.handlers().onPreviewTrip(on ? trip.slug : null);
+      };
+      dom.button.addEventListener("pointerenter", hover(true));
+      dom.button.addEventListener("pointerleave", hover(false));
+      dom.button.addEventListener("focus", hover(true));
+      dom.button.addEventListener("blur", hover(false));
+      this.reveal.bind(dom.root, dom.button, () => (still("region") ? this.content.revealTrip(trip) : null));
+      const anchor = tripAnchor(trip);
+      this.pins.set(trip.slug, { marker: place(dom, anchor), dom, id: trip.slug, anchor });
     }
+  }
+
+  /**
+   * Region view: the routes themselves take hover (highlight that trip, through the layout's
+   * preview so the page's list follows) and taps (open the trip). An invisible wider band
+   * (LAYER.routeHit) makes them easy to hit; it only holds the open region's routes.
+   */
+  private bindRouteHits(): void {
+    let hovered: string | null = null;
+    const canvas = this.map.getCanvas();
+    const set = (slug: string | null) => {
+      if (slug === hovered) return;
+      hovered = slug;
+      canvas.style.cursor = slug ? "pointer" : "";
+      this.handlers().onPreviewTrip(slug);
+    };
+    this.map.on("mousemove", LAYER.routeHit, (e) => set((e.features?.[0]?.properties?.slug as string | undefined) ?? null));
+    this.map.on("mouseleave", LAYER.routeHit, () => set(null));
+    this.map.on("click", LAYER.routeHit, (e) => {
+      const slug = e.features?.[0]?.properties?.slug as string | undefined;
+      if (!slug || stateOf(this.view) !== "region") return;
+      set(null);
+      this.handlers().onSelectTrip(slug);
+    });
   }
 
   /* ================================================================= stops */
@@ -1569,10 +1692,13 @@ export class MapController {
     return null;
   }
 
-  private updatePlaceStates(view: MapView, trip: Trip | undefined): void {
+  private updatePlaceStates(view: MapView, trip: Trip | undefined, region: Region | undefined): void {
     const active = view.placeId ? this.placesById.get(view.placeId) : undefined;
     const range = this.litRange(active);
-    const inTrip = new Set(trip?.landmarkIds ?? []);
+    // The trip's places, or in a region view the region's own and those of all its trips.
+    const inTrip = new Set(
+      trip?.landmarkIds ?? (region ? [...region.landmarkIds, ...(this.tripsByRegion.get(region.slug) ?? []).flatMap((t) => t.landmarkIds ?? [])] : []),
+    );
     const litPeaks: Landmark[] = [];
 
     for (const [id, { marker, dom }] of this.places) {
@@ -1611,7 +1737,8 @@ export class MapController {
     const state = stateOf(this.view);
     const candidates: LabelCandidate[] = [];
     // Pins first: the place labels then keep clear of where the pins really are.
-    if (state === "overview") this.layoutTripPins();
+    const pins = this.shownPins();
+    if (pins.length > 0) this.layoutPhotoPins(pins, state);
 
     for (const [id, { dom }] of this.places) {
       const place = this.placesById.get(id)!;
@@ -1642,49 +1769,56 @@ export class MapController {
       });
     }
 
-    // Labels keep clear of the pins (overview) or the stop blobs (trip).
-    const obstacles =
-      state === "overview"
-        ? [...this.pins.values()].flatMap((p) => [...p.dom.inner.querySelectorAll(".nbt-pin__photo, .nbt-pin__label")])
-        : (this.stops?.items ?? []).flatMap((s) => s.dom.inner.querySelector(".nbt-stop__blob") ?? []);
+    // Labels keep clear of the pins (overview, region) and the stop blobs (trip).
+    const obstacles = [
+      ...pins.flatMap((p) => [...p.dom.inner.querySelectorAll(".nbt-pin__photo, .nbt-pin__label")]),
+      ...(this.stops?.items ?? []).flatMap((s) => s.dom.inner.querySelector(".nbt-stop__blob") ?? []),
+    ];
     placeLabels(candidates, obstacles, this.container.getBoundingClientRect());
   }
 
+  /** The photo pins on screen in this state: region pins (home) or the open region's trip pins. */
+  private shownPins(): PlacedPin[] {
+    return [...this.regionPins.values(), ...this.pins.values()].filter((p) => p.dom.inner.classList.contains("is-shown"));
+  }
+
   /**
-   * Overview: move colliding trip pins apart (pinLayout.ts), clear of whatever sits on the map (the
-   * home corner, marked `data-map-avoid`, and the map controls). Reads every box first, then
-   * writes, so it costs one layout. Runs when the camera settles, never per frame.
+   * Move colliding photo pins apart (pinLayout.ts), clear of whatever sits on the map (the home
+   * corner, marked `data-map-avoid`, and the map controls) and, outside home, of the story's peek.
+   * Reads every box first, then writes, so it costs one layout. Runs when the camera settles,
+   * never per frame.
    */
-  private layoutTripPins(): void {
-    const pins = [...this.pins.values()];
+  private layoutPhotoPins(pins: PlacedPin[], state: MapStateName): void {
     // Captions dropped last time get their chance again: measure them at full size.
     for (const { dom } of pins) dom.inner.classList.remove("is-compact");
     const host = this.container.getBoundingClientRect();
-    // The map is taller than the visible screen (map-layout.tsx): pins stay in the visible part.
+    // The map is taller than the visible screen (map-layout.tsx): pins stay in the visible part
+    // (home), or above the story's peek (region view).
     const visibleBottom = Math.min(host.height, window.innerHeight - Math.max(host.top, 0));
-    const area = { left: PIN_EDGE_PX, top: PIN_EDGE_PX, right: host.width - PIN_EDGE_PX, bottom: visibleBottom - PIN_EDGE_PX };
+    const bottom = state === "overview" ? visibleBottom : host.height - this.frameFor(state).padding.bottom;
+    const area = { left: PIN_EDGE_PX, top: PIN_EDGE_PX, right: host.width - PIN_EDGE_PX, bottom: bottom - PIN_EDGE_PX };
     const avoid = [...document.querySelectorAll("[data-map-avoid]"), ...(this.container.parentElement?.querySelectorAll(".nbt-map__controls") ?? [])];
     const obstacles = avoid
       .map((el) => el.getBoundingClientRect())
       .filter((r) => r.width > 0 && r.height > 0)
       .map((r) => ({ left: r.left - host.left, top: r.top - host.top, right: r.right - host.left, bottom: r.bottom - host.top }));
-    const inputs: PinInput[] = pins.map(({ dom, trip }) => {
+    const inputs: PinInput[] = pins.map(({ dom, id, anchor }) => {
       const photo = dom.button.querySelector<HTMLElement>(".nbt-pin__photo");
       const label = dom.button.querySelector<HTMLElement>(".nbt-pin__label");
-      const p = this.map.project(tripAnchor(trip));
-      const onScreen = p.x >= 0 && p.x <= host.width && p.y >= 0 && p.y <= visibleBottom;
+      const p = this.map.project(anchor);
+      const onScreen = p.x >= 0 && p.x <= host.width && p.y >= 0 && p.y <= bottom;
       const labelW = label?.offsetWidth ?? 0;
       return {
-        id: trip.slug,
+        id,
         point: onScreen ? { x: p.x, y: p.y } : null,
         size: photo?.offsetWidth ?? 0,
         label: labelW > 0 ? { width: labelW, height: label!.offsetHeight } : null,
-        first: trip.slug === this.view.previewSlug,
+        first: dom.inner.classList.contains("is-preview"),
       };
     });
     const placements = layoutPins(inputs, area, obstacles);
-    for (const { dom, trip } of pins) {
-      const { dx, dy, labelLeft, compact } = placements.get(trip.slug)!;
+    for (const { dom, id } of pins) {
+      const { dx, dy, labelLeft, compact } = placements.get(id)!;
       const reach = Math.hypot(dx, dy);
       dom.inner.style.setProperty("--pin-dx", `${dx.toFixed(1)}px`);
       dom.inner.style.setProperty("--pin-dy", `${dy.toFixed(1)}px`);

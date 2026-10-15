@@ -7,6 +7,7 @@
  *   S0 overview  all of Nepal (landscape screens) or the band where the trips and big peaks are
  *                (portrait phones, where all of Nepal would be a thin strip), low pitch, a bearing
  *                that lays Nepal's long axis level
+ *   region       fit all the region's trips (routes and field stops), a little less pitched
  *   S1 trip      fit the route, pitched, bearing roughly along the route
  *   S2 stop      closer on the stop, turned and tilted so the stop is not hidden by a ridge
  *   S3 place     framed by kind; peaks seen from a low camera, looking at the face
@@ -61,6 +62,8 @@ export const CAMERA = {
   },
   /** Home trip-card swipe: ease towards the card's pin. */
   preview: { zoomIn: 0.7 },
+  /** Region view: all its trips at once; the margin leaves room for the trip pins at the edges. */
+  region: { pitch: 40, margin: 56, minZoom: 6.8, maxZoom: 12.2, pitchSlack: 1.3 },
   trip: {
     pitch: 45,
     margin: 34,
@@ -255,6 +258,23 @@ export function overviewCamera(input: OverviewInput, frame: Frame): CameraTarget
 /** Home carousel preview: a little closer, centred on the trip's pin. */
 export function previewCamera(overview: CameraTarget, anchor: LngLat): CameraTarget {
   return { ...overview, center: anchor, zoom: overview.zoom + CAMERA.preview.zoomIn };
+}
+
+/* -------------------------------------------------------------- region */
+
+/** Every point of a region's trips that should be in view (transit stops left out, as for one trip). */
+export function regionPoints(trips: Trip[]): LngLat[] {
+  return trips.flatMap(tripPoints);
+}
+
+/** The region view: all its trips framed together, bearing along their spread like a trip's. */
+export function regionCamera(trips: Trip[], fallback: LngLat, frame: Frame): CameraTarget {
+  const r = CAMERA.region;
+  const points = regionPoints(trips);
+  if (points.length < 2) return { center: points[0] ?? fallback, zoom: r.maxZoom - 1, bearing: CAMERA.trip.defaultBearing, pitch: r.pitch, padding: frame.padding };
+  const bearing = tripBearing(points, frame);
+  const fit = fitPoints({ points, bearing, pitch: r.pitch, ...frame, margin: r.margin, pitchSlack: r.pitchSlack, minZoom: r.minZoom, maxZoom: r.maxZoom });
+  return { ...fit, bearing, pitch: r.pitch, padding: frame.padding };
 }
 
 /* ------------------------------------------------------------------ S1 */

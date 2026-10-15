@@ -47,7 +47,8 @@ How the map is built, its states, and where to retune it. Intent lives in `VISIO
 
 | State | URL | Map |
 |---|---|---|
-| S0 overview | `/` | All of Nepal on landscape screens; on portrait phones the band holding the trip pins (all of Nepal would be a thin strip there). Bearing 17° lays Nepal level, pitch 20°. Trip pins (below): square cover photo centred on the trip, caption plate with name and "142 birds" (number in the accent italic). No mountain or range names here (cities and parks only); peaks stay labelled in trip, day and place views. On narrow maps only the previewed / hovered pin shows its caption. A previewed pin is raised (and, on phones, eased to once the user is idle). |
+| S0 overview | `/` | All of Nepal on landscape screens; on portrait phones the band holding the region pins (all of Nepal would be a thin strip there). Bearing 17° lays Nepal level, pitch 20°. **One pin per region** (photo pins, below): the region's cover centred on `Region.coords`, caption plate with its name and a quiet "3 trips"; tap → `/regions/:slug`. No mountain or range names here (cities and parks only); peaks stay labelled in region, trip, day and place views. On narrow maps only the previewed / hovered pin shows its caption. A previewed trip raises its region's pin. |
+| Region | `/regions/:slug` | `flyTo` to the fit of all the region's trips (routes and field stops, transit stops left out; `regionCamera`, `CAMERA.region`: pitch 40°, bearing along their spread), no visibility check. All its routes are active at once and draw in together; every other route stays faint. One smaller photo pin per trip (`.nbt-pin--small`, cover, name, "142 birds"); no stop markers (they would clutter). The region's and its trips' places are labelled as in a trip. **Highlight**: the layout's `previewTrip(slug)` (the page's trip list), hovering a route (invisible wider hit band `LAYER.routeHit`) or a trip pin keeps that route bright and dims the others to `ROUTE.dimmedOpacity`; map hovers go back through the layout (`onPreviewTrip`), so the list can follow (`previewedTrip`). Tapping a route or trip pin opens the trip. Trip → region (the trip page's back link) takes the calmer return flight. |
 | S1 trip | `/trips/:slug` | `flyTo` (~2.6 s) to the route's fit, pitch 45°, bearing along the route, then checked for visibility (the key stops must not hide behind ridges). The route draws in from ~55% of the flight; stops pop in with a stagger. Stops are dark hand-drawn blobs with a bold pale outline and a line icon (below); key stops large, other stops smaller and quieter. The navigator pill (top) steps through the key stops; "Start the journey" opens the day view. |
 | S2 stop | `?stop=<id>` | A deliberate step: pan + turn + tilt (`--duration-map-step`, 1.4 s; a small fly arc beyond 6 km) to a camera that can see the stop. The stop inverts (pale blob, dark icon, thin copper ring); lens (thin pale ring with four ticks, faint grid, no fill); other stops dimmed. Closing the stop returns to the exact camera from before. |
 | S3 place | `/places/:id` | Framed by kind. Peaks: a low camera (pitch 62°) looking at the face from the nearest trip stop or city, then turned / lowered until the summit is not hidden. Its range glows softly. |
@@ -56,11 +57,11 @@ Direct landings start already framed (no flight, no draw, no pop), then correct 
 the elevation data is in if the subject was hidden (only if the user hasn't touched the map).
 Reduced motion: jumps, no draw, no pop, no lens animation.
 
-## Trip pins (`markers.ts`, `pinLayout.ts`, `map.css`)
+## Photo pins: regions on home, trips in a region (`markers.ts`, `pinLayout.ts`, `map.css`)
 
-A square photo (`--pin-size` 5.6875rem, 4.8125rem on maps under 40rem; square corners) **centred on
-the trip's location** (`tripAnchor`: the centre of its field stops, gateway `transit` stops left
-out). The old pin stood the photo on a stem above the point, so on the overview the photo read
+A square photo (`--pin-size` 5.6875rem, 4.8125rem on maps under 40rem; trip pins in a region view
+3.5rem / 3rem; square corners) **centred on its location** (a region's `coords`; a trip's
+`tripAnchor`: the centre of its field stops, gateway `transit` stops left out). The old pin stood the photo on a stem above the point, so on the overview the photo read
 ~0.4–1° north of the place (Ilam looked like Kanchenjunga, Bardiya like the hills). Beside it a
 caption plate on `--color-scrim` (no halo: the plate carries the contrast), name in label caps,
 count below.
@@ -148,7 +149,8 @@ in focus, keeping pitch and zoom.
 
 ## Hover reveal (`reveal.ts`)
 
-Hovering a trip pin (home) or a stop with media (trip overview: key stops, and minor ones that have
+Hovering a region pin (home: the region's cover, then its trips' covers), a trip pin (region view)
+or a stop with media (trip overview: key stops, and minor ones that have
 media) shows a large photo or muted clip beside it, edges feathered into the map (`mask-image`, two
 intersected soft ramps; `.nbt-reveal` in `map.css`). No card, no pointer events: it lasts only while
 the pointer is over the small marker and fades out (`--duration-ui`) when it leaves, the camera
@@ -220,8 +222,8 @@ mobile bar changes never resize the canvas), a transparent spacer that lets taps
 and the page content as a dark sheet in normal document flow, rising over the map on scroll (the map
 dims). Every map page has this shape (no sidebar): home has no peek (the first screen is the map,
 with "Tap a trip on the map" and "Browse all trips" on its bottom-left corner, hanging above the
-sheet's top edge; the camera keeps `MAP_LAYOUT.homeCornerRem` free at the bottom), trip and place
-stories peek 26% / 16% (phone / desktop). Trip pages add the stop stepper just above the peek. Sheet and headline
+sheet's top edge; the camera keeps `MAP_LAYOUT.homeCornerRem` free at the bottom), region, trip
+and place stories peek 26% / 16% (phone / desktop). Trip pages add the stop stepper just above the peek. Sheet and headline
 entrances run only on client-side navigation; a direct landing shows the content immediately.
 Peek sizes live in `app/lib/mapLayout.ts`, shared by the CSS and the camera padding.
 
@@ -254,6 +256,7 @@ Peek sizes live in `app/lib/mapLayout.ts`, shared by the CSS and the camera padd
 | Label tiers by zoom, label priority | top of `controller.ts`, `labelPriority()` |
 | Hover reveal: delays, sizes, crossfade interval / feather and caption | `REVEAL` in `components/map/reveal.ts` / `.nbt-reveal` in `map.css` |
 | Trip pin overlap: gaps, move costs, caption limit | `PIN_GAP`, `CAPTION_CLEAR`, `COST`, `CROSSING_COST`, `MAX_CAPTION_MOVE` in `components/map/pinLayout.ts`; edge margin `PIN_EDGE_PX` in `controller.ts` |
+| Region view: pitch, margin, zoom limits / dimmed routes, route hit band | `CAMERA.region` in `camera.ts` / `ROUTE.dimmedOpacity`, `ROUTE.hitWidth` in `look.ts` |
 | Which place kinds are unlabelled on home | `OVERVIEW_HIDDEN_KINDS` in `controller.ts` (peaks, ranges) |
 | Pin, stop (key / minor / covered), lens, engine tag, label, map controls look | `components/map/map.css`; orbit / zoom in `controls.css`; navigator and story button in `navigator.css` (stepper base in `layout.css`) |
 | Peeks, stepper room | `MAP_LAYOUT` in `app/lib/mapLayout.ts` |

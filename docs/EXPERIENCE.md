@@ -48,14 +48,16 @@ Technique source: `research/SANRITA_INTERACTION.md` (we borrow choreography, not
 
 | State | URL | Camera | Map gestures | What's on the map |
 |---|---|---|---|---|
-| **S0 Overview** | `/` | All of Nepal, low pitch, slight bearing | Pan/zoom (desktop drag; phone two-finger); pins tappable | Terrain, graticule, a few city and park labels (no mountain or range names: the trips are the map), trip pins that never overlap |
+| **S0 Overview** | `/` | All of Nepal, low pitch, slight bearing | Pan/zoom (desktop drag; phone two-finger); pins tappable | Terrain, graticule, a few city and park labels (no mountain or range names), one pin per region (never overlapping) |
+| **Region** | `/regions/:slug` | Fit all the region's trips, pitch ~40° | On, inside the visible map area | All its trips' routes drawn at once, one small pin per trip, the region's places labelled; hovering a trip (page list, route or pin) keeps its route bright and dims the rest; tapping one opens the trip |
 | **S1 Trip** | `/trips/:slug` | Fit trip bounds, pitch ~55–60°, route-aligned bearing, bottom padding for the sheet | On, inside the visible map area | Route draws in, stop markers pop in with a stagger, trip's peaks labelled |
 | **S2 Stop** | `?stop=<id>` | Ease to stop, closer, slight orbit | On | Lens ring + grid around the stop; other stops dimmed |
 | **S3 Place** | `/places/:id` | Ease to the mountain/place, framed for its view (peaks: low pitch, looking at the face) | On | The place highlighted, its range softly lit, nearby trip routes faint |
 | **Ambient** | `/about` | Slow, gentle drift over Krishna's home hills, dimmed | Off | Terrain only |
 
-Route-to-route moves: S0→S1 `flyTo` about 2.4–3 s; S1→S2 `easeTo` about 0.9 s; S1→S0 fly back out;
-trip→trip flies through S0 (handled by `flyTo` curve).
+Route-to-route moves: S0→region and region→S1 `flyTo` about 2.4–3 s; S1→S2 `easeTo` about 0.9 s;
+S1→region and region→S0 fly back out (the calmer return flight); trip→trip flies through S0
+(handled by `flyTo` curve).
 
 ## Phone layouts (portrait, 360–430 px)
 
