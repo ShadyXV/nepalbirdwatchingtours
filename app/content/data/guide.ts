@@ -18,8 +18,11 @@ export const guide: Guide = {
   specialties: ["Birdwatching and wildlife guiding", "Wildlife art", "Photography and videography", "Teaching young artists"],
   portrait: {
     kind: "image",
-    src: "/media/placeholder-forest.svg",
-    alt: "Portrait of Krishna Thapa (placeholder)",
+    src: "/media/krishna-portrait.jpg",
+    alt: "Krishna Thapa in camouflage field clothes with binoculars and a camera, arms crossed, in green forest",
+    focal: [0.5, 0.32],
+    width: 1060,
+    height: 1590,
   },
   art: [],
   contact: {
