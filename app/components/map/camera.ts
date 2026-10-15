@@ -40,6 +40,14 @@ export const CAMERA = {
   minZoomSlack: 0.6,
   /** Zoom-in limit. Shading DEM tiles go to z14 (the 3D mesh to z11, look.ts DEM); beyond ~z14.5 relief gets soft. */
   maxZoom: 14.5,
+  /**
+   * Region and trip views: the user explores the area, not all of Nepal. Zoom out at most
+   * `zoomOutSlack` below the area's own framing; zoom in to `maxZoom` (a stop and its hillside,
+   * the closest stop camera); pan with the centre kept inside the area's bounds grown by
+   * `panMarginShare` of its larger side (at least `panMarginKm`). Applied only once the camera has
+   * settled; every app move (flights, steps, the day view) lifts them first (controller.ts).
+   */
+  area: { zoomOutSlack: 0.5, maxZoom: 13.8, panMarginShare: 0.3, panMarginKm: 6 },
   /** flyTo zoom-out curve (MapLibre default 1.42); lower = flatter arc. */
   flightCurve: 1.3,
   /** Deliberate stop steps longer than this travel with flyTo (a small arc), shorter with easeTo. */

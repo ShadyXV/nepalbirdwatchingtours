@@ -83,8 +83,7 @@ export function NepalMap({
       },
       dayLabel: (day) => t("trip.day", { day }),
       hints: { touch: t("map.hintTouch"), desktop: mac ? t("map.hintMac") : t("map.hintWindows") },
-      // Trips: their reel (or cover). Stops: their own media, then photos from memories there.
-      revealTrip: (trip) => ({ items: trip.reel.length > 0 ? trip.reel : [trip.cover], title: trip.title }),
+      // Stops: their own media, then photos from memories there.
       // Regions: the region's cover, then its trips' covers.
       revealRegion: (region, regionTrips) => ({ items: [region.cover, ...regionTrips.map((trip) => trip.cover)], title: region.name }),
       revealStop: (trip, waypoint) => {

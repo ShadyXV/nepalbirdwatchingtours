@@ -48,7 +48,7 @@ How the map is built, its states, and where to retune it. Intent lives in `VISIO
 | State | URL | Map |
 |---|---|---|
 | S0 overview | `/` | All of Nepal on landscape screens; on portrait phones the band holding the region pins (all of Nepal would be a thin strip there). Bearing 17° lays Nepal level, pitch 20°. **One pin per region** (photo pins, below): the region's cover centred on `Region.coords`, caption plate with its name and a quiet "3 trips"; tap → `/regions/:slug`. No mountain or range names here (cities and parks only); peaks stay labelled in region, trip, day and place views. On narrow maps only the previewed / hovered pin shows its caption. A previewed trip raises its region's pin. |
-| Region | `/regions/:slug` | `flyTo` to the fit of all the region's trips (routes and field stops, transit stops left out; `regionCamera`, `CAMERA.region`: pitch 40°, bearing along their spread), no visibility check. All its routes are active at once and draw in together; every other route stays faint. One smaller photo pin per trip (`.nbt-pin--small`, cover, name, "142 birds"); no stop markers (they would clutter). The region's and its trips' places are labelled as in a trip. **Highlight**: the layout's `previewTrip(slug)` (the page's trip list), hovering a route (invisible wider hit band `LAYER.routeHit`) or a trip pin keeps that route bright and dims the others to `ROUTE.dimmedOpacity`; map hovers go back through the layout (`onPreviewTrip`), so the list can follow (`previewedTrip`). Tapping a route or trip pin opens the trip. Trip → region (the trip page's back link) takes the calmer return flight. |
+| Region | `/regions/:slug` | `flyTo` to the fit of all the region's trips (routes and field stops, transit stops left out; `regionCamera`, `CAMERA.region`: pitch 40°, bearing along their spread), no visibility check. All its routes are active at once and draw in together; every other route stays faint. One smaller photo pin per trip (`.nbt-pin--small`, cover, name, "142 birds"); no stop markers (they would clutter). The region's and its trips' places are labelled as in a trip. **Highlight**: the layout's `previewTrip(slug)` (the page's trip list), hovering a route (invisible wider hit band `LAYER.routeHit`) or a trip pin keeps that route bright and dims the others to `ROUTE.dimmedOpacity`; map hovers go back through the layout (`onPreviewTrip`), so the list can follow (`previewedTrip`). Tapping a route or trip pin opens the trip. No hover media reveal here (owner, 2026-10-16: the photos hid the map; hover only highlights). Trip → region (the trip page's back link) takes the calmer return flight. |
 | S1 trip | `/trips/:slug` | `flyTo` (~2.6 s) to the route's fit, pitch 45°, bearing along the route, then checked for visibility (the key stops must not hide behind ridges). The route draws in from ~55% of the flight; stops pop in with a stagger. Stops are dark hand-drawn blobs with a bold pale outline and a line icon (below); key stops large, other stops smaller and quieter. The navigator pill (top) steps through the key stops; "Start the journey" opens the day view. |
 | S2 stop | `?stop=<id>` | A deliberate step: pan + turn + tilt (`--duration-map-step`, 1.4 s; a small fly arc beyond 6 km) to a camera that can see the stop. The stop inverts (pale blob, dark icon, thin copper ring); lens (thin pale ring with four ticks, faint grid, no fill); other stops dimmed. Closing the stop returns to the exact camera from before. |
 | S3 place | `/places/:id` | Framed by kind. Peaks: a low camera (pitch 62°) looking at the face from the nearest trip stop or city, then turned / lowered until the summit is not hidden. Its range glows softly. |
@@ -110,8 +110,19 @@ The map is always a real, explorable map; automatic moves never fight the user.
   direction test has to hold the first touch frames, which makes page scroll feel sticky, and diagonal
   swipes misfire). MapLibre's full-map banner is hidden; a quiet pill hint appears once per page
   view, only after a sideways one-finger swipe (or the first blocked wheel on desktop).
-- **Trip / place**: one finger / mouse drag pans, wheel and pinch zoom, right-drag / Ctrl-drag /
+- **Region / trip / place**: one finger / mouse drag pans, wheel and pinch zoom, right-drag / Ctrl-drag /
   two-finger twist and tilt rotate and tilt. The content sheet below the map is the scroll handle.
+- **Area limits (region and trip, its stops included)**: the user explores the area, not Nepal.
+  Zoom out at most `CAMERA.area.zoomOutSlack` (0.5) below the area's own framing (the region fit /
+  trip fit for the current frame), zoom in to `CAMERA.area.maxZoom` (13.8, the closest stop
+  camera); the centre stays inside the area's bounds grown by `panMarginShare` (30%) of its larger
+  side, at least `panMarginKm` (6 km): MapLibre min / max zoom plus a centre clamp
+  (`transformCameraUpdate`) that also stops drag inertia at the edge; the orbit is never clamped.
+  **App moves are never clipped**: every flight, step, reset, reframe and day-view move first lifts
+  the limits (`liftLimits`: MapLibre's min / max zoom also clamp flyTo / easeTo), and they are set
+  again once the map is idle (`applyLimits`, from `moveend`, never mid-flight; the floor is never
+  above, the cap never below, the current zoom, so applying them never jumps). Home, places and
+  the day view keep home's limits. Recomputed on resize.
 - **Soft edge**: a pan that ends with the centre more than `CAMERA.softBoundsMargin` past Nepal's
   outline eases back inside; MapLibre's hard `maxBounds` is far out (`hardBoundsMargin`), a safety net.
 - **Reset view** appears (right edge) once the user turns or tilts more than `CAMERA.adjustedDeg`
@@ -149,8 +160,7 @@ in focus, keeping pitch and zoom.
 
 ## Hover reveal (`reveal.ts`)
 
-Hovering a region pin (home: the region's cover, then its trips' covers), a trip pin (region view)
-or a stop with media (trip overview: key stops, and minor ones that have
+Hovering a region pin (home: the region's cover, then its trips' covers) or a stop with media (trip overview: key stops, and minor ones that have
 media) shows a large photo or muted clip beside it, edges feathered into the map (`mask-image`, two
 intersected soft ramps; `.nbt-reveal` in `map.css`). No card, no pointer events: it lasts only while
 the pointer is over the small marker and fades out (`--duration-ui`) when it leaves, the camera
@@ -247,7 +257,7 @@ Peek sizes live in `app/lib/mapLayout.ts`, shared by the CSS and the camera padd
 | Pitch, bearing, zoom limits, margins per state | `CAMERA` in `components/map/camera.ts` |
 | Day view camera (pitch, zoom range, visibility, move durations) / mood and day overlay | `CAMERA.day` / `DAY_MOOD`, `DAY_ROUTE` in `controller.ts` (see `docs/JOURNEY.md`) |
 | Orbit (step, duration, hold, speed, reduced-motion snap) | `CAMERA.orbitStepDeg`, `orbitMs`, `orbitHoldMs`, `orbitDegPerSec`, `orbitReducedDeg`; look in `components/map/controls.css` |
-| Bounds and zoom limits | `CAMERA.softBoundsMargin` (soft edge, degrees past Nepal's outline, lng/lat), `CAMERA.hardBoundsMargin` (MapLibre maxBounds), `CAMERA.minZoomSlack` (zoom-out limit below the all-of-Nepal fit, recomputed on resize), `CAMERA.maxZoom` (14.5; the shading DEM ends at z14) |
+| Bounds and zoom limits | `CAMERA.softBoundsMargin` (soft edge, degrees past Nepal's outline, lng/lat), `CAMERA.hardBoundsMargin` (MapLibre maxBounds), `CAMERA.minZoomSlack` (zoom-out limit below the all-of-Nepal fit, recomputed on resize), `CAMERA.maxZoom` (14.5; the shading DEM ends at z14); region / trip views: `CAMERA.area` (`zoomOutSlack`, `maxZoom`, `panMarginShare`, `panMarginKm`) |
 | Gestures: inertia, idle time before automatic moves, reset-view threshold | `CAMERA.inertia`, `CAMERA.userIdleMs`, `CAMERA.adjustedDeg` |
 | Visibility search (pitches, bearing steps / spans per state, wait, prefetch area) | `CAMERA.stop/trip/place.visibility`, `CAMERA.visibilityWaitMs`, `CAMERA.visibilityMarginKm`; sampling and margin in `VISIBILITY` (`visibility.ts`) |
 | Stepping | `--duration-map-step` (tokens), `CAMERA.stepFlyKm` |

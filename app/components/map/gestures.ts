@@ -11,10 +11,12 @@
  *                     buttons, Q / E, right-drag) may turn the camera for a look-around.
  *
  * Also: remembers when the user last touched the camera (automatic moves wait for them), a soft
- * edge (a pan that ends far outside Nepal eases back inside), and whether the user has turned or
+ * edge (a pan that ends far outside Nepal, or in a region / trip view outside its area, eases back
+ * inside), and whether the user has turned or
  * tilted the view away from the state's own (shows the "reset view" control).
  */
 import type { Map as MapLibreMap, MapLibreEvent } from "maplibre-gl";
+import type { LngLat } from "~/content/types";
 import { readDurationMs, readToken } from "~/design/tokens";
 import { parseEasing } from "~/lib/easing";
 import { CAMERA, softBoundsCorrection } from "./camera";
@@ -26,6 +28,8 @@ type GestureEvents = {
   onUserInput: () => void;
   /** The view is (or no longer is) turned / tilted away from where the app put it. */
   onAdjusted: (adjusted: boolean) => void;
+  /** Where a centre outside the allowed area eases back to (null = it is inside). Default: Nepal's soft bounds. */
+  edgeCorrection?: (center: LngLat) => LngLat | null;
 };
 
 export type HintTexts = { touch: string; desktop: string };
@@ -191,10 +195,10 @@ export class Gestures {
     this.events.onAdjusted(adjusted);
   }
 
-  /** After a user pan that ends far outside Nepal, ease back inside: a soft edge, not a wall. */
+  /** After a user pan that ends outside the allowed area, ease back inside: a soft edge, not a wall. */
   private softEdge(): void {
     const c = this.map.getCenter();
-    const inside = softBoundsCorrection([c.lng, c.lat]);
+    const inside = (this.events.edgeCorrection ?? softBoundsCorrection)([c.lng, c.lat]);
     if (!inside) return;
     this.map.easeTo({
       center: inside,

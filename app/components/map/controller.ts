@@ -21,7 +21,7 @@
  * later changes animate, unless the visitor prefers reduced motion (then everything jumps).
  * Rendering is on demand: nothing animates while the map is idle.
  */
-import { Map as MapLibreMap, Marker, setWorkerUrl } from "maplibre-gl";
+import { LngLat as LngLatClass, Map as MapLibreMap, Marker, setWorkerUrl } from "maplibre-gl";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
 import type { Landmark, LngLat, Region, Trip, Waypoint } from "~/content/types";
 import { readDurationMs, readToken } from "~/design/tokens";
@@ -45,6 +45,7 @@ import {
   placeCamera,
   previewCamera,
   regionCamera,
+  softBoundsCorrection,
   stopCamera,
   travelBearing,
   tripAnchor,
@@ -274,7 +275,6 @@ export type MapContent = {
   dayLabel: (day: number) => string;
   hints: HintTexts;
   /** Hover media reveal content (null = nothing to reveal for that marker). */
-  revealTrip: (trip: Trip) => RevealContent | null;
   revealRegion: (region: Region, trips: Trip[]) => RevealContent | null;
   revealStop: (trip: Trip, waypoint: Waypoint, key: boolean) => RevealContent | null;
 };
@@ -322,6 +322,13 @@ const onlyPreviewChanged = (a: MapView, b: MapView) =>
 
 const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+/** The centre pulled into a box, or null when it is already inside. */
+function clampToBox(center: LngLat, box: Bounds): LngLat | null {
+  const lng = Math.min(box.east, Math.max(box.west, center[0]));
+  const lat = Math.min(box.north, Math.max(box.south, center[1]));
+  return lng === center[0] && lat === center[1] ? null : [lng, lat];
+}
+
 /** Bounds around a set of points, grown by `km` on every side. */
 function grow(points: LngLat[], km: number): Bounds {
   const b = boundsOf(points);
@@ -360,6 +367,11 @@ export class MapController {
   private regionPins = new Map<string, PlacedPin>();
   /** Region view: one pin per trip (only the open region's are shown). */
   private pins = new Map<string, PlacedPin>();
+  /**
+   * Region / trip views: the zoom range and centre box the user may explore (CAMERA.area). Null on
+   * home, places and in the day view (home's limits). Lifted before every app camera move.
+   */
+  private area: { minZoom: number; maxZoom: number; box: Bounds } | null = null;
   /** Which routes are drawn as active ("trip:<slug>", "region:<slug>" or ""), and the highlighted one. */
   private routesKey = "";
   private highlighted: string | null = null;
@@ -437,6 +449,15 @@ export class MapController {
     this.gestures = new Gestures(this.map, container, content.hints, {
       onUserInput: () => this.reveal.hide(),
       onAdjusted: (adjusted) => this.handlers().onViewAdjusted(adjusted),
+      edgeCorrection: (center) => (this.area ? clampToBox(center, this.area.box) : softBoundsCorrection(center)),
+    });
+    // While the area is set (only between app moves: each lifts it first), every camera update
+    // keeps the centre inside its box: drag, wheel, pinch, inertia, double-click. The orbit turns
+    // around its focus untouched.
+    this.map.setTransformCameraUpdate(({ center }) => {
+      if (!this.area || this.orbitControl?.active) return {};
+      const inside = clampToBox([center.lng, center.lat], this.area.box);
+      return inside ? { center: new LngLatClass(inside[0], inside[1]) } : {};
     });
     this.gestures.setMode(stateOf(initial) === "overview" ? "overview" : "explore");
 
@@ -473,6 +494,8 @@ export class MapController {
     });
     this.later(() => container.classList.add("is-ready"), 2500);
     this.map.on("moveend", () => {
+      // Once nothing moves any more (an interrupted flight is followed straight away by the next).
+      this.later(() => this.applyLimits(), 0);
       if (this.orbitControl.active) return;
       this.updateLabels();
       // After the label pass (same frame): the day view re-lays its text and media around the route.
@@ -491,6 +514,7 @@ export class MapController {
       window.clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(() => {
         this.reframe();
+        this.applyLimits(); // the new frame's limits (skipped while reframe's ease runs: moveend applies them)
         this.updateLabels(); // pins and labels re-laid for the new size, even if the camera stays
       }, 200);
     });
@@ -715,6 +739,7 @@ export class MapController {
     const generation = ++this.moveGeneration;
 
     if (!animate || !prev) {
+      this.liftLimits();
       this.map.jumpTo(this.targetFor(next, frame));
       // Direct landing: once the elevation is in, correct the view if the subject is hidden.
       void this.visibleTarget(next, frame, 15000).then((target) => {
@@ -765,8 +790,8 @@ export class MapController {
     }
     if (performance.now() - this.journeyClosedAt < AFTER_JOURNEY_QUIET_MS) return;
     const target = this.targetFor(this.view, this.frameFor(stateOf(this.view)));
-    this.map.setMinZoom(Math.min(target.zoom, minZoomFor(this.container.clientWidth, this.container.clientHeight)));
     if (this.gestures.idleIn() > 0 || this.step.waypointId) return; // don't undo the user's (or a stop's) view
+    this.liftLimits();
     this.map.easeTo({ ...target, duration: prefersReducedMotion() ? 0 : 400 });
   }
 
@@ -809,6 +834,7 @@ export class MapController {
       };
       this.map.on("moveend", finish);
       this.later(finish, duration + 400); // safety: no moveend when nothing had to move
+      this.liftLimits(); // the user's limits never clip an app move (re-applied once it lands)
       if (prefersReducedMotion() || duration <= 0) {
         this.map.jumpTo(target);
         return;
@@ -817,6 +843,58 @@ export class MapController {
       if (kind === "fly") this.map.flyTo({ ...target, duration, easing, curve: CAMERA.flightCurve });
       else this.map.easeTo({ ...target, duration, easing });
     });
+  }
+
+  /** An instant app move: limits lifted first, re-applied when it has landed. */
+  private jump(target: Parameters<MapLibreMap["jumpTo"]>[0]): void {
+    this.liftLimits();
+    this.map.jumpTo(target);
+  }
+
+  /* ========================================================= user limits */
+
+  /**
+   * Before any app camera move: drop the region / trip limits (MapLibre's min / max zoom clamp
+   * flyTo and easeTo too, and the centre box would hold a flight back). Zoom keeps a floor at
+   * home's level or the current zoom, whichever is lower.
+   */
+  private liftLimits(): void {
+    this.area = null;
+    this.map.setMinZoom(Math.min(this.map.getZoom(), CAMERA.overview.minZoom));
+    this.map.setMaxZoom(CAMERA.maxZoom);
+  }
+
+  /**
+   * Once the camera has settled: the user's limits for this state. Region and trip (and its stops):
+   * the area (CAMERA.area) around the region's trips or the trip. Home, places and the day view:
+   * home's limits (zoom out to a little below all of Nepal; the soft edge around Nepal). Never
+   * forces a jump: the floor is at most the current zoom, the cap at least the current zoom.
+   */
+  private applyLimits(): void {
+    if (!this.loaded || this.map.isMoving()) return;
+    const state = stateOf(this.view);
+    const zoom = this.map.getZoom();
+    const trip = this.view.tripSlug ? this.tripsBySlug.get(this.view.tripSlug) : undefined;
+    const region = state === "region" && this.view.regionSlug ? this.regionsBySlug.get(this.view.regionSlug) : undefined;
+    const trips = trip ? [trip] : region ? (this.tripsByRegion.get(region.slug) ?? []) : [];
+    if (this.journey || trips.length === 0) {
+      this.area = null;
+      const own = this.targetFor(this.view, this.frameFor(state)).zoom;
+      this.map.setMaxZoom(CAMERA.maxZoom);
+      this.map.setMinZoom(Math.min(zoom, own, minZoomFor(this.container.clientWidth, this.container.clientHeight)));
+      return;
+    }
+    const a = CAMERA.area;
+    const frame = this.frameFor(state === "stop" ? "trip" : state);
+    const fit = trip ? tripCamera(trip, frame) : regionCamera(trips, region!.coords, frame);
+    const points = trips.flatMap(tripPoints);
+    const b = boundsOf(points);
+    const spanKm = Math.max(distanceKm([b.west, b.south], [b.east, b.south]), distanceKm([b.west, b.south], [b.west, b.north]));
+    const minZoom = Math.min(zoom, fit.zoom - a.zoomOutSlack);
+    const maxZoom = Math.max(zoom, a.maxZoom, minZoom + 1);
+    this.area = { minZoom, maxZoom, box: grow(points, Math.max(a.panMarginKm, spanKm * a.panMarginShare)) };
+    this.map.setMaxZoom(maxZoom);
+    this.map.setMinZoom(minZoom);
   }
 
   /* ===================================================== visibility checks */
@@ -977,6 +1055,7 @@ export class MapController {
       (await this.visibleStop(trip, waypointId, frame, CAMERA.visibilityWaitMs, { direction })) ?? this.flatten(geometric);
     if (generation !== this.moveGeneration) return;
     if (!animate) {
+      this.liftLimits();
       this.map.jumpTo(target);
       return;
     }
@@ -1000,7 +1079,7 @@ export class MapController {
         ? ((await this.visibleRoute(this.trip, frame, CAMERA.visibilityWaitMs)) ?? this.flatten(tripCamera(this.trip, frame)))
         : null;
     if (!target || generation !== this.moveGeneration) return;
-    if (!animate) this.map.jumpTo(target);
+    if (!animate) this.jump(target);
     else await this.animate(target, readDurationMs("--duration-map-step"), "ease");
   }
 
@@ -1088,7 +1167,7 @@ export class MapController {
     this.gestures.resetAdjusted();
 
     if (!animate) {
-      this.map.jumpTo(target);
+      this.jump(target);
       return;
     }
     const c = this.map.getCenter();
@@ -1177,7 +1256,7 @@ export class MapController {
       padding: frame.padding,
     };
     if (generation !== this.moveGeneration) return;
-    if (!animate || prefersReducedMotion()) this.map.jumpTo(target);
+    if (!animate || prefersReducedMotion()) this.jump(target);
     else await this.animate(target, readDurationMs("--duration-map-step"), "ease");
   }
 
@@ -1195,7 +1274,7 @@ export class MapController {
     this.dropJourney();
     const target = { ...j.before };
     const generation = ++this.moveGeneration;
-    if (!animate || prefersReducedMotion()) this.map.jumpTo(target);
+    if (!animate || prefersReducedMotion()) this.jump(target);
     else await this.animate(target as CameraTarget, readDurationMs("--duration-map-step"), "ease");
     if (generation === this.moveGeneration) this.journeyClosedAt = performance.now();
   }
@@ -1529,9 +1608,9 @@ export class MapController {
   /* ================================================================== pins */
 
   /**
-   * Home: one pin per region (→ the region page). Region view: one smaller pin per trip (→ the trip
-   * page; hovering it highlights the trip's route). Both reveal media on hover / hold, never while
-   * the camera moves the pin. Anchor: the photo's centre is the location (the inner element is a
+   * Home: one pin per region (→ the region page; media reveal on hover / hold, never while the
+   * camera moves the pin). Region view: one smaller pin per trip (→ the trip page; hovering it
+   * highlights the trip's route, no media reveal). Anchor: the photo's centre is the location (the inner element is a
    * zero-size point).
    */
   private createPins(): void {
@@ -1558,7 +1637,8 @@ export class MapController {
       dom.button.addEventListener("pointerleave", hover(false));
       dom.button.addEventListener("focus", hover(true));
       dom.button.addEventListener("blur", hover(false));
-      this.reveal.bind(dom.root, dom.button, () => (still("region") ? this.content.revealTrip(trip) : null));
+      // No media reveal here (owner, 2026-10-16): in a region the routes and the highlight matter,
+      // and photos popping up around the pins hid the map.
       const anchor = tripAnchor(trip);
       this.pins.set(trip.slug, { marker: place(dom, anchor), dom, id: trip.slug, anchor });
     }
