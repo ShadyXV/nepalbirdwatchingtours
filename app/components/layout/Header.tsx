@@ -6,7 +6,7 @@ import { useInquiry } from "../inquiry";
 import { Button } from "../ui/Button";
 
 const links = [
-  { to: "/#trips", label: "nav.trips" },
+  { to: "/trips", label: "nav.trips" },
   { to: "/anywhere", label: "nav.anywhere" },
   { to: "/birding-in-nepal", label: "nav.birdingInNepal" },
   { to: "/about", label: "nav.about" },

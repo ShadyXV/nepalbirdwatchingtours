@@ -16,9 +16,12 @@ const sizes: Record<Size, string> = {
   sm: "min-h-tap px-4 py-2",
 };
 
-function classes(variant: Variant, size: Size, className?: string) {
+/** Button classes, for elements that must look like a button (e.g. a router `<Link>`). */
+export function buttonClasses(variant: Variant = "primary", size: Size = "md", className?: string) {
   return [base, variants[variant], sizes[size], className].filter(Boolean).join(" ");
 }
+
+const classes = buttonClasses;
 
 type ButtonProps = ComponentProps<"button"> & { variant?: Variant; size?: Size };
 

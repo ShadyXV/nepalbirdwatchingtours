@@ -88,6 +88,11 @@ trip→trip flies through S0 (handled by `flyTo` curve).
 Why: Nepal is wide and short; in portrait it is a thin strip, so pins alone are too small to tap
 well. The card carousel is the primary picker and the map follows it.
 
+**Now (owner, 2026-10-15):** the card carousel is gone. Below the map: a one-line intro with
+"Browse all trips" (`/trips/`), then *Hello, I'm Krishna*, the three ways to go birding (one large
+photo block each), a full-width contact band (opens the inquiry drawer), reviews (→ `/reviews/`) and
+recent trip reports (→ `/trip-reports/:slug/`). Home section titles use the calm accent italic.
+
 ### S1 Trip: explorable map + sheet
 
 ```

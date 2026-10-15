@@ -30,6 +30,7 @@ place, altitude and date — light, never database-like (no coordinates or conse
 ## Sitemap
 
 - `/` — home: full-bleed map of Nepal with trip pins (photo, name, species count); below it: Krishna intro, services, reviews.
+- `/trips/` — every published trip as a card; search by name and filter by kind (`?q=`, `?kind=`), full list without JS.
 - `/trips/:slug/` — same persistent map, flown into the trip: route, waypoints, per-stop stay/altitude/nights and an interactive bird/wildlife/plant checklist; reel (Ken Burns + ambient clips) under/over the map.
 - `/places/:id/` — mountains, ranges, parks, points of interest: same map + rising-sheet interaction as
   trips, lighter content, lower in the hierarchy.
@@ -38,6 +39,8 @@ place, altitude and date — light, never database-like (no coordinates or conse
   photography). Photo-led sections with relevant reviews. Working title, never "services".
 - `/birding-in-nepal/` — general guide "Birdwatching Tours in Nepal" (owner's copy): why Nepal, destinations, sample itineraries, what's included, best time.
 - `/about/` — Krishna: experience, certifications, art and photography.
+- `/reviews/` — every guest review: small photo, their words, the trip they went on.
+- `/trip-reports/:slug/` — blog-style report from one past departure: story and photos, the group, species seen.
 - `/privacy/`
 - No contact page: the **inquiry drawer** opens from any page (header/footer/trip CTAs) and via deep link
   `?inquire&trip=<slug>&from=<date>&to=<date>&party=<n>`. It sends via WhatsApp / email / Instagram.

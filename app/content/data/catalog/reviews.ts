@@ -2,7 +2,7 @@ import type { Review } from "~/content/types";
 
 /**
  * PLACEHOLDER reviews only. Every author is a stand-in and the text is invented to show the
- * layout; replace with real guest reviews (with permission) before launch.
+ * layout; replace with real guest reviews (with permission) before launch. Avatars are mock photos.
  */
 export const reviews = [
   {
@@ -15,6 +15,7 @@ export const reviews = [
     text: "We came for the mountains and left talking about birds. Krishna heard a Himalayan Monal before we had even finished our tea at Tadapani, and then found us a Kalij Pheasant walking across the clearing. The rhododendrons were in full bloom and the Fire-tailed Sunbirds were right in them. The pace was perfect, and we never felt rushed. Placeholder review.",
     tripSlug: "annapurna-birding-trek",
     source: { name: "Direct" },
+    avatar: { kind: "image", src: "/media/mock/people_trekker-snowy-terrain_landscape_031.jpg", alt: "Placeholder Guest A", width: 3008, height: 1960, focal: [0.45, 0.4] },
     media: [
       {
         kind: "image",
@@ -34,6 +35,7 @@ export const reviews = [
     text: "I have been trekking for years, but never with a birder alongside. At Bamboo, Krishna waited patiently while a Great Parrotbill finally came out into the open, and at Annapurna Base Camp we watched Snow Pigeons wheel in front of the south face at dawn. A Brown Dipper at Jhinu Danda was the sweet end to a wonderful trek. Placeholder review.",
     tripSlug: "annapurna-birding-trek",
     source: { name: "Direct" },
+    avatar: { kind: "image", src: "/media/mock/people_trekkers-snowy-peaks_landscape_045.jpg", alt: "Placeholder Guest B", width: 4608, height: 3456, focal: [0.5, 0.55] },
     media: [
       {
         kind: "image",
@@ -59,6 +61,7 @@ export const reviews = [
     text: "The canoe ride at dawn was the highlight for me, with Gharials on the sandbars, kingfishers everywhere and a rhinoceros feeding on the far bank. Krishna's eye for birds is incredible, and he made the Great Hornbill in the forest feel like a gift. Our lodge was comfortable and the walks were relaxed. Placeholder review.",
     tripSlug: "chitwan-wildlife-safari",
     source: { name: "Direct" },
+    avatar: { kind: "image", src: "/media/mock/people_birdwatchers-wading_landscape_051.jpg", alt: "Placeholder Guest C", width: 4608, height: 3456, focal: [0.5, 0.5] },
     media: [
       {
         kind: "image",
@@ -78,6 +81,7 @@ export const reviews = [
     text: "We went in March, and Krishna took us out to Kasara before sunrise to wait in the grass for a Bengal Florican display. When the male leapt into the air I could hardly believe it. Bis Hazari Tal on the last morning, with jacanas on the lily pads, was a lovely way to finish. Placeholder review.",
     tripSlug: "chitwan-wildlife-safari",
     source: { name: "Direct" },
+    avatar: { kind: "image", src: "/media/mock/people_birdwatching-group_landscape_046.jpg", alt: "Placeholder Guest D", width: 4608, height: 3456, focal: [0.45, 0.55] },
     media: [
       {
         kind: "image",
@@ -97,6 +101,7 @@ export const reviews = [
     text: "After a few days of temples and traffic, a day on Phulchowki was exactly what we needed. Krishna found Mrs. Gould's Sunbird feeding in a rhododendron and a Spotted Forktail at the stream. We saw so many birds in a single day. Placeholder review.",
     tripSlug: "phulchowki-birding-day",
     source: { name: "Direct" },
+    avatar: { kind: "image", src: "/media/mock/people_hiker-misty-forest_portrait_065.jpg", alt: "Placeholder Guest E", width: 3072, height: 4096, focal: [0.5, 0.4] },
     media: [
       {
         kind: "image",
@@ -116,6 +121,7 @@ export const reviews = [
     text: "We were lucky with a clear November day. A Himalayan Bluetail showed beautifully near the top, Himalayan Griffons soared past the summit, and Krishna pointed out the Langtang range on the horizon. Gentle, informative and a lot of fun. Placeholder review.",
     tripSlug: "phulchowki-birding-day",
     source: { name: "Direct" },
+    avatar: { kind: "image", src: "/media/mock/people_guided-group-forest_portrait_048.jpg", alt: "Placeholder Guest F", width: 3229, height: 4608, focal: [0.5, 0.45] },
     media: [
       {
         kind: "image",

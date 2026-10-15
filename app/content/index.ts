@@ -1,15 +1,17 @@
-import type { Landmark, Memory, Offering, Review, Species, SpeciesGroup, Trip } from "./types";
+import type { Landmark, Memory, Offering, Review, Species, SpeciesGroup, Trip, TripReport } from "./types";
 import { availability } from "./data/availability";
 import { birdingGuide } from "./data/birdingGuide";
 import { guide } from "./data/guide";
+import { contactBanner, homeWays } from "./data/home";
 import { landmarks } from "./data/landmarks";
 import { memories } from "./data/memories";
 import { offerings } from "./data/offerings";
 import { reviews } from "./data/reviews";
 import { species } from "./data/species";
+import { tripReports } from "./data/tripReports";
 import { trips } from "./data/trips";
 
-export { availability, birdingGuide, guide };
+export { availability, birdingGuide, contactBanner, guide, homeWays };
 
 export function getPublishedTrips(): Trip[] {
   return trips.filter((trip) => trip.status === "published");
@@ -71,6 +73,24 @@ export function speciesSeenAtWaypoint(slug: string, waypointId: string): Set<str
 
 export function getReviews(): Review[] {
   return reviews;
+}
+
+export function getReview(id: string): Review | undefined {
+  return reviews.find((r) => r.id === id);
+}
+
+/** Every review, newest first. */
+export function getReviewsNewestFirst(): Review[] {
+  return [...reviews].sort((a, b) => b.date.localeCompare(a.date));
+}
+
+/** Trip reports whose trip is published, newest first. */
+export function getTripReports(): TripReport[] {
+  return tripReports.filter((report) => getTrip(report.tripSlug)).sort((a, b) => b.date.localeCompare(a.date));
+}
+
+export function getTripReport(slug: string): TripReport | undefined {
+  return getTripReports().find((report) => report.slug === slug);
 }
 
 export function getReviewsForTrip(slug: string): Review[] {

@@ -21,8 +21,13 @@ export function Footer() {
           <h2 className="eyebrow mb-1 font-mono text-fg-muted">{t("footer.explore")}</h2>
           <ul>
             <li>
-              <Link className={link} to="/#trips">
+              <Link className={link} to="/trips">
                 {t("nav.trips")}
+              </Link>
+            </li>
+            <li>
+              <Link className={link} to="/reviews">
+                {t("nav.reviews")}
               </Link>
             </li>
             <li>

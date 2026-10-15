@@ -59,6 +59,11 @@
   --text-h3: clamp(1.25rem, 2.6vw, 2rem);
   --text-h3--line-height: 1.05;
   --text-h3--letter-spacing: 0.01em;
+  /* Calm section titles (SectionTitle): the accent italic Thin in sentence case, not display caps. */
+  --text-section: clamp(2.25rem, 1.6rem + 3.2vw, 4.5rem);
+  --text-section--line-height: 1.05;
+  --text-section-sm: clamp(1.75rem, 1.4rem + 1.6vw, 2.75rem); /* titles inside a section */
+  --text-section-sm--line-height: 1.1;
   --text-body: clamp(1rem, 0.95rem + 0.2vw, 1.0625rem); /* never below 16px: stops iOS input zoom */
   --text-body--line-height: 1.6;
   --text-small: 0.8125rem;

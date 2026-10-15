@@ -6,6 +6,10 @@ export default [
     route("trips/:slug", "routes/trip.tsx"),
     route("places/:placeId", "routes/place.tsx"),
   ]),
+  // The trip list sits outside the map layout (like /about); single trips (/trips/:slug) stay inside it.
+  route("trips", "routes/trips.tsx"),
+  route("reviews", "routes/reviews.tsx"),
+  route("trip-reports/:slug", "routes/trip-report.tsx"),
   route("anywhere", "routes/anywhere.tsx"),
   route("birding-in-nepal", "routes/birding-in-nepal.tsx"),
   route("about", "routes/about.tsx"),

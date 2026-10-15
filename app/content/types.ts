@@ -256,7 +256,64 @@ export type Review = {
     name: "TripAdvisor" | "Google" | "Direct" | (string & {});
     url?: string;
   };
+  /** Small photo of the reviewer, shown as a round thumbnail next to their name. */
+  avatar?: ImageAsset;
   media: MediaAsset[];
+};
+
+/* ----------------------------------------------------------- trip reports */
+
+/**
+ * One piece of a trip report's story, rendered in order:
+ *   text     one or more paragraphs in Krishna's voice
+ *   image    a single photo, full width, with an optional caption
+ *   gallery  two to four photos side by side, with an optional shared caption
+ * A photo's `observation` becomes its field label (bird, place, altitude, date).
+ */
+export type TripReportBlock =
+  | { kind: "text"; paragraphs: string[] }
+  | { kind: "image"; image: ImageAsset; caption?: string }
+  | { kind: "gallery"; images: ImageAsset[]; caption?: string };
+
+/**
+ * A blog-style report from one past departure of a trip: how it went, photos of the group, and the
+ * checklist of what we saw. Page at /trip-reports/<slug>/; the newest ones are listed on home.
+ */
+export type TripReport = {
+  /** URL slug: /trip-reports/<slug>/, e.g. "phulchowki-march-2026". */
+  slug: string;
+  title: string;
+  /** The trip this departure was (must be a published trip). */
+  tripSlug: Trip["slug"];
+  /** Day the trip started. */
+  date: IsoDate;
+  /** Guests as they agreed to be named, e.g. "Anna & Tom, Netherlands". */
+  guests?: string;
+  /** One or two sentences: the card text and the page's meta description. */
+  summary: string;
+  /** Card image and the large photo at the top of the page. */
+  cover: ImageAsset;
+  /** The story, top to bottom. */
+  body: TripReportBlock[];
+  /** Photos of the group that went (shown as a strip). */
+  groupPhotos: ImageAsset[];
+  /** Species we actually saw (Species ids), for the checklist. Any order; the page groups them. */
+  seen: Species["id"][];
+  /** The guests' own review of this trip, if they left one. */
+  reviewId?: Review["id"];
+};
+
+/* ------------------------------------------------------------------- home */
+
+/**
+ * One of the main ways to go birding with Krishna, shown as a large photo block on home. Its title and
+ * text are UI strings (i18n `home.services.<id>`); this holds the photo and where its link goes.
+ */
+export type HomeWay = {
+  id: "lead" | "day" | "trek";
+  image: ImageAsset;
+  /** Site path for the block's small link, e.g. "/trips" or "/anywhere#trekking-group-naturalist". */
+  href: string;
 };
 
 /* --------------------------------------------------------------- memories */

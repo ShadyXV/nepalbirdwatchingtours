@@ -9,7 +9,7 @@
 import type { Insets } from "./geo";
 
 export const MAP_LAYOUT = {
-  /** Home: share of the screen the home content (trip cards first) covers, phones / desktop. */
+  /** Home: share of the screen the home content (its intro line and "Browse all trips") covers, phones / desktop. */
   homePeekPhone: 0.44,
   homePeekDesktop: 0.2,
   /** Trip / place: share of the screen the story's first lines cover, phones / desktop. */
