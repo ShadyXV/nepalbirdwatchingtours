@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { Link } from "react-router";
 import { useInquiry } from "~/components/inquiry";
 import { ReviewCard } from "~/components/reviews";
@@ -30,8 +31,11 @@ export function HomeScreen() {
       {/* Top padding clears the story button on the seam; the intro's top is what peeks under the map. */}
       <div className="space-y-28 pt-12 pb-28 md:space-y-40 md:pt-14 md:pb-40">
         <GuideIntro />
-        <Ways />
-        <ContactBand />
+        {/* Stitched: the last service photo fades into the contact band's faded top, no gap between. */}
+        <div>
+          <Ways />
+          <ContactBand />
+        </div>
 
         {/* One review at a time on phones, two side by side from md; native scroll-snap, so it swipes without JS. */}
         <section id="reviews" aria-labelledby="home-reviews" className={column}>
@@ -106,9 +110,12 @@ function GuideIntro() {
 }
 
 /**
- * What we offer: led tours, day tours, a birding specialist on treks. Each block is a photo that runs
- * to the window edge on its side (alternating) with the text beside it; on phones the photo spans the
- * full width and the text sits below in the normal gutter.
+ * What we offer: led tours, day tours, a birding specialist on treks, as one continuous strip.
+ * Each photo runs to the window edge on its side (alternating) and dissolves into the page on its
+ * inner edge, top and bottom, the same way the contact band below melts into the page; the blocks
+ * overlap where they fade, so the photos hand over to one another with no hard gaps.
+ * Desktop: the photo takes the larger share, the text sits beside it on the page column's edge.
+ * Phones: the photo spans the full width and fades down into its text.
  */
 function Ways() {
   return (
@@ -116,9 +123,9 @@ function Ways() {
       <div className={column}>
         <SectionTitle id="home-ways">{t("home.servicesHeading")}</SectionTitle>
       </div>
-      <ul className="mt-12 space-y-24 md:mt-16 lg:space-y-32">
+      <ul className="mt-8 flex flex-col gap-14 sm:gap-16 lg:mt-2 lg:gap-0">
         {homeWays.map((way, i) => (
-          <li key={way.id}>
+          <li key={way.id} className={i > 0 ? "lg:-mt-20" : undefined}>
             <WayBlock way={way} flipped={i % 2 === 1} />
           </li>
         ))}
@@ -127,40 +134,64 @@ function Ways() {
   );
 }
 
+/** The photo's share of the page column on desktop; the text takes the rest. */
+const WAY_IMAGE_SHARE = 0.54;
+
+/*
+ * Desktop photo width: from the window edge to the share line in the page column, plus the text's
+ * inset (ps-10 / pe-10), which the photo has fully faded out by. Mirrors `column`
+ * (max-w-5xl, px-gutter-lg).
+ */
+const wayLayoutVars = {
+  "--way-image-w": `calc((100% - min(100%, var(--container-5xl))) / 2 + var(--spacing-gutter-lg) + (min(100%, var(--container-5xl)) - 2 * var(--spacing-gutter-lg)) * ${WAY_IMAGE_SHARE} + var(--spacing) * 10)`,
+  "--way-text-inset": `${WAY_IMAGE_SHARE * 100}%`,
+} as CSSProperties;
+
+/** Edge fades (static masks): phones fade top and bottom; desktop also dissolves the inner edge. */
+const wayImageFade = "mask-t-from-85% mask-b-from-60% lg:mask-t-from-75% lg:mask-b-from-75%";
+
 function WayBlock({ way, flipped }: { way: HomeWay; flipped: boolean }) {
   const titleId = `home-way-${way.id}`;
   const { image } = way;
   return (
-    <article
-      aria-labelledby={titleId}
-      className={`grid gap-8 lg:items-center lg:gap-0 ${flipped ? "lg:grid-cols-[9fr_11fr]" : "lg:grid-cols-[11fr_9fr]"}`}
-    >
+    <article aria-labelledby={titleId} className="relative lg:flex lg:min-h-[36rem] lg:items-center" style={wayLayoutVars}>
       <img
         src={assetUrl(image.src)}
         alt={image.alt}
         loading="lazy"
         decoding="async"
-        className={`aspect-[3/2] w-full bg-bg-raised object-cover sm:aspect-[2/1] lg:aspect-[16/10] lg:max-h-[30rem] ${flipped ? "lg:order-2" : ""}`}
+        className={[
+          "aspect-[4/3] w-full bg-bg-raised object-cover sm:aspect-[2/1]",
+          "lg:absolute lg:inset-y-0 lg:aspect-auto lg:h-full lg:w-(--way-image-w)",
+          wayImageFade,
+          flipped ? "lg:right-0 lg:mask-l-from-45%" : "lg:left-0 lg:mask-r-from-45%",
+        ].join(" ")}
         style={image.focal ? { objectPosition: `${image.focal[0] * 100}% ${image.focal[1] * 100}%` } : undefined}
       />
-      <div className="px-gutter sm:px-gutter-lg lg:px-16 xl:px-24">
-        <SectionTitle as="h3" size="md" id={titleId}>
-          {t(`home.services.${way.id}.title`)}
-        </SectionTitle>
-        <p className="mt-5 max-w-prose lg:max-w-md">{t(`home.services.${way.id}.body`)}</p>
-        <ArrowLink to={way.href} className="mt-5">
-          {t(`home.services.${way.id}.link`)}
-        </ArrowLink>
+      <div className={`${column} relative lg:w-full lg:py-24`}>
+        <div className={flipped ? "lg:me-(--way-text-inset) lg:pe-10" : "lg:ms-(--way-text-inset) lg:ps-10"}>
+          <SectionTitle as="h3" size="md" id={titleId}>
+            {t(`home.services.${way.id}.title`)}
+          </SectionTitle>
+          <p className="mt-5 max-w-prose">{t(`home.services.${way.id}.body`)}</p>
+          <ArrowLink to={way.href} className="mt-5">
+            {t(`home.services.${way.id}.link`)}
+          </ArrowLink>
+        </div>
       </div>
     </article>
   );
 }
 
-/** Full-width photo band with a way to reach Krishna; opens the inquiry drawer. */
+/**
+ * Full-width photo band with a way to reach Krishna; opens the inquiry drawer. Fades into the page
+ * at the bottom (into the reviews) and, by a mask on the photo, at the top, where it overlaps the
+ * last service photo's fade so the two crossfade.
+ */
 function ContactBand() {
   const { openInquiry } = useInquiry();
   return (
-    <section aria-labelledby="home-contact" className="relative isolate overflow-hidden">
+    <section aria-labelledby="home-contact" className="relative isolate mt-6 overflow-hidden lg:-mt-16">
       <BandMedia asset={contactBanner} />
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-linear-to-t from-bg via-scrim to-transparent" />
       <div className={`${column} flex min-h-[28rem] flex-col justify-end py-12 md:min-h-[36rem] md:items-start md:py-16`}>
@@ -187,7 +218,7 @@ function BandMedia({ asset }: { asset: MediaAsset }) {
       alt={asset.alt}
       loading="lazy"
       decoding="async"
-      className="absolute inset-0 -z-20 size-full object-cover"
+      className="absolute inset-0 -z-20 size-full object-cover mask-t-from-70%"
       style={focal ? { objectPosition: `${focal[0] * 100}% ${focal[1] * 100}%` } : undefined}
     />
   );
