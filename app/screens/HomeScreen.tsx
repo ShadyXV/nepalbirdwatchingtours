@@ -96,8 +96,8 @@ function HeroIntro() {
 function GuideIntro() {
   return (
     <section id="intro" aria-labelledby="home-guide" className={`${column} grid items-center gap-10 md:grid-cols-[18rem_1fr] md:gap-16`}>
-      {/* A portrait frame, so Krishna's face (the photo's focal point) is never cropped hard. */}
-      <MediaFrame asset={guide.portrait} aspect="4 / 5" className="w-full max-w-72 md:max-w-none" />
+      {/* A portrait frame, so Krishna's face (the focal point) is never cropped hard; its edges feather into the page like the photos below. */}
+      <MediaFrame asset={guide.portrait} aspect="4 / 5" className="w-full max-w-72 mask-x-from-85% mask-y-from-85% md:max-w-none" />
       <div>
         <SectionTitle id="home-guide">{t("home.introHeading")}</SectionTitle>
         <p className="mt-6 max-w-prose">{t("home.introBody", { years: guide.yearsGuiding ?? 6 })}</p>
