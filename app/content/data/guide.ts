@@ -20,7 +20,7 @@ export const guide: Guide = {
     kind: "image",
     src: "/media/krishna-portrait.jpg",
     alt: "Krishna Thapa in camouflage field clothes with binoculars and a camera, arms crossed, in green forest",
-    focal: [0.5, 0.32],
+    focal: [0.5, 1],
     width: 1060,
     height: 1590,
   },
