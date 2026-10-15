@@ -86,6 +86,7 @@ export const trip = {
   kind: "wildlife-safari",
   guideRole: "lead-guide",
   region: "Chitwan National Park",
+  regionSlug: "chitwan",
   durationDays: 4,
   difficulty: "easy",
   maxAltitudeM: 190,

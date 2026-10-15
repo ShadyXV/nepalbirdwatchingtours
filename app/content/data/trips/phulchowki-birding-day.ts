@@ -69,6 +69,7 @@ export const trip = {
   kind: "day-tour",
   guideRole: "lead-guide",
   region: "Kathmandu Valley, Phulchowki and Godawari",
+  regionSlug: "kathmandu",
   durationDays: 1,
   difficulty: "easy",
   maxAltitudeM: 2782,

@@ -117,6 +117,7 @@ export const trip = {
   kind: "birding-trek",
   guideRole: "birding-specialist",
   region: "Annapurna Conservation Area",
+  regionSlug: "annapurna",
   durationDays: 12,
   difficulty: "challenging",
   maxAltitudeM: 4130,

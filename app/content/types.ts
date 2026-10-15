@@ -190,6 +190,8 @@ export type Trip = {
   guideRole: GuideRole;
   /** e.g. "Langtang National Park". */
   region: string;
+  /** The map region this trip is listed under: /regions/<slug>/ */
+  regionSlug: Region["slug"];
   durationDays: number;
   difficulty: Difficulty;
   maxAltitudeM: number;
@@ -212,6 +214,29 @@ export type Trip = {
   excludes?: string[];
   pricing?: Pricing;
   status: "draft" | "published";
+};
+
+/* ---------------------------------------------------------------- regions */
+
+/**
+ * A birding region (a park, a valley, a corner of the country) that groups trips. The home map shows
+ * one pin per region; a region opens at /regions/<slug>/ with its description and all its trips on the
+ * map at once. A region without trips stays hidden (no pin, no page) until a trip is assigned to it.
+ */
+export type Region = {
+  /** URL slug: /regions/<slug>/ */
+  slug: string;
+  name: string;
+  /** One short line for the map pin and region cards. */
+  tagline: string;
+  /** Pin position on the overview map. */
+  coords: LngLat;
+  /** Paragraphs: what the region is like for birders. */
+  body: string[];
+  /** Map pin / card image. */
+  cover: ImageAsset;
+  /** Parks and peaks that belong to the region. */
+  landmarkIds: Landmark["id"][];
 };
 
 /* -------------------------------------------------------------- landmarks */

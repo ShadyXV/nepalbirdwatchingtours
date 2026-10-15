@@ -103,6 +103,7 @@ export const trip = {
   kind: "birding-trek",
   guideRole: "lead-guide",
   region: "Ilam, eastern Nepal",
+  regionSlug: "far-east",
   durationDays: 10,
   difficulty: "moderate",
   maxAltitudeM: 3300,

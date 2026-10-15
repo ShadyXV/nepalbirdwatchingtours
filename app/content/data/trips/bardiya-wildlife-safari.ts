@@ -103,6 +103,7 @@ export const trip = {
   kind: "wildlife-safari",
   guideRole: "lead-guide",
   region: "Bardiya National Park",
+  regionSlug: "bardia",
   durationDays: 9,
   difficulty: "easy",
   maxAltitudeM: 200,

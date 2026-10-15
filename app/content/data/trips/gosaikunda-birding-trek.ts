@@ -101,6 +101,7 @@ export const trip = {
   kind: "birding-trek",
   guideRole: "lead-guide",
   region: "Langtang National Park",
+  regionSlug: "langtang",
   durationDays: 10,
   difficulty: "challenging",
   maxAltitudeM: 4610,
