@@ -1,1 +1,0 @@
-import{M as e,t}from"./jsx-runtime-5AEeS6mL.js";import{S as n,m as r}from"./ui-CL4CJOVf.js";import{a as i}from"./screens-DZ8KaIrO.js";var a=t();function o(){return[{title:`${n(`anywhere.metaTitle`)} | ${r}`},{name:`description`,content:n(`anywhere.metaDescription`)}]}var s=e(function(){return(0,a.jsx)(i,{})});export{s as default,o as meta};
