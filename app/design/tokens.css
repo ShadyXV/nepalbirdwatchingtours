@@ -75,12 +75,12 @@
   --tracking-label: 0.12em; /* same value, for the .eyebrow utility */
 
   /* ---- 3c. Layout / spacing (utilities: h-header, min-h-tap, px-gutter ...) ---- */
-  --spacing-header: 3.5rem;
+  --spacing-header: 4rem;
   --spacing-tap: 2.75rem; /* 44px minimum touch target */
   --spacing-gutter: 1rem; /* page side padding on phones */
   --spacing-gutter-lg: 1.5rem; /* page side padding from sm up */
-  --spacing-logo: 2.5rem; /* header logo mark height on phones (40px; never below 28px) */
-  --spacing-logo-lg: 2.75rem; /* header logo mark height from md up (44px, the Inquire button height) */
+  --spacing-logo: 2.25rem; /* header logo mark height on phones (36px; never below 28px) */
+  --spacing-logo-lg: 2.5rem; /* header logo mark height from md up (40px, with air above and below) */
   --spacing-logo-footer: 3.5rem; /* footer logo mark height */
 
   /* ---- 3d. Radii and shadows ---- */

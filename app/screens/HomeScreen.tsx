@@ -185,15 +185,16 @@ function WayBlock({ way, flipped }: { way: HomeWay; flipped: boolean }) {
 }
 
 /**
- * Full-width photo band with a way to reach Krishna; opens the inquiry drawer. Fades into the page
- * at the bottom (into the reviews) and, by a mask on the photo, at the top, a little below the last
- * service photo's fade.
+ * Full-width photo band with a way to reach Krishna; opens the inquiry drawer. A pause after the
+ * services marks it as a new section; it rises out of the night (a long dark wash over the photo's
+ * pale sky, so no grey stripe shows) and fades into the page at the bottom, into the reviews.
  */
 function ContactBand() {
   const { openInquiry } = useInquiry();
   return (
-    <section aria-labelledby="home-contact" className="relative isolate mt-14 overflow-hidden sm:mt-16 lg:mt-2.5">
+    <section aria-labelledby="home-contact" className="relative isolate mt-20 overflow-hidden sm:mt-24">
       <BandMedia asset={contactBanner} />
+      <div aria-hidden="true" className="absolute inset-x-0 top-0 -z-10 h-[30%] bg-linear-to-b from-bg to-transparent" />
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-linear-to-t from-bg via-scrim to-transparent" />
       <div className={`${column} flex min-h-[28rem] flex-col justify-end py-12 md:min-h-[36rem] md:items-start md:py-16`}>
         <SectionTitle id="home-contact">{t("home.contact.heading")}</SectionTitle>
@@ -219,7 +220,7 @@ function BandMedia({ asset }: { asset: MediaAsset }) {
       alt={asset.alt}
       loading="lazy"
       decoding="async"
-      className="absolute inset-0 -z-20 size-full object-cover mask-t-from-70%"
+      className="absolute inset-0 -z-20 size-full object-cover mask-t-from-85%"
       style={focal ? { objectPosition: `${focal[0] * 100}% ${focal[1] * 100}%` } : undefined}
     />
   );

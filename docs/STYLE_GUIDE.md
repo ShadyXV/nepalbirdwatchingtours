@@ -184,7 +184,7 @@ the site name sits beside it only as visually hidden text (header) or as plain d
   `<Logo>` (`components/ui`), which fills it with the current text colour.
 - **Colour:** `fg` (snow) on night, `accent` on hover when it links. One flat colour; never the black of the
   source, never outlined, shadowed or recoloured per part.
-- **Size:** set by height (`--spacing-logo*` tokens): 40px header on phones, 44px from `md`, 56px in the footer.
+- **Size:** set by height (`--spacing-logo*` tokens): 36px header on phones, 40px from `md` (in a 64px header, so it has air above and below), 56px in the footer.
   **Minimum 28px tall**; below that the wing diamonds close up, so favicons need a simplified mark.
 - **Clear space:** at least a quarter of its height on every side, free of text and other marks (the header's
   56px bar gives it ~6px top and bottom, which is the tight limit). Its link keeps a 44px tap target.
