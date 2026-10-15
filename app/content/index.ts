@@ -1,4 +1,4 @@
-import type { Landmark, Memory, Offering, Review, Species, SpeciesGroup, Trip, TripReport } from "./types";
+import type { Landmark, Memory, Offering, Region, Review, Species, SpeciesGroup, Trip, TripReport } from "./types";
 import { availability } from "./data/availability";
 import { birdingGuide } from "./data/birdingGuide";
 import { guide } from "./data/guide";
@@ -6,6 +6,7 @@ import { contactBanner, homeWays } from "./data/home";
 import { landmarks } from "./data/landmarks";
 import { memories } from "./data/memories";
 import { offerings } from "./data/offerings";
+import { regions } from "./data/regions";
 import { reviews } from "./data/reviews";
 import { species } from "./data/species";
 import { tripReports } from "./data/tripReports";
@@ -15,6 +16,20 @@ export { availability, birdingGuide, contactBanner, guide, homeWays };
 
 export function getPublishedTrips(): Trip[] {
   return trips.filter((trip) => trip.status === "published");
+}
+
+/** Regions that have at least one published trip, in display order. Empty regions stay hidden. */
+export function getRegions(): Region[] {
+  return regions.filter((region) => getTripsInRegion(region.slug).length > 0);
+}
+
+export function getRegion(slug: string): Region | undefined {
+  return getRegions().find((region) => region.slug === slug);
+}
+
+/** Published trips in a region, in the trips' display order. */
+export function getTripsInRegion(slug: string): Trip[] {
+  return getPublishedTrips().filter((trip) => trip.regionSlug === slug);
 }
 
 export function getTrip(slug: string): Trip | undefined {
