@@ -26,7 +26,7 @@ export const en = {
   },
   home: {
     metaTitle: "Birdwatching tours in Nepal",
-    heroLine: "Tap a trip on the map",
+    heroLine: "Tap a region on the map",
     heroCta: "Browse all trips",
     birds: "{count} birds",
     introHeading: "Hello, I'm Krishna",
