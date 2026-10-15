@@ -62,7 +62,8 @@ export const en = {
   },
   trip: {
     metaTitleSuffix: "Birdwatching tour in Nepal",
-    back: "All trips",
+    back: "Back to the map",
+    backRegion: "Back to {region}",
     region: "Region",
     duration: "Duration",
     days: "{count} days",
@@ -82,6 +83,12 @@ export const en = {
     includes: "Included",
     excludes: "Not included",
     inquire: "Inquire about this trip",
+  },
+  region: {
+    metaDescription: "{name}, Nepal: {tagline}. Birding trips with Krishna Thapa.",
+    back: "Back to the map",
+    trips: "Trips in {name}",
+    places: "Places in {name}",
   },
   tripKind: {
     "birding-trek": "Birding trek",

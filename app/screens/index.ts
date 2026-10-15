@@ -4,6 +4,7 @@ export { BirdingInNepalScreen } from "./BirdingInNepalScreen";
 export { HomeScreen } from "./HomeScreen";
 export { PlaceScreen } from "./PlaceScreen";
 export { PrivacyScreen } from "./PrivacyScreen";
+export { RegionScreen } from "./RegionScreen";
 export { ReviewsScreen } from "./ReviewsScreen";
 export { TripReportScreen } from "./TripReportScreen";
 export { TripScreen } from "./TripScreen";

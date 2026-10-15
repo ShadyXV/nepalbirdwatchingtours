@@ -1,8 +1,8 @@
 import { useEffect, useId, useState } from "react";
 import { Form, Link, useSearchParams } from "react-router";
-import { MediaFrame } from "~/components/media";
-import { arrowLinkClasses, Heading } from "~/components/ui";
-import { getPublishedTrips, speciesCountForTrip } from "~/content";
+import { TripCard } from "~/components/trips";
+import { arrowLinkClasses, Heading, LinkArrow, SectionTitle } from "~/components/ui";
+import { getPublishedTrips, getRegions } from "~/content";
 import type { Trip, TripKind } from "~/content/types";
 import { t } from "~/i18n";
 import { useHydrated } from "~/lib/useHydrated";
@@ -10,12 +10,19 @@ import { useHydrated } from "~/lib/useHydrated";
 /** Filter order; only kinds that have a published trip are offered. */
 const KIND_ORDER: TripKind[] = ["birding-trek", "day-tour", "wildlife-safari", "trek-support"];
 
+/**
+ * Filter links name this page's path outright: a relative `?kind=` link would render as `/trips?…`
+ * when prerendered but `/trips/?…` in a browser that landed on `/trips/`, a hydration mismatch.
+ */
+const TRIPS_PATH = "/trips";
+
 const isKind = (value: string | null): value is TripKind => KIND_ORDER.includes(value as TripKind);
 
 /**
- * /trips/: every published trip as a card. Search by name (?q=) and filter by kind (?kind=). The
- * prerendered page (and any visit without JavaScript) shows the full list; filtering starts once
- * the page is hydrated, so the server HTML and the first client render always match.
+ * /trips/: every published trip as a card, grouped by region (each group's title links to its region
+ * page). Search by name (?q=) and filter by kind (?kind=) work across the groups; a group with nothing
+ * left to show is hidden. The prerendered page (and any visit without JavaScript) shows the full list;
+ * filtering starts once the page is hydrated, so the server HTML and the first client render match.
  */
 export function TripsScreen() {
   const trips = getPublishedTrips();
@@ -35,6 +42,12 @@ export function TripsScreen() {
   const kind = isKind(kindParam) ? kindParam : null;
   const needle = query.trim().toLowerCase();
   const shown = trips.filter((trip) => (!kind || trip.kind === kind) && (!needle || trip.title.toLowerCase().includes(needle)));
+  const regions = getRegions();
+  const groups = regions
+    .map((region) => ({ region, trips: shown.filter((trip) => trip.regionSlug === region.slug) }))
+    .filter((group) => group.trips.length > 0);
+  // Safety net: a trip whose region is missing still shows, after the groups and without a title.
+  const ungrouped = shown.filter((trip) => !regions.some((region) => region.slug === trip.regionSlug));
 
   function updateQuery(value: string) {
     setQuery(value);
@@ -99,7 +112,7 @@ export function TripsScreen() {
                 return (
                   <li key={value ?? "all"}>
                     <Link
-                      to={{ search: kindSearch(value) }}
+                      to={{ pathname: TRIPS_PATH, search: kindSearch(value) }}
                       replace
                       preventScrollReset
                       aria-current={current ? "true" : undefined}
@@ -122,17 +135,28 @@ export function TripsScreen() {
       </p>
 
       {shown.length > 0 ? (
-        <ul className="mt-10 grid gap-x-10 gap-y-20 sm:grid-cols-2 lg:grid-cols-3">
-          {shown.map((trip) => (
-            <li key={trip.slug}>
-              <TripCard trip={trip} />
-            </li>
+        <div className="mt-16 space-y-24 md:mt-20 md:space-y-32">
+          {groups.map(({ region, trips: regionTrips }) => (
+            <section key={region.slug} aria-labelledby={`region-${region.slug}`}>
+              <SectionTitle id={`region-${region.slug}`}>
+                <Link
+                  to={`/regions/${region.slug}`}
+                  className="inline-flex items-center gap-4 transition-colors duration-(--duration-micro) hover:text-accent"
+                >
+                  {region.name}
+                  <LinkArrow className="size-5 text-accent" />
+                </Link>
+              </SectionTitle>
+              <p className="mt-3 max-w-prose text-fg-muted">{region.tagline}</p>
+              <TripGrid trips={regionTrips} />
+            </section>
           ))}
-        </ul>
+          {ungrouped.length > 0 && <TripGrid trips={ungrouped} />}
+        </div>
       ) : (
         <div className="mt-10 space-y-2">
           <p>{t("tripsPage.empty")}</p>
-          <Link to={{ search: "" }} replace onClick={() => setQuery("")} className={arrowLinkClasses}>
+          <Link to={{ pathname: TRIPS_PATH, search: "" }} replace onClick={() => setQuery("")} className={arrowLinkClasses}>
             {t("tripsPage.clear")}
           </Link>
         </div>
@@ -141,22 +165,14 @@ export function TripsScreen() {
   );
 }
 
-/** A trip as a card: cover, name, tagline, and one quiet line of facts (days, highest point, birds). */
-function TripCard({ trip }: { trip: Trip }) {
-  const facts = [
-    trip.durationDays === 1 ? t("tripsPage.day") : t("tripsPage.days", { count: trip.durationDays }),
-    `${trip.maxAltitudeM.toLocaleString("en")} m`,
-    t("tripsPage.birds", { count: speciesCountForTrip(trip, "bird") }),
-  ];
-
+function TripGrid({ trips }: { trips: Trip[] }) {
   return (
-    <Link to={`/trips/${trip.slug}`} className="group block">
-      <MediaFrame asset={trip.cover} />
-      <Heading level="h3" as="h2" className="mt-5 transition-colors duration-(--duration-micro) group-hover:text-accent">
-        {trip.title}
-      </Heading>
-      <p className="mt-3 text-fg-muted">{trip.tagline}</p>
-      <p className="eyebrow mt-4 text-fg-muted">{facts.join(" · ")}</p>
-    </Link>
+    <ul className="mt-10 grid gap-x-10 gap-y-20 sm:grid-cols-2 lg:grid-cols-3">
+      {trips.map((trip) => (
+        <li key={trip.slug}>
+          <TripCard trip={trip} headingAs="h3" />
+        </li>
+      ))}
+    </ul>
   );
 }

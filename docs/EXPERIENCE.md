@@ -19,7 +19,10 @@ Technique source: `research/SANRITA_INTERACTION.md` (we borrow choreography, not
    **Orbit, not zoom, is the primary control:** ↺ ↻ buttons (tap to turn, hold to keep turning) rotate
    the camera around the point being looked at, to see around a ridge when a valley hides a place.
    Zoom stays on wheel/pinch; +/- are secondary at most.
-4. **Every state has a URL.** `/`, `/trips/:slug`, `/trips/:slug?stop=<id>`, `/places/:id`. No pop-ups. Back button = fly back.
+4. **Every state has a URL.** `/`, `/regions/:slug`, `/trips/:slug`, `/trips/:slug?stop=<id>`, `/places/:id`. No pop-ups. Back button = fly back.
+   With many trips, home groups them into region pins; a region pin opens `/regions/:slug/` (map flies to
+   the region and draws its trips; the sheet describes it and lists its trips, trip-page style). A trip's
+   back link returns to its region.
 5. **Personal, not a brochure.** Each trip and stop leads with *memories*: past trips with real guests,
    their photos, the birds and animals seen together, told in Krishna's voice. Altitude, stays and
    checklists are supporting detail in a compact strip.
@@ -29,7 +32,7 @@ Technique source: `research/SANRITA_INTERACTION.md` (we borrow choreography, not
 ## URLs, SEO and AEO
 
 - **Paths for things, params for states.** Indexable entities get real paths, each prerendered to full
-  static HTML: `/`, `/trips/:slug/`, `/places/:id/`, `/about/`. Transient states are
+  static HTML: `/`, `/regions/:slug/`, `/trips/:slug/`, `/places/:id/`, `/about/`. Transient states are
   query params on top: `?stop=`, `?inquire…`. They're shareable but not separate pages.
   GitHub Pages ignores query strings, so a param-only design would serve crawlers one page.
 - **Same URL, two experiences.** In-app navigation (from home) keeps the map, flies the camera and animates

@@ -4,6 +4,7 @@ export default [
   layout("routes/map-layout.tsx", [
     index("routes/home.tsx"),
     route("trips/:slug", "routes/trip.tsx"),
+    route("regions/:regionSlug", "routes/region.tsx"),
     route("places/:placeId", "routes/place.tsx"),
   ]),
   // The trip list sits outside the map layout (like /about); single trips (/trips/:slug) stay inside it.

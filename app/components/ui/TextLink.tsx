@@ -23,9 +23,9 @@ export function ArrowLink({ className, children, ...props }: LinkProps & { child
 }
 
 /** The small arrow, for links that are not router links (e.g. a button styled as a link). */
-export function LinkArrow() {
+export function LinkArrow({ className = "size-3" }: { className?: string }) {
   return (
-    <svg aria-hidden="true" viewBox="0 0 16 16" className="size-3 shrink-0 fill-none stroke-current" strokeWidth="1.5">
+    <svg aria-hidden="true" viewBox="0 0 16 16" className={`shrink-0 fill-none stroke-current ${className}`} strokeWidth="1.5">
       <path d="M1 8h13M9 3l5 5-5 5" />
     </svg>
   );

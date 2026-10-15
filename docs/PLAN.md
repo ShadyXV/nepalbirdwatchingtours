@@ -30,7 +30,8 @@ place, altitude and date — light, never database-like (no coordinates or conse
 ## Sitemap
 
 - `/` — home: full-bleed map of Nepal with trip pins (photo, name, species count); below it: Krishna intro, services, reviews.
-- `/trips/` — every published trip as a card; search by name and filter by kind (`?q=`, `?kind=`), full list without JS.
+- `/trips/` — every published trip as a card, grouped by region (each group's title links to its region page); search by name and filter by kind (`?q=`, `?kind=`) across the groups, full list without JS.
+- `/regions/:slug/` — a birding region (Kathmandu Valley, Annapurna, Chitwan…), inside the map layout: the map flies to the region and draws all its trips; the sheet describes the region and lists its trips (hover/focus a card highlights its route) and its parks and peaks. Only regions with published trips exist (Pokhara, Far West, Sagarmatha stay hidden until they have one). A trip's back link leads to its region.
 - `/trips/:slug/` — same persistent map, flown into the trip: route, waypoints, per-stop stay/altitude/nights and an interactive bird/wildlife/plant checklist; reel (Ken Burns + ambient clips) under/over the map.
 - `/places/:id/` — mountains, ranges, parks, points of interest: same map + rising-sheet interaction as
   trips, lighter content, lower in the hierarchy.
