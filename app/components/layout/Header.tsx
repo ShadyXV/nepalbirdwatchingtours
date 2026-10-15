@@ -33,9 +33,15 @@ export function Header() {
       <div className="flex h-header items-center justify-between gap-3 px-gutter sm:px-gutter-lg">
         <Link
           to="/"
-          className="-ml-1 inline-flex min-h-tap min-w-tap shrink-0 items-center justify-center px-1 text-fg hover:text-accent"
+          className="-ml-1 inline-flex min-h-tap min-w-tap shrink-0 items-center gap-3 px-1 text-fg hover:text-accent"
         >
           <Logo className="h-logo md:h-logo-lg" />
+          {/* Lockup: the mark leads, the name is a quiet two-line caption in the nav's label style.
+              Hidden on the narrowest phones, where the mark alone has to fit beside Inquire and the menu. */}
+          <span aria-hidden="true" className="eyebrow hidden leading-snug min-[380px]:block">
+            <span className="block">{t("brand.line1")}</span>
+            <span className="block">{t("brand.line2")}</span>
+          </span>
           <span className="sr-only">{`${SITE_NAME}: ${t("nav.home")}`}</span>
         </Link>
 

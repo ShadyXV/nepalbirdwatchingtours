@@ -3,6 +3,11 @@ export const en = {
     description:
       "Guided birdwatching tours in Nepal with Krishna Thapa: Himalayan treks, forest day tours and wildlife safaris.",
   },
+  /** The header wordmark beside the logo, split over two lines. */
+  brand: {
+    line1: "Nepal",
+    line2: "Birdwatching Tours",
+  },
   nav: {
     trips: "Trips",
     anywhere: "Anywhere",
