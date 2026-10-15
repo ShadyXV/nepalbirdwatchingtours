@@ -1,7 +1,5 @@
 import type { MediaAsset, Observation, Review, Sighting, Trip } from "~/content/types";
-import { trip as annapurna } from "../trips/annapurna-birding-trek";
-import { trip as chitwan } from "../trips/chitwan-wildlife-safari";
-import { trip as phulchowki } from "../trips/phulchowki-birding-day";
+import { trips as allTrips } from "../trips";
 import { landmarks } from "./landmarks";
 import { memories } from "./memories";
 import { reviews } from "./reviews";
@@ -24,7 +22,7 @@ const DATE_RE = /^\d{4}-(0[1-9]|1[0-2])(-\d{2})?$/;
 export function validateSeed(): SeedReport {
   const errors: string[] = [];
   const warnings: string[] = [];
-  const trips: Trip[] = [annapurna, chitwan, phulchowki];
+  const trips: Trip[] = allTrips;
 
   const speciesIds = new Set<string>();
   for (const s of species) {
@@ -66,7 +64,7 @@ export function validateSeed(): SeedReport {
   for (const trip of trips) {
     const t = trip.slug;
     if (trip.status !== "published") warnings.push(`${t}: not published`);
-    if (trip.pricing?.show !== false) errors.push(`${t}: pricing.show must be false for seed data`);
+    if (trip.pricing && trip.pricing.show !== false) errors.push(`${t}: pricing.show must be false for seed data`);
     checkMedia(`${t}.cover`, [trip.cover], 1, 1);
     checkMedia(`${t}.reel`, trip.reel, 4, 6);
     for (const id of trip.landmarkIds) if (!landmarkIds.has(id)) errors.push(`${t}: unknown landmarkId "${id}"`);
