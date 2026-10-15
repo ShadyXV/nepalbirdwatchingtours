@@ -28,7 +28,7 @@ export function MediaFrame({ asset, aspect = "3 / 2", className = "" }: MediaFra
         style={focal ? { objectPosition: `${focal[0] * 100}% ${focal[1] * 100}%` } : undefined}
       />
       {asset.kind === "video" && (
-        <span className="eyebrow absolute bottom-2 left-2 inline-flex items-center gap-1.5 rounded-button bg-scrim px-2 py-1 text-fg">
+        <span className="eyebrow absolute bottom-2 left-2 inline-flex items-center gap-1.5 bg-scrim px-2 py-1 text-fg">
           <svg aria-hidden="true" viewBox="0 0 10 10" className="size-2.5 fill-current">
             <path d="M2 1l7 4-7 4z" />
           </svg>

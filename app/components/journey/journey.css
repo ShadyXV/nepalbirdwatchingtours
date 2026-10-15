@@ -249,7 +249,7 @@ html[data-journey="entering"] .jr {
   color: var(--color-accent);
 }
 .jr-link:hover {
-  text-decoration: underline;
+  color: var(--color-fg);
 }
 
 /* ------------------------------------------------------------ bottom bar */
@@ -851,7 +851,6 @@ html[data-journey="entering"] .jr {
 .jr-sheet__handle span {
   width: 2.5rem;
   height: 0.25rem;
-  border-radius: 999px;
   background: var(--color-border);
 }
 .jr-sheet__head {

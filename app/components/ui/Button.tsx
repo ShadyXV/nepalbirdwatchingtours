@@ -4,7 +4,7 @@ type Variant = "primary" | "ghost";
 type Size = "md" | "sm";
 
 const base =
-  "eyebrow inline-flex items-center justify-center gap-2 rounded-button text-center transition-colors duration-(--duration-micro) ease-out disabled:opacity-50";
+  "eyebrow inline-flex items-center justify-center gap-2 text-center transition-colors duration-(--duration-micro) ease-out disabled:opacity-50";
 
 const variants: Record<Variant, string> = {
   primary: "bg-accent text-accent-fg hover:bg-fg",

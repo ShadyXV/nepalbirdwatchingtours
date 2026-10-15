@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { useInquiry } from "~/components/inquiry";
-import { Button, Heading } from "~/components/ui";
+import { arrowLinkClasses, Button, Heading, inlineLinkClasses, LinkArrow } from "~/components/ui";
 import { birdingGuide, getPlace, getTrip } from "~/content";
 import type { BirdingDestination, SampleItinerary } from "~/content/types";
 import { t } from "~/i18n";
 
-const textLink = "inline-flex min-h-tap items-center text-accent underline hover:text-fg";
+const textLink = `inline-flex min-h-tap items-center ${inlineLinkClasses}`;
 
 /**
  * "Birding in Nepal": the general guide page, rendered from `birdingGuide`. Plain long-form text, fully
@@ -17,7 +17,7 @@ export function BirdingInNepalScreen() {
   const { why, destinations, itineraries, included, bestTime } = birdingGuide;
 
   return (
-    <article className="mx-auto max-w-5xl space-y-16 px-gutter py-12 sm:px-gutter-lg md:space-y-24 md:py-20">
+    <article className="mx-auto max-w-5xl space-y-24 px-gutter py-16 sm:px-gutter-lg md:space-y-36 md:py-28">
       <header className="space-y-6">
         <Heading level="h1" className="break-words">
           {birdingGuide.title}
@@ -42,9 +42,9 @@ export function BirdingInNepalScreen() {
       </GuideSection>
 
       <GuideSection id="destinations" heading={destinations.heading}>
-        <ul className="divide-y divide-border">
+        <ul className="space-y-14">
           {destinations.items.map((destination) => (
-            <li key={destination.id} className="py-6 first:pt-0 last:pb-0">
+            <li key={destination.id}>
               <Destination destination={destination} />
             </li>
           ))}
@@ -52,14 +52,14 @@ export function BirdingInNepalScreen() {
       </GuideSection>
 
       <GuideSection id="itineraries" heading={itineraries.heading}>
-        <ul className="divide-y divide-border">
+        <ul className="space-y-14">
           {itineraries.items.map((itinerary) => (
-            <li key={itinerary.id} className="py-6 first:pt-0">
+            <li key={itinerary.id}>
               <Itinerary itinerary={itinerary} />
             </li>
           ))}
         </ul>
-        <div className="rounded-card bg-bg-raised p-5 md:p-6">
+        <div className="mt-14 bg-bg-raised p-6 md:p-8">
           <Itinerary itinerary={itineraries.custom} primary />
         </div>
       </GuideSection>
@@ -88,12 +88,12 @@ function GuideSection({ id, heading, children }: { id: string; heading: string; 
     <section
       id={id}
       aria-labelledby={headingId}
-      className="grid scroll-mt-header gap-6 border-t border-border pt-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-12"
+      className="grid scroll-mt-header gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-16"
     >
       <Heading level="h2" id={headingId} className="break-words">
         {heading}
       </Heading>
-      <div className="max-w-prose space-y-4">{children}</div>
+      <div className="max-w-prose space-y-5">{children}</div>
     </section>
   );
 }
@@ -103,7 +103,7 @@ function Destination({ destination }: { destination: BirdingDestination }) {
   const trips = (destination.tripSlugs ?? []).flatMap((slug) => getTrip(slug) ?? []);
 
   return (
-    <div id={destination.id} className="scroll-mt-header space-y-3">
+    <div id={destination.id} className="scroll-mt-header space-y-4">
       <Heading level="h3">{destination.name}</Heading>
       <p>{destination.body}</p>
       {places.length > 0 && (
@@ -147,19 +147,22 @@ function Itinerary({ itinerary, primary = false }: { itinerary: SampleItinerary;
   const titleId = `${itinerary.id}-title`;
 
   return (
-    <div id={itinerary.id} className="scroll-mt-header space-y-3">
+    <div id={itinerary.id} className="scroll-mt-header space-y-4">
       <Heading level="h3" id={titleId}>
         {itinerary.title}
       </Heading>
       <p>{itinerary.body}</p>
-      <Button
-        variant={primary ? "primary" : "ghost"}
-        className="w-full md:w-auto"
-        aria-describedby={titleId}
-        onClick={() => openInquiry()}
-      >
-        {t("birdingGuide.ask")}
-      </Button>
+      {/* Only the custom trip gets a full button; the samples ask quietly, so the page isn't a wall of buttons. */}
+      {primary ? (
+        <Button className="w-full md:w-auto" aria-describedby={titleId} onClick={() => openInquiry()}>
+          {t("birdingGuide.ask")}
+        </Button>
+      ) : (
+        <button type="button" className={arrowLinkClasses} aria-describedby={titleId} onClick={() => openInquiry()}>
+          <span>{t("birdingGuide.ask")}</span>
+          <LinkArrow />
+        </button>
+      )}
     </div>
   );
 }

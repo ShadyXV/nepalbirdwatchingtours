@@ -5,7 +5,7 @@ import type { ImageAsset, TripReportBlock } from "~/content/types";
 /** A trip report's story, block by block: paragraphs, a single photo, or a small gallery. */
 export function ReportBody({ blocks }: { blocks: TripReportBlock[] }) {
   return (
-    <div className="space-y-10">
+    <div className="space-y-14 md:space-y-20">
       {blocks.map((block, i) => {
         switch (block.kind) {
           case "text":
@@ -33,8 +33,8 @@ function SinglePhoto({ image, caption }: { image: ImageAsset; caption?: string }
   const portrait = isPortrait(image);
   return (
     <figure className={portrait ? "max-w-md" : undefined}>
-      <MediaFrame asset={image} aspect={portrait ? "4 / 5" : "3 / 2"} className="rounded-card" />
-      <figcaption className="mt-3 space-y-1">
+      <MediaFrame asset={image} aspect={portrait ? "4 / 5" : "3 / 2"} />
+      <figcaption className="mt-4 space-y-1">
         <FieldLabel observation={image.observation} />
         {caption && <p className="text-small text-fg-muted">{caption}</p>}
       </figcaption>
@@ -50,7 +50,7 @@ function Gallery({ images, caption }: { images: ImageAsset[]; caption?: string }
       <ul className={`grid grid-cols-2 gap-3 ${columns}`}>
         {images.map((image) => (
           <li key={image.src}>
-            <MediaFrame asset={image} aspect="1 / 1" className="rounded-card" />
+            <MediaFrame asset={image} aspect="1 / 1" />
             <FieldLabel observation={image.observation} variant="compact" className="mt-2" />
           </li>
         ))}

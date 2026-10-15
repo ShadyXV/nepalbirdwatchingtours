@@ -53,7 +53,7 @@ function DayItem({ trip, day, activeWaypointId, focusedId, onToggleStop, onOpenD
           </h3>
           <a
             href={dayHref(trip, day.n)}
-            className="eyebrow inline-flex min-h-tap shrink-0 items-center gap-1 text-accent hover:underline"
+            className="eyebrow inline-flex min-h-tap shrink-0 items-center gap-1 text-accent hover:text-fg"
             onClick={(event) => {
               if (!onOpenDay) return;
               event.preventDefault();
@@ -139,7 +139,7 @@ function StopItem({ waypoint, keyStop, active, focused, onToggle }: StopItemProp
       <button type="button" className="flex min-h-tap items-center gap-3 text-left" aria-pressed={active} onClick={onToggle}>
         <span
           aria-hidden="true"
-          className={`shrink-0 rounded-full border-2 ${keyStop ? "size-3.5 border-fg" : "size-2.5 border-fg-muted"} ${active || focused ? "bg-marker" : "bg-transparent"}`}
+          className={`shrink-0 border-2 ${keyStop ? "size-3.5 border-fg" : "size-2.5 border-fg-muted"} ${active || focused ? "bg-marker" : "bg-transparent"}`}
         />
         <span className="min-w-0">
           <span className={`block font-medium ${active ? "text-route" : ""}`}>{waypoint.name}</span>

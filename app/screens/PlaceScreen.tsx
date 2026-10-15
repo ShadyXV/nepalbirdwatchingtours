@@ -25,7 +25,7 @@ export function PlaceScreen({ place }: { place: Landmark }) {
     <article className="space-y-10 px-gutter pb-10 pt-2">
       {/* Peek: what and where, plus the one action. */}
       <section aria-label={place.name} className="space-y-4">
-        <Link to="/" className="eyebrow inline-flex min-h-tap items-center text-accent hover:underline">
+        <Link to="/" className="eyebrow inline-flex min-h-tap items-center text-accent hover:text-fg">
           <span aria-hidden="true">&larr;&nbsp;</span>
           {t("place.back")}
         </Link>
@@ -60,7 +60,7 @@ export function PlaceScreen({ place }: { place: Landmark }) {
               <h3 className="eyebrow mb-2 text-fg-muted">{t(`group.${group}`)}</h3>
               <ul className="grid gap-2 sm:grid-cols-2">
                 {items.map(({ species, sighting }) => (
-                  <li key={species.id} className="rounded-card border border-border px-3 py-2">
+                  <li key={species.id} className="border border-border px-3 py-2">
                     <FieldLabel variant="compact" species={species} />
                     <p className="mt-0.5 not-italic text-small text-fg-muted">{sightingHint(sighting)}</p>
                   </li>
@@ -107,7 +107,7 @@ function TripCard({ trip }: { trip: Trip }) {
   return (
     <Link
       to={`/trips/${trip.slug}`}
-      className="group block overflow-hidden rounded-card border border-border bg-bg-raised transition-colors duration-(--duration-micro) hover:border-accent"
+      className="group block overflow-hidden border border-border bg-bg-raised transition-colors duration-(--duration-micro) hover:border-accent"
     >
       <MediaFrame asset={trip.cover} aspect="16 / 9" />
       <div className="space-y-1 p-3">

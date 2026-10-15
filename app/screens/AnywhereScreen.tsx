@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { useInquiry } from "~/components/inquiry";
-import { Button, Heading, LabelledMediaCarousel } from "~/components/ui";
+import { Button, Heading, inlineLinkClasses, LabelledMediaCarousel } from "~/components/ui";
 import { getOfferings, getPlace, getReviewsForOffering, getTrip } from "~/content";
 import type { Offering, Review } from "~/content/types";
 import { t } from "~/i18n";
@@ -55,7 +55,7 @@ function Hero({ offerings }: { offerings: Offering[] }) {
               <li key={offering.id}>
                 <a
                   href={`#${offering.id}`}
-                  className="eyebrow inline-flex min-h-tap items-center rounded-button border border-fg px-4 hover:bg-fg/10"
+                  className="eyebrow inline-flex min-h-tap items-center border border-fg px-4 transition-colors duration-(--duration-micro) hover:bg-fg/10"
                 >
                   {offering.title}
                 </a>
@@ -122,14 +122,14 @@ function OfferingSection({ offering, tinted }: { offering: Offering; tinted: boo
             <ul className="flex flex-wrap gap-x-5">
               {trips.map((trip) => (
                 <li key={trip.slug}>
-                  <Link to={`/trips/${trip.slug}`} className="inline-flex min-h-tap items-center text-accent underline">
+                  <Link to={`/trips/${trip.slug}`} className={`inline-flex min-h-tap items-center ${inlineLinkClasses}`}>
                     {trip.title}
                   </Link>
                 </li>
               ))}
               {places.map((place) => (
                 <li key={place.id}>
-                  <Link to={`/places/${place.id}`} className="inline-flex min-h-tap items-center text-accent underline">
+                  <Link to={`/places/${place.id}`} className={`inline-flex min-h-tap items-center ${inlineLinkClasses}`}>
                     {place.name}
                   </Link>
                 </li>
@@ -141,7 +141,7 @@ function OfferingSection({ offering, tinted }: { offering: Offering; tinted: boo
         {reviews.length > 0 && (
           <div>
             <h3 className="eyebrow mb-3 text-fg-muted">{t("anywhere.reviews")}</h3>
-            <ul className="grid gap-4 md:grid-cols-2">
+            <ul className="grid gap-10 md:grid-cols-2 md:gap-12">
               {reviews.map((review) => (
                 <li key={review.id}>
                   <ReviewQuote review={review} />
@@ -162,7 +162,7 @@ function OfferingSection({ offering, tinted }: { offering: Offering; tinted: boo
 function ReviewQuote({ review }: { review: Review }) {
   const byline = [review.author, review.country].filter(Boolean).join(", ");
   return (
-    <figure className="h-full rounded-card border border-border bg-bg p-4">
+    <figure className="h-full">
       <blockquote className="space-y-2">
         {review.title && <p className="font-medium">{review.title}</p>}
         <p className="text-small">{review.text}</p>
@@ -171,7 +171,7 @@ function ReviewQuote({ review }: { review: Review }) {
         {byline}
         {" · "}
         {review.source.url ? (
-          <a href={review.source.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-accent">
+          <a href={review.source.url} target="_blank" rel="noopener noreferrer" className="transition-colors duration-(--duration-micro) hover:text-accent">
             {review.source.name}
           </a>
         ) : (

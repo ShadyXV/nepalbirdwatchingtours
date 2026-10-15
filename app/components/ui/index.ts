@@ -4,3 +4,4 @@ export { Heading, type HeadingLevel } from "./Heading";
 export { LabelledMediaCarousel } from "./LabelledMediaCarousel";
 export { SectionTitle } from "./SectionTitle";
 export { TerrainBackdrop } from "./TerrainBackdrop";
+export { ArrowLink, LinkArrow, arrowLinkClasses, inlineLinkClasses } from "./TextLink";

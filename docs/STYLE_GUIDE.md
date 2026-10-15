@@ -181,6 +181,16 @@ Regenerate with `node scripts/textures/contours.mjs [seed]` (density, line count
 - **Giant headlines** (Hero token) sit across the boundary between the map and the sheet. They overlap the map with `z-index` above it. Keep the headline in `snow` so it reads on both.
 - **Tilted photo stack**: three photos, rotated about -4°, 2° and 6°, with a 12px `night` border and a soft shadow. The top photo stays straight on mobile.
 - Phone width: 16px side gutter, no horizontal page scroll. Headlines use their clamp() minimums there.
+- **Square corners everywhere** (owner, 2026-10-15): cards, images, buttons, fields, sheets, avatars. The
+  `--radius-*` tokens are 0; don't add `rounded-*` classes.
+- **No underlined links** (owner, 2026-10-15). Links read by the accent colour and turn to `fg` on hover;
+  standalone "go somewhere" links add a small arrow (`ArrowLink` in `components/ui`). Focus keeps the global
+  focus ring.
+- **Full-bleed images where they lead a block**: photos with text beside them run to the window edge on
+  their side (home services: alternating, image the larger share); on phones they span the full width with
+  the text below in the gutter. No borders on images.
+- **Air over density**: one idea per screen, generous space between sections, few competing elements.
+  Trim eyebrows, dividers and repeated meta rather than adding chrome.
 
 ### 4.2 Easing and durations
 

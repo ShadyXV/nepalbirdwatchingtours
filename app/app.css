@@ -49,8 +49,9 @@
   textarea {
     font-style: normal;
   }
+  /* Links are never underlined (owner, 2026-10-15): colour and hover carry them (ui/TextLink). */
   a {
-    text-underline-offset: 0.2em;
+    text-decoration: none;
   }
   ::selection {
     background: var(--color-accent);

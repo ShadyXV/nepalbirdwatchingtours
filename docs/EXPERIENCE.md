@@ -45,7 +45,7 @@ Technique source: `research/SANRITA_INTERACTION.md` (we borrow choreography, not
 
 | State | URL | Camera | Map gestures | What's on the map |
 |---|---|---|---|---|
-| **S0 Overview** | `/` | All of Nepal, low pitch, slight bearing | Pan/zoom (desktop drag; phone two-finger); pins tappable | Terrain, graticule, 6–8 labels (Kathmandu, Pokhara, Chitwan, Bardia, main peaks), trip pins |
+| **S0 Overview** | `/` | All of Nepal, low pitch, slight bearing | Pan/zoom (desktop drag; phone two-finger); pins tappable | Terrain, graticule, a few city and park labels (no mountain or range names: the trips are the map), trip pins that never overlap |
 | **S1 Trip** | `/trips/:slug` | Fit trip bounds, pitch ~55–60°, route-aligned bearing, bottom padding for the sheet | On, inside the visible map area | Route draws in, stop markers pop in with a stagger, trip's peaks labelled |
 | **S2 Stop** | `?stop=<id>` | Ease to stop, closer, slight orbit | On | Lens ring + grid around the stop; other stops dimmed |
 | **S3 Place** | `/places/:id` | Ease to the mountain/place, framed for its view (peaks: low pitch, looking at the face) | On | The place highlighted, its range softly lit, nearby trip routes faint |
@@ -88,10 +88,14 @@ trip→trip flies through S0 (handled by `flyTo` curve).
 Why: Nepal is wide and short; in portrait it is a thin strip, so pins alone are too small to tap
 well. The card carousel is the primary picker and the map follows it.
 
-**Now (owner, 2026-10-15):** the card carousel is gone. Below the map: a one-line intro with
-"Browse all trips" (`/trips/`), then *Hello, I'm Krishna*, the three ways to go birding (one large
-photo block each), a full-width contact band (opens the inquiry drawer), reviews (→ `/reviews/`) and
-recent trip reports (→ `/trip-reports/:slug/`). Home section titles use the calm accent italic.
+**Now (owner, 2026-10-15):** the card carousel is gone. The first screen is the map alone, with
+a quiet corner at its bottom left: "Tap a trip on the map" (dimmed) and "Browse all trips"
+(`/trips/`, primary button), a second way in; tapping pins stays the main one. Below the fold:
+*Hello, I'm Krishna*, *Our birding tours & services* (three
+blocks: a photo running to the window edge on alternating sides, text beside it; full-width photo and
+text below on phones), a full-width contact band (opens the inquiry drawer), reviews (one at a time on
+phones, two on desktop, scroll-snap; → `/reviews/`) and recent trip reports (→ `/trip-reports/:slug/`).
+Home section titles use the calm accent italic.
 
 ### S1 Trip: explorable map + sheet
 

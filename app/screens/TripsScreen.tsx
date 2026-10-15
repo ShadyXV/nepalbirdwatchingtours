@@ -1,11 +1,10 @@
 import { useEffect, useId, useState } from "react";
 import { Form, Link, useSearchParams } from "react-router";
 import { MediaFrame } from "~/components/media";
-import { Heading } from "~/components/ui";
+import { arrowLinkClasses, Heading } from "~/components/ui";
 import { getPublishedTrips, speciesCountForTrip } from "~/content";
 import type { Trip, TripKind } from "~/content/types";
 import { t } from "~/i18n";
-import { monthName } from "~/lib/format";
 import { useHydrated } from "~/lib/useHydrated";
 
 /** Filter order; only kinds that have a published trip are offered. */
@@ -60,16 +59,23 @@ export function TripsScreen() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-10 px-gutter py-12 sm:px-gutter-lg md:py-20">
-      <header className="space-y-4">
+    <div className="mx-auto max-w-6xl px-gutter py-16 sm:px-gutter-lg md:py-28">
+      <header className="space-y-6">
         <Heading level="h1">{t("tripsPage.heading")}</Heading>
         <p className="max-w-prose text-fg-muted">{t("tripsPage.intro")}</p>
       </header>
 
-      <div className="space-y-4">
+      <div className="mt-14 flex flex-col gap-6 md:mt-20 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
         {/* Without JavaScript this is a plain GET form: it reloads the page with ?q=. */}
-        <Form method="get" role="search" replace preventScrollReset onSubmit={(event) => hydrated && event.preventDefault()}>
-          <label htmlFor={searchId} className="eyebrow mb-2 block text-fg-muted">
+        <Form
+          method="get"
+          role="search"
+          replace
+          preventScrollReset
+          onSubmit={(event) => hydrated && event.preventDefault()}
+          className="w-full max-w-md lg:max-w-sm"
+        >
+          <label htmlFor={searchId} className="sr-only">
             {t("tripsPage.search")}
           </label>
           <input
@@ -80,14 +86,14 @@ export function TripsScreen() {
             onChange={(event) => updateQuery(event.target.value)}
             placeholder={t("tripsPage.searchPlaceholder")}
             autoComplete="off"
-            className="min-h-tap w-full max-w-md rounded-field border border-border bg-bg-raised px-4 text-body text-fg placeholder:text-fg-muted"
+            className="min-h-tap w-full border-b border-border bg-transparent px-0 text-body text-fg transition-colors duration-(--duration-micro) placeholder:text-fg-muted hover:border-fg-muted focus-visible:border-accent"
           />
           {kind && <input type="hidden" name="kind" value={kind} />}
         </Form>
 
         {kinds.length > 1 && (
           <nav aria-label={t("tripsPage.filter")}>
-            <ul className="flex flex-wrap gap-2">
+            <ul className="-mx-3 flex flex-wrap">
               {[null, ...kinds].map((value) => {
                 const current = value === kind;
                 return (
@@ -97,8 +103,8 @@ export function TripsScreen() {
                       replace
                       preventScrollReset
                       aria-current={current ? "true" : undefined}
-                      className={`eyebrow inline-flex min-h-tap items-center rounded-button border px-4 transition-colors duration-(--duration-micro) ${
-                        current ? "border-fg bg-fg text-bg" : "border-border text-fg hover:border-fg"
+                      className={`eyebrow inline-flex min-h-tap items-center px-3 transition-colors duration-(--duration-micro) ${
+                        current ? "bg-bg-raised text-fg" : "text-fg-muted hover:text-fg"
                       }`}
                     >
                       {value ? t(`tripKind.${value}`) : t("tripsPage.all")}
@@ -109,14 +115,14 @@ export function TripsScreen() {
             </ul>
           </nav>
         )}
-
-        <p className="eyebrow text-fg-muted" aria-live="polite">
-          {shown.length === 1 ? t("tripsPage.countOne") : t("tripsPage.count", { count: shown.length })}
-        </p>
       </div>
 
+      <p className="mt-6 not-italic text-small text-fg-muted" aria-live="polite">
+        {shown.length === 1 ? t("tripsPage.countOne") : t("tripsPage.count", { count: shown.length })}
+      </p>
+
       {shown.length > 0 ? (
-        <ul className="grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-10 grid gap-x-10 gap-y-20 sm:grid-cols-2 lg:grid-cols-3">
           {shown.map((trip) => (
             <li key={trip.slug}>
               <TripCard trip={trip} />
@@ -124,14 +130,9 @@ export function TripsScreen() {
           ))}
         </ul>
       ) : (
-        <div className="space-y-2">
+        <div className="mt-10 space-y-2">
           <p>{t("tripsPage.empty")}</p>
-          <Link
-            to={{ search: "" }}
-            replace
-            onClick={() => setQuery("")}
-            className="eyebrow inline-flex min-h-tap items-center text-accent underline hover:text-fg"
-          >
+          <Link to={{ search: "" }} replace onClick={() => setQuery("")} className={arrowLinkClasses}>
             {t("tripsPage.clear")}
           </Link>
         </div>
@@ -140,36 +141,22 @@ export function TripsScreen() {
   );
 }
 
-/** A trip as a card: cover, kind, name, tagline and the useful facts at a glance. */
+/** A trip as a card: cover, name, tagline, and one quiet line of facts (days, highest point, birds). */
 function TripCard({ trip }: { trip: Trip }) {
-  const days = trip.durationDays === 1 ? t("tripsPage.day") : t("tripsPage.days", { count: trip.durationDays });
-  const facts: [string, string][] = [
-    [t("tripsPage.duration"), days],
-    [t("tripsPage.region"), trip.region],
-    [t("tripsPage.difficulty"), t(`difficulty.${trip.difficulty}`)],
-    [t("tripsPage.maxAltitude"), `${trip.maxAltitudeM.toLocaleString("en")} m`],
-    [t("tripsPage.birds"), String(speciesCountForTrip(trip, "bird"))],
-    [t("tripsPage.bestMonths"), trip.bestMonths.map(monthName).join(", ")],
+  const facts = [
+    trip.durationDays === 1 ? t("tripsPage.day") : t("tripsPage.days", { count: trip.durationDays }),
+    `${trip.maxAltitudeM.toLocaleString("en")} m`,
+    t("tripsPage.birds", { count: speciesCountForTrip(trip, "bird") }),
   ];
 
   return (
-    <article className="flex h-full flex-col">
-      <Link to={`/trips/${trip.slug}`} className="group block">
-        <MediaFrame asset={trip.cover} className="rounded-card" />
-        <p className="eyebrow mt-4 text-accent">{t(`tripKind.${trip.kind}`)}</p>
-        <Heading level="h3" as="h2" className="mt-2 group-hover:text-accent">
-          {trip.title}
-        </Heading>
-      </Link>
-      <p className="mt-2 text-small text-fg-muted">{trip.tagline}</p>
-      <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border pt-4">
-        {facts.map(([label, value]) => (
-          <div key={label} className="min-w-0">
-            <dt className="eyebrow text-fg-muted">{label}</dt>
-            <dd className="mt-0.5 text-small">{value}</dd>
-          </div>
-        ))}
-      </dl>
-    </article>
+    <Link to={`/trips/${trip.slug}`} className="group block">
+      <MediaFrame asset={trip.cover} />
+      <Heading level="h3" as="h2" className="mt-5 transition-colors duration-(--duration-micro) group-hover:text-accent">
+        {trip.title}
+      </Heading>
+      <p className="mt-3 text-fg-muted">{trip.tagline}</p>
+      <p className="eyebrow mt-4 text-fg-muted">{facts.join(" · ")}</p>
+    </Link>
   );
 }

@@ -51,7 +51,7 @@ export function Header() {
           </Button>
           <button
             type="button"
-            className="inline-flex size-tap items-center justify-center rounded-button border border-border text-fg md:hidden"
+            className="inline-flex size-tap items-center justify-center border border-border text-fg md:hidden"
             aria-expanded={menuOpen}
             aria-controls={menuId}
             aria-label={menuOpen ? t("nav.menuClose") : t("nav.menu")}

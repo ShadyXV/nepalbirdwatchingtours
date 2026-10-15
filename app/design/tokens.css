@@ -81,10 +81,11 @@
   --spacing-gutter-lg: 1.5rem; /* page side padding from sm up */
 
   /* ---- 3d. Radii and shadows ---- */
-  --radius-button: 0.25rem;
-  --radius-field: 0.25rem;
-  --radius-card: 0.5rem;
-  --radius-sheet: 1.5rem; /* top corners of bottom sheets */
+  /* Square corners everywhere (owner, 2026-10-15): no rounded cards, images, buttons, fields or sheets. */
+  --radius-button: 0;
+  --radius-field: 0;
+  --radius-card: 0;
+  --radius-sheet: 0; /* top corners of bottom sheets */
   --shadow-card: 0 8px 24px -12px rgb(0 0 0 / 0.6);
   --shadow-sheet: 0 -16px 48px -12px rgb(0 0 0 / 0.65);
 

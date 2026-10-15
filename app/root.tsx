@@ -47,7 +47,7 @@ export function ErrorBoundary({ error }: { error: unknown }) {
     <main className="mx-auto max-w-3xl px-gutter py-24 text-center sm:px-gutter-lg">
       <Heading level="h1">{notFound ? t("error.notFound") : t("error.generic")}</Heading>
       {notFound && <p className="mt-3 text-fg-muted">{t("error.notFoundBody")}</p>}
-      <Link to="/" className="eyebrow mt-6 inline-flex min-h-tap items-center text-accent underline">
+      <Link to="/" className="eyebrow mt-6 inline-flex min-h-tap items-center text-accent hover:text-fg">
         {t("nav.home")}
       </Link>
     </main>

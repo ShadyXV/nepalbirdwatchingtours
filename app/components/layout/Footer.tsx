@@ -5,7 +5,7 @@ import { instagramUrl, mailtoUrl, whatsappUrl } from "../inquiry/channels";
 import { useInquiry } from "../inquiry";
 import { Button } from "../ui/Button";
 
-const link = "inline-flex min-h-tap items-center hover:text-accent hover:underline";
+const link = "inline-flex min-h-tap items-center transition-colors duration-(--duration-micro) hover:text-accent";
 
 export function Footer() {
   const { openInquiry } = useInquiry();

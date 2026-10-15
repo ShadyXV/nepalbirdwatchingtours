@@ -47,7 +47,7 @@ export function TripScreen({ trip }: { trip: Trip }) {
       {/* Nearly invisible while the story only peeks (it confused there); full once the story is up. Still reachable by keyboard. */}
       <Link
         to="/"
-        className={`eyebrow inline-flex min-h-tap items-center text-accent transition-opacity duration-(--duration-ui) ease-out hover:underline focus-visible:opacity-100 motion-reduce:transition-none ${hydrated && !storyUp ? "opacity-[0.18]" : "opacity-100"}`}
+        className={`eyebrow inline-flex min-h-tap items-center text-accent transition-opacity duration-(--duration-ui) ease-out hover:text-fg focus-visible:opacity-100 motion-reduce:transition-none ${hydrated && !storyUp ? "opacity-[0.18]" : "opacity-100"}`}
       >
         <span aria-hidden="true">&larr;&nbsp;</span>
         {t("trip.back")}

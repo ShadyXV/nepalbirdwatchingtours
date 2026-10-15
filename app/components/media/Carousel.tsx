@@ -15,6 +15,8 @@ type CarouselProps = {
   slideClassName?: string;
   /** Bleed the track to the screen edge on phones (the parent has `px-gutter`). */
   bleed?: boolean;
+  /** Tailwind gap classes between slides; a small gap by default. */
+  gapClassName?: string;
   className?: string;
 };
 
@@ -24,7 +26,7 @@ const DEFAULT_SLIDE = "basis-[85%] sm:basis-[47%] lg:basis-[32%]";
  * Horizontal scroll-snap carousel. Touch swipe and keyboard scrolling are native
  * (the track is focusable); prev/next buttons appear on fine-pointer devices >= md.
  */
-export function Carousel({ label, children, slideClassName = DEFAULT_SLIDE, bleed = true, className = "" }: CarouselProps) {
+export function Carousel({ label, children, slideClassName = DEFAULT_SLIDE, bleed = true, gapClassName = "gap-3", className = "" }: CarouselProps) {
   const slides = Children.toArray(children);
   const total = slides.length;
   const trackRef = useRef<HTMLUListElement>(null);
@@ -68,7 +70,7 @@ export function Carousel({ label, children, slideClassName = DEFAULT_SLIDE, blee
   const slideWidth = several ? slideClassName : "basis-full";
   const edgeBleed = bleed ? "-mx-gutter px-gutter scroll-px-gutter sm:-mx-gutter-lg sm:px-gutter-lg sm:scroll-px-gutter-lg" : "";
   const nav =
-    "hidden size-tap items-center justify-center rounded-button border border-fg bg-bg/80 text-fg backdrop-blur transition-colors duration-(--duration-micro) hover:bg-accent hover:text-accent-fg disabled:opacity-30 disabled:hover:bg-bg/80 disabled:hover:text-fg md:pointer-fine:inline-flex";
+    "hidden size-tap items-center justify-center border border-fg bg-bg/80 text-fg backdrop-blur transition-colors duration-(--duration-micro) hover:bg-accent hover:text-accent-fg disabled:opacity-30 disabled:hover:bg-bg/80 disabled:hover:text-fg md:pointer-fine:inline-flex";
 
   return (
     <section
@@ -83,7 +85,7 @@ export function Carousel({ label, children, slideClassName = DEFAULT_SLIDE, blee
         tabIndex={0}
         aria-label={label}
         onScroll={update}
-        className={`no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-smooth ${edgeBleed}`}
+        className={`no-scrollbar flex snap-x snap-mandatory ${gapClassName} overflow-x-auto overscroll-x-contain scroll-smooth ${edgeBleed}`}
       >
         {slides.map((slide, i) => (
           <li
@@ -142,7 +144,7 @@ export function MediaCarousel({ label, items, aspect = "3 / 2", slideClassName, 
     <Carousel label={label} slideClassName={slideClassName} bleed={bleed} className={className}>
       {items.map((asset, i) => (
         <figure key={i}>
-          <MediaFrame asset={asset} aspect={aspect} className="rounded-card" />
+          <MediaFrame asset={asset} aspect={aspect} />
           {asset.credit && <figcaption className="mt-1 text-small text-fg-muted">{asset.credit}</figcaption>}
         </figure>
       ))}

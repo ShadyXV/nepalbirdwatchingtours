@@ -91,7 +91,7 @@ function DrawerPanel({ prefill, onClose }: { prefill: Partial<Inquiry>; onClose:
 
   // text-body is >= 16px, which stops iOS Safari zooming focused inputs.
   const field =
-    "min-h-tap w-full rounded-field border border-border bg-bg px-3 py-2 text-body text-fg placeholder:text-fg-muted focus-visible:border-route";
+    "min-h-tap w-full border border-border bg-bg px-3 py-2 text-body text-fg placeholder:text-fg-muted focus-visible:border-route";
   const label = "eyebrow mb-1.5 block text-fg-muted";
   const place = placeId ? getPlace(placeId) : undefined;
   const offering = offeringId ? getOffering(offeringId) : undefined;
@@ -109,11 +109,11 @@ function DrawerPanel({ prefill, onClose }: { prefill: Partial<Inquiry>; onClose:
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="sheet absolute inset-x-0 bottom-0 top-3 flex flex-col overflow-y-auto overscroll-contain rounded-t-sheet bg-bg-raised px-gutter pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-sheet md:inset-y-0 md:left-auto md:right-0 md:w-[28rem] md:rounded-none md:px-gutter-lg"
+        className="sheet absolute inset-x-0 bottom-0 top-3 flex flex-col overflow-y-auto overscroll-contain bg-bg-raised px-gutter pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-sheet md:inset-y-0 md:left-auto md:right-0 md:w-[28rem] md:px-gutter-lg"
       >
         {/* Drag handle: visual affordance only. */}
         <div aria-hidden="true" className="flex justify-center pb-1 pt-2.5 md:hidden">
-          <span className="h-1 w-10 rounded-full bg-fg-muted/60" />
+          <span className="h-1 w-10 bg-fg-muted/60" />
         </div>
         <div className="mb-2 flex items-center justify-between gap-4 pt-2">
           <Heading level="h2" id={titleId}>
@@ -127,7 +127,7 @@ function DrawerPanel({ prefill, onClose }: { prefill: Partial<Inquiry>; onClose:
 
         <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
           {topic && (
-            <div className="flex items-center justify-between gap-3 rounded-field border border-route px-3 py-2">
+            <div className="flex items-center justify-between gap-3 border border-route px-3 py-2">
               <p className="not-italic min-w-0">
                 <span className="eyebrow block text-fg-muted">{t("inquiry.topic")}</span>
                 <span className="font-medium">{topic}</span>
@@ -163,11 +163,11 @@ function DrawerPanel({ prefill, onClose }: { prefill: Partial<Inquiry>; onClose:
           <fieldset>
             <legend className={label}>{t("inquiry.dates")}</legend>
             <p className="mb-2 not-italic text-small text-fg-muted">{t("inquiry.datesHint")}</p>
-            <div className="flex justify-center rounded-field border border-border bg-bg p-2">
+            <div className="flex justify-center border border-border bg-bg p-2">
               <DayPicker mode="range" selected={range} onSelect={setRange} disabled={{ before: new Date() }} />
             </div>
             {range && (
-              <button type="button" className="eyebrow mt-1 inline-flex min-h-tap items-center text-accent underline" onClick={() => setRange(undefined)}>
+              <button type="button" className="eyebrow mt-1 inline-flex min-h-tap items-center text-accent hover:text-fg" onClick={() => setRange(undefined)}>
                 {t("inquiry.clearDates")}
               </button>
             )}

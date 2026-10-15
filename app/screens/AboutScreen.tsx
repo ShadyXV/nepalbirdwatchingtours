@@ -1,18 +1,14 @@
+import { MediaFrame } from "~/components/media";
 import { Heading } from "~/components/ui";
 import { guide } from "~/content";
 import { t } from "~/i18n";
-import { assetUrl } from "~/lib/site";
 
 export function AboutScreen() {
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-gutter py-12 sm:px-gutter-lg md:py-20">
       <Heading level="h1">{t("about.heading")}</Heading>
-      <img
-        src={assetUrl(guide.portrait.src)}
-        alt={guide.portrait.alt}
-        decoding="async"
-        className="aspect-[3/2] w-full rounded-card object-cover"
-      />
+      {/* Portrait frame that honours the photo's focal point (his face). */}
+      <MediaFrame asset={guide.portrait} aspect="4 / 5" className="w-full max-w-md" />
       <p className="eyebrow text-fg-muted">{t("about.basedIn", { place: guide.basedIn })}</p>
       {guide.bio.map((paragraph) => (
         <p key={paragraph} className="max-w-prose">

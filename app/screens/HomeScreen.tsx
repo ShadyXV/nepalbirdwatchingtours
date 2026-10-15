@@ -2,7 +2,8 @@ import { Link } from "react-router";
 import { useInquiry } from "~/components/inquiry";
 import { ReviewCard } from "~/components/reviews";
 import { TripReportCard } from "~/components/tripReport";
-import { Button, buttonClasses, SectionTitle } from "~/components/ui";
+import { Carousel, MediaFrame } from "~/components/media";
+import { ArrowLink, Button, buttonClasses, SectionTitle } from "~/components/ui";
 import { contactBanner, getReviewsNewestFirst, getTripReports, guide, homeWays } from "~/content";
 import type { HomeWay, MediaAsset } from "~/content/types";
 import { t } from "~/i18n";
@@ -10,42 +11,45 @@ import { assetUrl } from "~/lib/site";
 
 /** Page column for the quieter sections. */
 const column = "mx-auto max-w-5xl px-gutter sm:px-gutter-lg";
-const textLink = "eyebrow inline-flex min-h-tap items-center text-accent underline hover:text-fg";
 
 /**
- * Home, below the map: a short way in to the trips (in the map's peek), then Krishna, the three ways
- * to go birding, the contact band, reviews and recent trip reports. Section titles use the calm
- * accent treatment (SectionTitle), not the display caps.
+ * Home, below the map: a short way in to the trips (in the map's peek), then Krishna, what we offer,
+ * the contact band, reviews and recent trip reports. One idea per screen, with plenty of air between
+ * them. Section titles use the calm accent treatment (SectionTitle), not the display caps.
  */
 export function HomeScreen() {
-  const reviews = getReviewsNewestFirst().slice(0, 3);
+  const reviews = getReviewsNewestFirst();
   const reports = getTripReports().slice(0, 3);
 
   return (
-    <div className="space-y-20 pb-20 md:space-y-28 md:pb-28">
+    <div className="space-y-28 pb-28 md:space-y-40 md:pb-40">
       <HeroIntro />
       <GuideIntro />
       <Ways />
       <ContactBand />
 
-      <section aria-labelledby="home-reviews" className={column}>
+      {/* One review at a time on phones, two side by side from md; native scroll-snap, so it swipes without JS. */}
+      <section id="reviews" aria-labelledby="home-reviews" className={column}>
         <SectionTitle id="home-reviews">{t("home.reviewsHeading")}</SectionTitle>
-        <ul className="mt-8 grid gap-12 lg:grid-cols-3 lg:gap-10">
+        <Carousel
+          label={t("home.reviewsHeading")}
+          slideClassName="basis-full md:basis-[calc(50%-2rem)]"
+          gapClassName="gap-gutter md:gap-16"
+          className="mt-12 md:mt-16"
+        >
           {reviews.map((review) => (
-            <li key={review.id}>
-              <ReviewCard review={review} />
-            </li>
+            <ReviewCard key={review.id} review={review} className="max-w-prose" />
           ))}
-        </ul>
-        <Link to="/reviews" className={`${textLink} mt-8`}>
+        </Carousel>
+        <ArrowLink to="/reviews" className="mt-8">
           {t("home.reviewsAll")}
-        </Link>
+        </ArrowLink>
       </section>
 
       {reports.length > 0 && (
-        <section aria-labelledby="home-reports" className={column}>
+        <section id="trip-reports" aria-labelledby="home-reports" className={column}>
           <SectionTitle id="home-reports">{t("home.reportsHeading")}</SectionTitle>
-          <ul className="mt-8 grid gap-12 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+          <ul className="mt-12 grid gap-16 sm:grid-cols-2 md:mt-16 lg:grid-cols-3 lg:gap-10">
             {reports.map((report) => (
               <li key={report.slug}>
                 <TripReportCard report={report} />
@@ -58,46 +62,54 @@ export function HomeScreen() {
   );
 }
 
-/** Sits in the map's peek: one line and the way to the full trip list. */
+/**
+ * The quiet second way in to the trips (tapping a pin is the first): a short dimmed line and
+ * "Browse all trips", on the map's bottom-left corner. It hangs above the sheet's top edge, which
+ * sits at the fold (MAP_LAYOUT home peek 0), so it is on the first screen and scrolls away with the
+ * page; the camera keeps the pins clear of it (MAP_LAYOUT.homeCornerRem).
+ */
 function HeroIntro() {
   return (
-    <div className={`${column} pt-2 md:flex md:items-center md:justify-between md:gap-10`}>
+    <div className="relative mb-0 pb-12 md:pb-16">
       <h1 className="sr-only">{t("home.metaTitle")}</h1>
-      <p className="accent max-w-2xl text-section-sm">{t("home.heroLine")}</p>
-      <Link to="/trips" className={buttonClasses("primary", "md", "mt-6 w-full shrink-0 md:mt-0 md:w-auto")}>
-        {t("home.heroCta")}
-      </Link>
+      <div data-map-avoid="" className="absolute bottom-full left-0 flex flex-col items-start gap-3 px-gutter pb-5 sm:px-gutter-lg md:pb-7">
+        <p className="text-small text-fg-muted [text-shadow:var(--text-shadow-map-label)]">{t("home.heroLine")}</p>
+        <Link to="/trips/" className={buttonClasses("primary", "md")}>
+          {t("home.heroCta")}
+        </Link>
+      </div>
     </div>
   );
 }
 
 function GuideIntro() {
   return (
-    <section aria-labelledby="home-guide" className={`${column} grid items-center gap-8 md:grid-cols-[16rem_1fr] md:gap-12`}>
-      <img
-        src={assetUrl(guide.portrait.src)}
-        alt={guide.portrait.alt}
-        loading="lazy"
-        decoding="async"
-        className="aspect-[3/2] w-full rounded-card object-cover md:aspect-square"
-      />
+    <section aria-labelledby="home-guide" className={`${column} grid items-center gap-10 md:grid-cols-[18rem_1fr] md:gap-16`}>
+      {/* A portrait frame, so Krishna's face (the photo's focal point) is never cropped hard. */}
+      <MediaFrame asset={guide.portrait} aspect="4 / 5" className="w-full max-w-72 md:max-w-none" />
       <div>
         <SectionTitle id="home-guide">{t("home.introHeading")}</SectionTitle>
-        <p className="mt-5 max-w-prose">{t("home.introBody", { years: guide.yearsGuiding ?? 6 })}</p>
-        <Link to="/about" className={`${textLink} mt-4`}>
+        <p className="mt-6 max-w-prose">{t("home.introBody", { years: guide.yearsGuiding ?? 6 })}</p>
+        <ArrowLink to="/about" className="mt-6">
           {t("home.introLink")}
-        </Link>
+        </ArrowLink>
       </div>
     </section>
   );
 }
 
-/** The three main ways to go birding: each a block about a screen tall, photo ¾ and text ¼, side by side from lg. */
+/**
+ * What we offer: led tours, day tours, a birding specialist on treks. Each block is a photo that runs
+ * to the window edge on its side (alternating) with the text beside it; on phones the photo spans the
+ * full width and the text sits below in the normal gutter.
+ */
 function Ways() {
   return (
-    <section aria-labelledby="home-ways" className="mx-auto max-w-7xl px-gutter sm:px-gutter-lg">
-      <SectionTitle id="home-ways">{t("home.servicesHeading")}</SectionTitle>
-      <ul className="mt-8 space-y-16 lg:mt-10 lg:space-y-12">
+    <section id="services" aria-labelledby="home-ways">
+      <div className={column}>
+        <SectionTitle id="home-ways">{t("home.servicesHeading")}</SectionTitle>
+      </div>
+      <ul className="mt-12 space-y-24 md:mt-16 lg:space-y-32">
         {homeWays.map((way, i) => (
           <li key={way.id}>
             <WayBlock way={way} flipped={i % 2 === 1} />
@@ -114,26 +126,24 @@ function WayBlock({ way, flipped }: { way: HomeWay; flipped: boolean }) {
   return (
     <article
       aria-labelledby={titleId}
-      className={`grid gap-6 lg:h-[calc(100svh_-_var(--spacing-header)_-_4rem)] lg:max-h-[56rem] lg:min-h-[32rem] lg:gap-10 ${
-        flipped ? "lg:grid-cols-[1fr_3fr]" : "lg:grid-cols-[3fr_1fr]"
-      }`}
+      className={`grid gap-8 lg:items-center lg:gap-0 ${flipped ? "lg:grid-cols-[9fr_11fr]" : "lg:grid-cols-[11fr_9fr]"}`}
     >
       <img
         src={assetUrl(image.src)}
         alt={image.alt}
         loading="lazy"
         decoding="async"
-        className={`h-[58svh] min-h-72 w-full rounded-card bg-bg-raised object-cover lg:h-full lg:min-h-0 ${flipped ? "lg:order-2" : ""}`}
+        className={`aspect-[3/2] w-full bg-bg-raised object-cover sm:aspect-[2/1] lg:aspect-[16/10] lg:max-h-[30rem] ${flipped ? "lg:order-2" : ""}`}
         style={image.focal ? { objectPosition: `${image.focal[0] * 100}% ${image.focal[1] * 100}%` } : undefined}
       />
-      <div className="flex flex-col lg:justify-end lg:pb-2">
+      <div className="px-gutter sm:px-gutter-lg lg:px-16 xl:px-24">
         <SectionTitle as="h3" size="md" id={titleId}>
           {t(`home.services.${way.id}.title`)}
         </SectionTitle>
-        <p className="mt-4 max-w-prose">{t(`home.services.${way.id}.body`)}</p>
-        <Link to={way.href} className={`${textLink} mt-3 self-start`}>
+        <p className="mt-5 max-w-prose lg:max-w-md">{t(`home.services.${way.id}.body`)}</p>
+        <ArrowLink to={way.href} className="mt-5">
           {t(`home.services.${way.id}.link`)}
-        </Link>
+        </ArrowLink>
       </div>
     </article>
   );
