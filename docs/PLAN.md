@@ -36,6 +36,7 @@ place, altitude and date — light, never database-like (no coordinates or conse
 - `/anywhere/` — ways to travel with Krishna beyond the set trips (custom day trips anywhere, crew support
   for photographers/filmmakers/researchers/artists, birding specialist for trekking groups, trek
   photography). Photo-led sections with relevant reviews. Working title, never "services".
+- `/birding-in-nepal/` — general guide "Birdwatching Tours in Nepal" (owner's copy): why Nepal, destinations, sample itineraries, what's included, best time.
 - `/about/` — Krishna: experience, certifications, art and photography.
 - `/privacy/`
 - No contact page: the **inquiry drawer** opens from any page (header/footer/trip CTAs) and via deep link

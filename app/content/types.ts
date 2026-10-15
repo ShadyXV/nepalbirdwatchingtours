@@ -321,6 +321,40 @@ export type Offering = {
   pricing?: Pricing;
 };
 
+/* ---------------------------------------------------------- birding guide */
+
+/** A destination on the "Birding in Nepal" page, linked to its place pages and trips where they exist. */
+export type BirdingDestination = {
+  /** Also the anchor: /birding-in-nepal/#<id> */
+  id: string;
+  name: string;
+  body: string;
+  placeIds?: Landmark["id"][];
+  tripSlugs?: Trip["slug"][];
+};
+
+/** A sample itinerary: text only, not a map trip. Guests ask about it through the inquiry drawer. */
+export type SampleItinerary = {
+  id: string;
+  title: string;
+  body: string;
+};
+
+/**
+ * The general guide page "Birdwatching Tours in Nepal" (/birding-in-nepal/): the owner's copy, section
+ * by section. Section headings are part of the copy, so they live here, not in i18n.
+ */
+export type BirdingGuide = {
+  title: string;
+  /** Paragraphs. */
+  intro: string[];
+  why: { heading: string; body: string[]; highlightsIntro: string; highlights: string[] };
+  destinations: { heading: string; items: BirdingDestination[] };
+  itineraries: { heading: string; items: SampleItinerary[]; custom: SampleItinerary };
+  included: { heading: string; items: string[] };
+  bestTime: { heading: string; body: string[] };
+};
+
 /* ------------------------------------------------------------------ guide */
 
 export type ContactChannels = {

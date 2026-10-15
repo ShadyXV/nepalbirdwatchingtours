@@ -10,6 +10,7 @@ export default {
   prerender: () => [
     "/",
     "/anywhere",
+    "/birding-in-nepal",
     "/about",
     "/privacy",
     ...trips.filter((t) => t.status === "published").map((trip) => `/trips/${trip.slug}`),

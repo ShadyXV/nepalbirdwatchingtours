@@ -1,5 +1,6 @@
 import type { Landmark, Memory, Offering, Review, Species, SpeciesGroup, Trip } from "./types";
 import { availability } from "./data/availability";
+import { birdingGuide } from "./data/birdingGuide";
 import { guide } from "./data/guide";
 import { landmarks } from "./data/landmarks";
 import { memories } from "./data/memories";
@@ -8,7 +9,7 @@ import { reviews } from "./data/reviews";
 import { species } from "./data/species";
 import { trips } from "./data/trips";
 
-export { availability, guide };
+export { availability, birdingGuide, guide };
 
 export function getPublishedTrips(): Trip[] {
   return trips.filter((trip) => trip.status === "published");

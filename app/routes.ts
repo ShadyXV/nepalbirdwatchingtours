@@ -7,6 +7,7 @@ export default [
     route("places/:placeId", "routes/place.tsx"),
   ]),
   route("anywhere", "routes/anywhere.tsx"),
+  route("birding-in-nepal", "routes/birding-in-nepal.tsx"),
   route("about", "routes/about.tsx"),
   route("privacy", "routes/privacy.tsx"),
   // Dev-only inspection page for the contour texture; never part of the build.

@@ -6,6 +6,7 @@ export const en = {
   nav: {
     trips: "Trips",
     anywhere: "Anywhere",
+    birdingInNepal: "Birding in Nepal",
     about: "About",
     inquire: "Inquire",
     primary: "Main navigation",
@@ -250,6 +251,14 @@ export const en = {
     closingHeading: "Not on the list?",
     closingBody: "Tell me what you are planning and I will tell you honestly whether I can make it better.",
     closingCta: "Tell Krishna your idea",
+  },
+  birdingGuide: {
+    metaTitle: "Birdwatching tours in Nepal",
+    metaDescription:
+      "A guide to birdwatching in Nepal: over 870 species, the best birding destinations from Chitwan and Koshi Tappu to Phulchowki and Annapurna, sample itineraries, custom tours and the best time to visit.",
+    seeOnMap: "Places on the map",
+    tripsHere: "Trips here",
+    ask: "Ask about this",
   },
   footer: {
     explore: "Explore",

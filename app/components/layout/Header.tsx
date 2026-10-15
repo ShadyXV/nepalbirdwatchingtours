@@ -8,6 +8,7 @@ import { Button } from "../ui/Button";
 const links = [
   { to: "/#trips", label: "nav.trips" },
   { to: "/anywhere", label: "nav.anywhere" },
+  { to: "/birding-in-nepal", label: "nav.birdingInNepal" },
   { to: "/about", label: "nav.about" },
 ] as const;
 
@@ -37,8 +38,8 @@ export function Header() {
           {SITE_NAME}
         </Link>
 
-        <div className="flex shrink-0 items-center gap-2 md:gap-8">
-          <nav aria-label={t("nav.primary")} className="hidden items-center gap-8 md:flex">
+        <div className="flex shrink-0 items-center gap-2 md:gap-5 lg:gap-8">
+          <nav aria-label={t("nav.primary")} className="hidden items-center gap-5 md:flex lg:gap-8">
             {links.map((link) => (
               <Link key={link.to} to={link.to} className="eyebrow inline-flex min-h-tap items-center hover:text-accent">
                 {t(link.label)}

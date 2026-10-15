@@ -31,6 +31,11 @@ export function Footer() {
               </Link>
             </li>
             <li>
+              <Link className={link} to="/birding-in-nepal">
+                {t("nav.birdingInNepal")}
+              </Link>
+            </li>
+            <li>
               <Link className={link} to="/about">
                 {t("nav.about")}
               </Link>
