@@ -69,6 +69,7 @@ export const en = {
     perGroup: "per group",
     perDay: "per day",
     includes: "Included",
+    excludes: "Not included",
     inquire: "Inquire about this trip",
   },
   difficulty: {

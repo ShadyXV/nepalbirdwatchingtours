@@ -125,6 +125,17 @@ export function TripScreen({ trip }: { trip: Trip }) {
         </section>
       )}
 
+      {trip.excludes && (
+        <section>
+          <Heading level="h3" as="h2">{t("trip.excludes")}</Heading>
+          <ul className={list}>
+            {trip.excludes.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {pricing?.show && (
         <p className="not-italic">
           <span className="eyebrow text-fg-muted">{t("trip.price")}: </span>

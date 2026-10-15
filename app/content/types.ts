@@ -203,6 +203,8 @@ export type Trip = {
   landmarkIds: Landmark["id"][];
   reviewIds: Review["id"][];
   includes?: string[];
+  /** What the guest pays for separately (flights, gear, tips…). */
+  excludes?: string[];
   pricing?: Pricing;
   status: "draft" | "published";
 };
