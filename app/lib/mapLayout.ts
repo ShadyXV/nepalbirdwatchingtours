@@ -9,9 +9,15 @@
 import type { Insets } from "./geo";
 
 export const MAP_LAYOUT = {
-  /** Home: share of the screen the home content (its intro line and "Browse all trips") covers, phones / desktop. */
-  homePeekPhone: 0.44,
-  homePeekDesktop: 0.2,
+  /**
+   * Home: share of the screen the home content covers before scrolling, phones / desktop. None: the
+   * first screen is the map, with the way in to the trips in its bottom-left corner (HeroIntro), and
+   * "Hello, I'm Krishna" starts just below the fold.
+   */
+  homePeekPhone: 0,
+  homePeekDesktop: 0,
+  /** Home: room the bottom-left corner (line + "Browse all trips") takes at the foot of the map, rem. */
+  homeCornerRem: 7,
   /** Trip / place: share of the screen the story's first lines cover, phones / desktop. */
   storyPeekPhone: 0.26,
   storyPeekDesktop: 0.16,
@@ -41,7 +47,7 @@ export function mapLayoutCssVars(): Record<string, string> {
 
 /**
  * Camera padding for the map container: the part of the map covered by the content peek, the
- * stepper, or hidden below the visible screen. Client only (reads window).
+ * stepper or the home corner, or hidden below the visible screen. Client only (reads window).
  */
 export function mapInsets(mode: MapLayoutMode, container: HTMLElement): Insets {
   const rect = container.getBoundingClientRect();
@@ -57,9 +63,9 @@ export function mapInsets(mode: MapLayoutMode, container: HTMLElement): Insets {
     mode === "home"
       ? wide ? MAP_LAYOUT.homePeekDesktop : MAP_LAYOUT.homePeekPhone
       : wide ? MAP_LAYOUT.storyPeekDesktop : MAP_LAYOUT.storyPeekPhone;
-  const stepper = mode === "trip" ? MAP_LAYOUT.stepperRem * rem : 0;
+  const onMap = mode === "trip" ? MAP_LAYOUT.stepperRem * rem : mode === "home" ? MAP_LAYOUT.homeCornerRem * rem : 0;
   const top = mode === "trip" ? MAP_LAYOUT.navigatorTopRem * rem : 0;
-  return { top, right: 0, bottom: hidden + share * screenH + stepper, left: 0 };
+  return { top, right: 0, bottom: hidden + share * screenH + onMap, left: 0 };
 }
 
 /**

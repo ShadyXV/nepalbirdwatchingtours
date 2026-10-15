@@ -81,31 +81,24 @@ function shell(kindClass: string, label: string): MarkerDom {
 
 /* ------------------------------------------------------------ trip pins */
 
-let clipIds = 0;
+export type TripPinDom = MarkerDom & { leader: HTMLElement };
 
 /**
- * S0 trip pin: the cover photo in a blob frame on a short stem, with the trip name and how many
- * birds you might meet (`birdsLabel` is the full phrase, e.g. "142 birds"; `birds` the number in
- * it, which is set in the accent face). Anchor: bottom (the stem's foot is the trip's location).
+ * S0 trip pin: the cover photo in a square frame CENTRED on the trip's location, with a caption
+ * plate beside it: the trip name and how many birds you might meet (`birdsLabel` is the full
+ * phrase, e.g. "142 birds"; `birds` the number in it, set in the accent face). Anchor: center.
+ *
+ * The inner element is a zero-size point at the trip's location. When pins would overlap, the
+ * layout pass (pinLayout.ts) moves the photo, up first (`--pin-dx`, `--pin-dy`); a thin leader runs
+ * from the photo back to a small mark on the true point.
  */
-export function createTripPin(trip: Trip, birdsLabel: string, birds: number): MarkerDom {
+export function createTripPin(trip: Trip, birdsLabel: string, birds: number): TripPinDom {
   const dom = shell("nbt-pin", `${trip.title}, ${birdsLabel}`);
-  const photo = svg("nbt-pin__photo");
-  const clipId = `nbt-pin-clip-${++clipIds}`;
-  const shape = blobPath(trip.slug, 0.1, 8);
-  const defs = svgChild(photo, "defs", {});
-  const clip = svgChild(defs, "clipPath", { id: clipId });
-  svgChild(clip, "path", { d: shape });
-  svgChild(photo, "image", {
-    href: assetUrl(trip.cover.src),
-    x: "-1",
-    y: "-1",
-    width: "2",
-    height: "2",
-    preserveAspectRatio: "xMidYMid slice",
-    "clip-path": `url(#${clipId})`,
-  });
-  svgChild(photo, "path", { d: shape, class: "nbt-pin__frame" });
+  const photo = el("img", "nbt-pin__photo");
+  photo.src = assetUrl(trip.cover.src);
+  photo.alt = "";
+  photo.decoding = "async";
+  photo.draggable = false;
 
   const label = el("span", "nbt-pin__label");
   // "142 birds": the number in the accent italic, the word as a mono label.
@@ -122,8 +115,14 @@ export function createTripPin(trip: Trip, birdsLabel: string, birds: number): Ma
   label.append(el("span", "nbt-pin__name", trip.title), count);
   label.setAttribute("aria-hidden", "true");
 
-  dom.button.append(photo, el("span", "nbt-pin__stem"), label);
-  return dom;
+  dom.button.append(photo, label);
+  // The true point and the leader to it: only drawn while the photo is slid off the point.
+  const point = el("span", "nbt-pin__point");
+  const leader = el("span", "nbt-pin__leader");
+  point.setAttribute("aria-hidden", "true");
+  leader.setAttribute("aria-hidden", "true");
+  dom.inner.prepend(leader, point);
+  return { ...dom, leader };
 }
 
 /* ---------------------------------------------------------------- stops */

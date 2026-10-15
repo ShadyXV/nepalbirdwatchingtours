@@ -55,7 +55,8 @@ import { DemSampler } from "./dem";
 import { Gestures, type HintTexts } from "./gestures";
 import { placeLabels, type LabelCandidate } from "./labels";
 import { buildStyle, DEM, drawnGradient, GRATICULE, HILLSHADE, LAYER, NEPAL_GEOJSON_URL, OUTSIDE, RANGE_GLOW, SRC, TERRAIN_EXAGGERATION } from "./look";
-import { createLens, createPlaceLabel, createStopMarker, createTourTag, createTripPin, placeAnchor, type MarkerDom } from "./markers";
+import { createLens, createPlaceLabel, createStopMarker, createTourTag, createTripPin, placeAnchor, type MarkerDom, type TripPinDom } from "./markers";
+import { layoutPins, type PinInput } from "./pinLayout";
 import { canAfford3D, initialPixelRatio, watchFrames } from "./perf";
 import { Orbit } from "./orbit";
 import { drawRoute, mapRouteColors, setRouteProgress, type RouteColors } from "./routeDraw";
@@ -74,6 +75,10 @@ const RANGE_ZOOMS = [6.6, 10.6] as const;
 const POI_FROM_ZOOM = 10;
 /** Stop names appear from these zooms (key stops earlier; minor stops only when close). */
 const STOP_LABEL_ZOOM = { key: 11.2, minor: 13 };
+/** Home overview: these place kinds get no label (the trip pins are the map there). */
+const OVERVIEW_HIDDEN_KINDS = new Set<Landmark["kind"]>(["peak", "range"]);
+/** Trip pins keep this far from the edges of the visible map, px. */
+const PIN_EDGE_PX = 8;
 /** Share of the flight after which the route starts drawing / the stops start popping. */
 const DRAW_AT = 0.55;
 const POP_AT = 0.62;
@@ -260,6 +265,7 @@ export type MapContent = {
 type MapStateName = "overview" | "trip" | "stop" | "place";
 
 type PlacedMarker = { marker: Marker; dom: MarkerDom };
+type PlacedPin = { marker: Marker; dom: TripPinDom; trip: Trip };
 type StopMarker = PlacedMarker & { waypoint: Waypoint; key: boolean };
 type CameraSnapshot = { center: LngLat; zoom: number; bearing: number; pitch: number };
 
@@ -315,7 +321,7 @@ export class MapController {
 
   private readonly tripsBySlug: Map<string, Trip>;
   private readonly placesById: Map<string, Landmark>;
-  /** Trip pins and always-labelled places: what the portrait overview frames. */
+  /** The trip pins: what the portrait overview frames. */
   private readonly focusPoints: LngLat[];
   /** Trip stops and cities: where peaks are looked at from. */
   private readonly viewpoints: LngLat[];
@@ -326,7 +332,7 @@ export class MapController {
   private terrainOn: boolean;
   private colors: RouteColors;
 
-  private pins = new Map<string, PlacedMarker>();
+  private pins = new Map<string, PlacedPin>();
   private places = new Map<string, PlacedMarker>();
   private stops: { slug: string; items: StopMarker[] } | null = null;
   private lens: HTMLElement | null = null;
@@ -366,10 +372,7 @@ export class MapController {
     this.view = initial;
     this.tripsBySlug = new Map(content.trips.map((t) => [t.slug, t]));
     this.placesById = new Map(content.landmarks.map((l) => [l.id, l]));
-    this.focusPoints = [
-      ...content.trips.map(tripAnchor),
-      ...content.landmarks.filter((l) => l.labelTier === 1).map((l) => l.coords),
-    ];
+    this.focusPoints = content.trips.map(tripAnchor);
     this.viewpoints = [
       ...content.trips.flatMap((t) => t.waypoints.map((w) => w.coords)),
       ...content.landmarks.filter((l) => l.kind === "city").map((l) => l.coords),
@@ -454,7 +457,10 @@ export class MapController {
     let resizeTimer = 0;
     this.map.on("resize", () => {
       window.clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(() => this.reframe(), 200);
+      resizeTimer = window.setTimeout(() => {
+        this.reframe();
+        this.updateLabels(); // pins and labels re-laid for the new size, even if the camera stays
+      }, 200);
     });
     if (document.fonts) document.fonts.ready.then(() => this.updateLabels());
   }
@@ -1451,10 +1457,11 @@ export class MapController {
       this.reveal.bind(dom.root, dom.button, () =>
         stateOf(this.view) === "overview" && !this.map.isMoving() ? this.content.revealTrip(trip) : null,
       );
-      const marker = new Marker({ element: dom.root, anchor: "bottom", opacityWhenCovered: "1", subpixelPositioning: true })
+      // Anchor: the photo's centre is the trip's location (the inner element is a zero-size point).
+      const marker = new Marker({ element: dom.root, anchor: "center", opacityWhenCovered: "1", subpixelPositioning: true })
         .setLngLat(tripAnchor(trip))
         .addTo(this.map);
-      this.pins.set(trip.slug, { marker, dom });
+      this.pins.set(trip.slug, { marker, dom, trip });
     }
   }
 
@@ -1603,6 +1610,8 @@ export class MapController {
     const zoom = this.map.getZoom();
     const state = stateOf(this.view);
     const candidates: LabelCandidate[] = [];
+    // Pins first: the place labels then keep clear of where the pins really are.
+    if (state === "overview") this.layoutTripPins();
 
     for (const [id, { dom }] of this.places) {
       const place = this.placesById.get(id)!;
@@ -1612,6 +1621,8 @@ export class MapController {
       let eligible = place.labelTier === 1 || zoom >= TIER2_FROM_ZOOM;
       if (place.kind === "range") eligible = zoom >= RANGE_ZOOMS[0] && zoom <= RANGE_ZOOMS[1];
       if (place.kind === "poi") eligible = zoom >= POI_FROM_ZOOM;
+      // Home: the trips are the map; mountain and range names stay for trip, day and place views.
+      if (state === "overview" && OVERVIEW_HIDDEN_KINDS.has(place.kind)) eligible = false;
       candidates.push({
         el: dom.inner,
         eligible: eligible || active || inTrip || lit,
@@ -1637,6 +1648,53 @@ export class MapController {
         ? [...this.pins.values()].flatMap((p) => [...p.dom.inner.querySelectorAll(".nbt-pin__photo, .nbt-pin__label")])
         : (this.stops?.items ?? []).flatMap((s) => s.dom.inner.querySelector(".nbt-stop__blob") ?? []);
     placeLabels(candidates, obstacles, this.container.getBoundingClientRect());
+  }
+
+  /**
+   * Overview: move colliding trip pins apart (pinLayout.ts), clear of whatever sits on the map (the
+   * home corner, marked `data-map-avoid`, and the map controls). Reads every box first, then
+   * writes, so it costs one layout. Runs when the camera settles, never per frame.
+   */
+  private layoutTripPins(): void {
+    const pins = [...this.pins.values()];
+    // Captions dropped last time get their chance again: measure them at full size.
+    for (const { dom } of pins) dom.inner.classList.remove("is-compact");
+    const host = this.container.getBoundingClientRect();
+    // The map is taller than the visible screen (map-layout.tsx): pins stay in the visible part.
+    const visibleBottom = Math.min(host.height, window.innerHeight - Math.max(host.top, 0));
+    const area = { left: PIN_EDGE_PX, top: PIN_EDGE_PX, right: host.width - PIN_EDGE_PX, bottom: visibleBottom - PIN_EDGE_PX };
+    const avoid = [...document.querySelectorAll("[data-map-avoid]"), ...(this.container.parentElement?.querySelectorAll(".nbt-map__controls") ?? [])];
+    const obstacles = avoid
+      .map((el) => el.getBoundingClientRect())
+      .filter((r) => r.width > 0 && r.height > 0)
+      .map((r) => ({ left: r.left - host.left, top: r.top - host.top, right: r.right - host.left, bottom: r.bottom - host.top }));
+    const inputs: PinInput[] = pins.map(({ dom, trip }) => {
+      const photo = dom.button.querySelector<HTMLElement>(".nbt-pin__photo");
+      const label = dom.button.querySelector<HTMLElement>(".nbt-pin__label");
+      const p = this.map.project(tripAnchor(trip));
+      const onScreen = p.x >= 0 && p.x <= host.width && p.y >= 0 && p.y <= visibleBottom;
+      const labelW = label?.offsetWidth ?? 0;
+      return {
+        id: trip.slug,
+        point: onScreen ? { x: p.x, y: p.y } : null,
+        size: photo?.offsetWidth ?? 0,
+        label: labelW > 0 ? { width: labelW, height: label!.offsetHeight } : null,
+        first: trip.slug === this.view.previewSlug,
+      };
+    });
+    const placements = layoutPins(inputs, area, obstacles);
+    for (const { dom, trip } of pins) {
+      const { dx, dy, labelLeft, compact } = placements.get(trip.slug)!;
+      const reach = Math.hypot(dx, dy);
+      dom.inner.style.setProperty("--pin-dx", `${dx.toFixed(1)}px`);
+      dom.inner.style.setProperty("--pin-dy", `${dy.toFixed(1)}px`);
+      dom.inner.classList.toggle("is-displaced", reach > 0.5);
+      dom.inner.classList.toggle("is-label-left", labelLeft);
+      dom.inner.classList.toggle("is-compact", compact);
+      // The leader runs from the true point to the photo's centre, under the photo.
+      dom.leader.style.width = `${reach.toFixed(1)}px`;
+      dom.leader.style.transform = `rotate(${Math.atan2(dy, dx).toFixed(4)}rad)`;
+    }
   }
 
   /* ================================================================= utils */
