@@ -1,1 +1,0 @@
-import{N as e,t}from"./jsx-runtime-kvQkVZdm.js";import{t as n}from"./screens-D26AdClY.js";import{E as r,_ as i}from"./ui-CsnaBbY8.js";var a=t();function o(){return[{title:`${r(`tripsPage.metaTitle`)} | ${i}`},{name:`description`,content:r(`tripsPage.metaDescription`)}]}var s=e(function(){return(0,a.jsx)(n,{})});export{s as default,o as meta};

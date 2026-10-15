@@ -1,0 +1,1 @@
+import{N as e,t}from"./jsx-runtime-kvQkVZdm.js";import{l as n}from"./screens-CybKuW2j.js";import{A as r,x as i}from"./ui-DUE0ddMb.js";var a=t();function o(){return[{title:`${r(`birdingGuide.metaTitle`)} | ${i}`},{name:`description`,content:r(`birdingGuide.metaDescription`)}]}var s=e(function(){return(0,a.jsx)(n,{})});export{s as default,o as meta};
