@@ -28,9 +28,9 @@ export function useStoryUp(): boolean {
  * marker: it isn't obvious that scrolling brings the story up over the map, so this does. Once the
  * story is up it flips and takes you back to the map. Without JS it is a link to the story.
  */
-export function StoryButton({ up: down }: { up: boolean }) {
+export function StoryButton({ up: down, targetId = "story" }: { up: boolean; targetId?: string }) {
   const go = (event: MouseEvent) => {
-    const story = document.getElementById("story");
+    const story = document.getElementById(targetId);
     if (!story) return;
     event.preventDefault();
     const header = document.querySelector("body > header")?.getBoundingClientRect().height ?? 0;
@@ -42,7 +42,7 @@ export function StoryButton({ up: down }: { up: boolean }) {
   const label = down ? t("map.showMap") : t("map.showDetails");
   return (
     <div className="nbt-story-btn" data-down={down ? "" : undefined}>
-      <a href="#story" aria-label={label} title={label} onClick={go}>
+      <a href={`#${targetId}`} aria-label={label} title={label} onClick={go}>
         <svg aria-hidden="true" viewBox="0 0 40 40">
           <circle cx="20" cy="20" r="17" />
           <path d="M13.5 22.5L20 16l6.5 6.5" />

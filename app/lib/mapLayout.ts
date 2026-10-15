@@ -10,14 +10,14 @@ import type { Insets } from "./geo";
 
 export const MAP_LAYOUT = {
   /**
-   * Home: share of the screen the home content covers before scrolling, phones / desktop. None: the
-   * first screen is the map, with the way in to the trips in its bottom-left corner (HeroIntro), and
-   * "Hello, I'm Krishna" starts just below the fold.
+   * Home: share of the screen the home content covers before scrolling, phones / desktop. The top of
+   * "Hello, I'm Krishna" peeks in under the map, with the story button on the seam, so it is clear
+   * there is more below; the way in to the trips sits on the map's bottom-left corner (HeroIntro).
    */
-  homePeekPhone: 0,
-  homePeekDesktop: 0,
+  homePeekPhone: 0.2,
+  homePeekDesktop: 0.16,
   /** Home: room the bottom-left corner (line + "Browse all trips") takes at the foot of the map, rem. */
-  homeCornerRem: 7,
+  homeCornerRem: 9,
   /** Region / trip / place: share of the screen the story's first lines cover, phones / desktop. */
   storyPeekPhone: 0.26,
   storyPeekDesktop: 0.16,

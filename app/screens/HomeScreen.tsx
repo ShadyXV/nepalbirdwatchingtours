@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { useInquiry } from "~/components/inquiry";
 import { ReviewCard } from "~/components/reviews";
+import { StoryButton, useStoryUp } from "~/components/story";
 import { TripReportCard } from "~/components/tripReport";
 import { Carousel, MediaFrame } from "~/components/media";
 import { ArrowLink, Button, buttonClasses, SectionTitle } from "~/components/ui";
@@ -20,59 +21,65 @@ const column = "mx-auto max-w-5xl px-gutter sm:px-gutter-lg";
 export function HomeScreen() {
   const reviews = getReviewsNewestFirst();
   const reports = getTripReports().slice(0, 3);
+  const storyUp = useStoryUp();
 
   return (
-    <div className="space-y-28 pb-28 md:space-y-40 md:pb-40">
+    <>
+      <StoryButton up={storyUp} targetId="intro" />
       <HeroIntro />
-      <GuideIntro />
-      <Ways />
-      <ContactBand />
+      {/* Top padding clears the story button on the seam; the intro's top is what peeks under the map. */}
+      <div className="space-y-28 pt-12 pb-28 md:space-y-40 md:pt-14 md:pb-40">
+        <GuideIntro />
+        <Ways />
+        <ContactBand />
 
-      {/* One review at a time on phones, two side by side from md; native scroll-snap, so it swipes without JS. */}
-      <section id="reviews" aria-labelledby="home-reviews" className={column}>
-        <SectionTitle id="home-reviews">{t("home.reviewsHeading")}</SectionTitle>
-        <Carousel
-          label={t("home.reviewsHeading")}
-          slideClassName="basis-full md:basis-[calc(50%-2rem)]"
-          gapClassName="gap-gutter md:gap-16"
-          className="mt-12 md:mt-16"
-        >
-          {reviews.map((review) => (
-            <ReviewCard key={review.id} review={review} className="max-w-prose" />
-          ))}
-        </Carousel>
-        <ArrowLink to="/reviews" className="mt-8">
-          {t("home.reviewsAll")}
-        </ArrowLink>
-      </section>
-
-      {reports.length > 0 && (
-        <section id="trip-reports" aria-labelledby="home-reports" className={column}>
-          <SectionTitle id="home-reports">{t("home.reportsHeading")}</SectionTitle>
-          <ul className="mt-12 grid gap-16 sm:grid-cols-2 md:mt-16 lg:grid-cols-3 lg:gap-10">
-            {reports.map((report) => (
-              <li key={report.slug}>
-                <TripReportCard report={report} />
-              </li>
+        {/* One review at a time on phones, two side by side from md; native scroll-snap, so it swipes without JS. */}
+        <section id="reviews" aria-labelledby="home-reviews" className={column}>
+          <SectionTitle id="home-reviews">{t("home.reviewsHeading")}</SectionTitle>
+          <Carousel
+            label={t("home.reviewsHeading")}
+            slideClassName="basis-full md:basis-[calc(50%-2rem)]"
+            gapClassName="gap-gutter md:gap-16"
+            className="mt-12 md:mt-16"
+          >
+            {reviews.map((review) => (
+              <ReviewCard key={review.id} review={review} className="max-w-prose" />
             ))}
-          </ul>
+          </Carousel>
+          <ArrowLink to="/reviews" className="mt-8">
+            {t("home.reviewsAll")}
+          </ArrowLink>
         </section>
-      )}
-    </div>
+
+        {reports.length > 0 && (
+          <section id="trip-reports" aria-labelledby="home-reports" className={column}>
+            <SectionTitle id="home-reports">{t("home.reportsHeading")}</SectionTitle>
+            <ul className="mt-12 grid gap-16 sm:grid-cols-2 md:mt-16 lg:grid-cols-3 lg:gap-10">
+              {reports.map((report) => (
+                <li key={report.slug}>
+                  <TripReportCard report={report} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+    </>
   );
 }
 
 /**
  * The quiet second way in to the trips (tapping a pin is the first): a short dimmed line and
  * "Browse all trips", on the map's bottom-left corner. It hangs above the sheet's top edge, which
- * sits at the fold (MAP_LAYOUT home peek 0), so it is on the first screen and scrolls away with the
- * page; the camera keeps the pins clear of it (MAP_LAYOUT.homeCornerRem).
+ * a little above the fold (MAP_LAYOUT home peek), so it is on the first screen and scrolls away with
+ * the page; the camera keeps the pins clear of it (MAP_LAYOUT.homeCornerRem). On phones it sits
+ * higher, clear of the story button in the middle of the seam.
  */
 function HeroIntro() {
   return (
-    <div className="relative mb-0 pb-12 md:pb-16">
+    <div className="relative">
       <h1 className="sr-only">{t("home.metaTitle")}</h1>
-      <div data-map-avoid="" className="absolute bottom-full left-0 flex flex-col items-start gap-3 px-gutter pb-5 sm:px-gutter-lg md:pb-7">
+      <div data-map-avoid="" className="absolute bottom-full left-0 flex flex-col items-start gap-3 px-gutter pb-12 sm:px-gutter-lg md:pb-7">
         <p className="text-small text-fg-muted [text-shadow:var(--text-shadow-map-label)]">{t("home.heroLine")}</p>
         <Link to="/trips/" className={buttonClasses("primary", "md")}>
           {t("home.heroCta")}
@@ -84,7 +91,7 @@ function HeroIntro() {
 
 function GuideIntro() {
   return (
-    <section aria-labelledby="home-guide" className={`${column} grid items-center gap-10 md:grid-cols-[18rem_1fr] md:gap-16`}>
+    <section id="intro" aria-labelledby="home-guide" className={`${column} grid items-center gap-10 md:grid-cols-[18rem_1fr] md:gap-16`}>
       {/* A portrait frame, so Krishna's face (the photo's focal point) is never cropped hard. */}
       <MediaFrame asset={guide.portrait} aspect="4 / 5" className="w-full max-w-72 md:max-w-none" />
       <div>
