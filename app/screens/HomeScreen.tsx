@@ -124,7 +124,7 @@ function Ways() {
       <div className={column}>
         <SectionTitle id="home-ways">{t("home.servicesHeading")}</SectionTitle>
       </div>
-      <ul className="mt-8 flex flex-col gap-14 sm:gap-16 lg:mt-2 lg:gap-10">
+      <ul className="mt-8 flex flex-col gap-14 sm:gap-16 lg:mt-2 lg:gap-5">
         {homeWays.map((way, i) => (
           <li key={way.id}>
             <WayBlock way={way} flipped={i % 2 === 1} />
@@ -192,7 +192,7 @@ function WayBlock({ way, flipped }: { way: HomeWay; flipped: boolean }) {
 function ContactBand() {
   const { openInquiry } = useInquiry();
   return (
-    <section aria-labelledby="home-contact" className="relative isolate mt-14 overflow-hidden sm:mt-16 lg:mt-10">
+    <section aria-labelledby="home-contact" className="relative isolate mt-14 overflow-hidden sm:mt-16 lg:mt-5">
       <BandMedia asset={contactBanner} />
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-linear-to-t from-bg via-scrim to-transparent" />
       <div className={`${column} flex min-h-[28rem] flex-col justify-end py-12 md:min-h-[36rem] md:items-start md:py-16`}>
