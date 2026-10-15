@@ -1,0 +1,10 @@
+# Nepal Birdwatching Tours: search engines, AI assistants and their crawlers are all welcome to read and cite this site.
+User-agent: *
+Allow: /
+
+# To keep AI training crawlers out while staying in search and AI answers, add a group per bot:
+#   User-agent: GPTBot
+#   Disallow: /
+# (and the same for ClaudeBot, CCBot, Google-Extended, Applebot-Extended, meta-externalagent)
+
+Sitemap: https://example.github.io/nepalbirdwatchingtours/sitemap.xml

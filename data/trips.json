@@ -1,0 +1,544 @@
+{
+  "name": "Nepal Birdwatching Tours",
+  "url": "https://example.github.io/nepalbirdwatchingtours/",
+  "description": "Guided birdwatching tours in Nepal with Krishna Thapa: Himalayan treks, forest day tours and wildlife safaris.",
+  "guide": {
+    "name": "Krishna Thapa",
+    "basedIn": "Kathmandu, Nepal",
+    "languages": [
+      "English",
+      "Nepali"
+    ],
+    "url": "https://example.github.io/nepalbirdwatchingtours/about/"
+  },
+  "inquiry": {
+    "link": "https://example.github.io/nepalbirdwatchingtours/?inquire&trip={trip}&from={from}&to={to}&party={party}",
+    "parameters": {
+      "inquire": "Required, no value: opens the inquiry form on any page.",
+      "trip": "A trip's slug, from the list below.",
+      "place": "A place id, as in /places/<id>/.",
+      "offering": "One of the ways to travel on /anywhere/, by its id.",
+      "from": "First day, YYYY-MM-DD.",
+      "to": "Last day, YYYY-MM-DD.",
+      "party": "Number of people."
+    },
+    "note": "Every parameter but `inquire` is optional. The form opens filled in; nothing is sent until the person chooses WhatsApp, email or Instagram."
+  },
+  "trips": [
+    {
+      "slug": "annapurna-birding-trek",
+      "url": "https://example.github.io/nepalbirdwatchingtours/trips/annapurna-birding-trek/",
+      "title": "Annapurna Sanctuary Birding Trek",
+      "tagline": "Twelve days from warm river valleys to the foot of Annapurna, listening for every voice in the forest.",
+      "kind": "birding-trek",
+      "guideRole": "birding-specialist",
+      "region": "Annapurna Conservation Area",
+      "regionPage": "https://example.github.io/nepalbirdwatchingtours/regions/annapurna/",
+      "days": 12,
+      "difficulty": "challenging",
+      "maxAltitudeM": 4130,
+      "bestMonths": [
+        "March",
+        "April",
+        "May",
+        "October",
+        "November"
+      ],
+      "birdSpecies": 110,
+      "keyBirds": [
+        {
+          "name": "Brown Dipper",
+          "scientificName": "Cinclus pallasii"
+        },
+        {
+          "name": "Spotted Forktail",
+          "scientificName": "Enicurus maculatus"
+        },
+        {
+          "name": "Himalayan Monal",
+          "scientificName": "Lophophorus impejanus"
+        },
+        {
+          "name": "Satyr Tragopan",
+          "scientificName": "Tragopan satyra"
+        },
+        {
+          "name": "Fire-tailed Sunbird",
+          "scientificName": "Aethopyga ignicauda"
+        },
+        {
+          "name": "Lammergeier",
+          "scientificName": "Gypaetus barbatus"
+        },
+        {
+          "name": "Great Parrotbill",
+          "scientificName": "Conostoma aemodium"
+        },
+        {
+          "name": "Kalij Pheasant",
+          "scientificName": "Lophura leucomelanos"
+        },
+        {
+          "name": "Blood Pheasant",
+          "scientificName": "Ithaginis cruentus"
+        },
+        {
+          "name": "Snow Pigeon",
+          "scientificName": "Columba leuconota"
+        }
+      ],
+      "inquiry": "https://example.github.io/nepalbirdwatchingtours/?inquire&trip=annapurna-birding-trek"
+    },
+    {
+      "slug": "mardi-himal-birding-trek",
+      "url": "https://example.github.io/nepalbirdwatchingtours/trips/mardi-himal-birding-trek/",
+      "title": "Mardi Himal Birdwatching Trek",
+      "tagline": "Up a rhododendron ridge to the foot of Machhapuchhre, with time for every flock in the forest.",
+      "kind": "birding-trek",
+      "guideRole": "lead-guide",
+      "region": "Annapurna Conservation Area",
+      "regionPage": "https://example.github.io/nepalbirdwatchingtours/regions/annapurna/",
+      "days": 9,
+      "difficulty": "moderate",
+      "maxAltitudeM": 4500,
+      "bestMonths": [
+        "March",
+        "April",
+        "May",
+        "October",
+        "November"
+      ],
+      "birdSpecies": 87,
+      "keyBirds": [
+        {
+          "name": "Spiny Babbler",
+          "scientificName": "Turdoides nipalensis"
+        },
+        {
+          "name": "Himalayan Cutia",
+          "scientificName": "Cutia nipalensis"
+        },
+        {
+          "name": "Mrs. Gould's Sunbird",
+          "scientificName": "Aethopyga gouldiae"
+        },
+        {
+          "name": "Great Parrotbill",
+          "scientificName": "Conostoma aemodium"
+        },
+        {
+          "name": "Satyr Tragopan",
+          "scientificName": "Tragopan satyra"
+        },
+        {
+          "name": "Fire-tailed Sunbird",
+          "scientificName": "Aethopyga ignicauda"
+        },
+        {
+          "name": "Himalayan Monal",
+          "scientificName": "Lophophorus impejanus"
+        },
+        {
+          "name": "Blood Pheasant",
+          "scientificName": "Ithaginis cruentus"
+        },
+        {
+          "name": "Lammergeier",
+          "scientificName": "Gypaetus barbatus"
+        },
+        {
+          "name": "Snow Pigeon",
+          "scientificName": "Columba leuconota"
+        }
+      ],
+      "inquiry": "https://example.github.io/nepalbirdwatchingtours/?inquire&trip=mardi-himal-birding-trek"
+    },
+    {
+      "slug": "langtang-birding-trek",
+      "url": "https://example.github.io/nepalbirdwatchingtours/trips/langtang-birding-trek/",
+      "title": "Langtang Birdwatching Trek",
+      "tagline": "From a deep forest gorge to the yak pastures below Langtang Lirung, a short drive from Kathmandu.",
+      "kind": "birding-trek",
+      "guideRole": "lead-guide",
+      "region": "Langtang National Park",
+      "regionPage": "https://example.github.io/nepalbirdwatchingtours/regions/langtang/",
+      "days": 10,
+      "difficulty": "moderate",
+      "maxAltitudeM": 4773,
+      "bestMonths": [
+        "March",
+        "April",
+        "May",
+        "October",
+        "November"
+      ],
+      "birdSpecies": 69,
+      "keyBirds": [
+        {
+          "name": "Wallcreeper",
+          "scientificName": "Tichodroma muraria"
+        },
+        {
+          "name": "Red-headed Trogon",
+          "scientificName": "Harpactes erythrocephalus"
+        },
+        {
+          "name": "Rufous-bellied Niltava",
+          "scientificName": "Niltava sundara"
+        },
+        {
+          "name": "Satyr Tragopan",
+          "scientificName": "Tragopan satyra"
+        },
+        {
+          "name": "Himalayan Monal",
+          "scientificName": "Lophophorus impejanus"
+        },
+        {
+          "name": "Blood Pheasant",
+          "scientificName": "Ithaginis cruentus"
+        },
+        {
+          "name": "Lammergeier",
+          "scientificName": "Gypaetus barbatus"
+        },
+        {
+          "name": "Ibisbill",
+          "scientificName": "Ibidorhyncha struthersii"
+        },
+        {
+          "name": "Snow Pigeon",
+          "scientificName": "Columba leuconota"
+        },
+        {
+          "name": "Grandala",
+          "scientificName": "Grandala coelicolor"
+        }
+      ],
+      "inquiry": "https://example.github.io/nepalbirdwatchingtours/?inquire&trip=langtang-birding-trek"
+    },
+    {
+      "slug": "gosaikunda-birding-trek",
+      "url": "https://example.github.io/nepalbirdwatchingtours/trips/gosaikunda-birding-trek/",
+      "title": "Gosaikunda Birdwatching Trek",
+      "tagline": "Through pheasant forest to the sacred lakes at 4,380 m, and down a quiet trail back to Kathmandu.",
+      "kind": "birding-trek",
+      "guideRole": "lead-guide",
+      "region": "Langtang National Park",
+      "regionPage": "https://example.github.io/nepalbirdwatchingtours/regions/langtang/",
+      "days": 10,
+      "difficulty": "challenging",
+      "maxAltitudeM": 4610,
+      "bestMonths": [
+        "March",
+        "April",
+        "May",
+        "October",
+        "November"
+      ],
+      "birdSpecies": 74,
+      "keyBirds": [
+        {
+          "name": "Himalayan Monal",
+          "scientificName": "Lophophorus impejanus"
+        },
+        {
+          "name": "Blood Pheasant",
+          "scientificName": "Ithaginis cruentus"
+        },
+        {
+          "name": "Red-headed Bullfinch",
+          "scientificName": "Pyrrhula erythrocephala"
+        },
+        {
+          "name": "Lammergeier",
+          "scientificName": "Gypaetus barbatus"
+        },
+        {
+          "name": "Snow Pigeon",
+          "scientificName": "Columba leuconota"
+        },
+        {
+          "name": "Robin Accentor",
+          "scientificName": "Prunella rubeculoides"
+        },
+        {
+          "name": "Grandala",
+          "scientificName": "Grandala coelicolor"
+        },
+        {
+          "name": "Himalayan Snowcock",
+          "scientificName": "Tetraogallus himalayensis"
+        },
+        {
+          "name": "Satyr Tragopan",
+          "scientificName": "Tragopan satyra"
+        },
+        {
+          "name": "Spiny Babbler",
+          "scientificName": "Turdoides nipalensis"
+        }
+      ],
+      "inquiry": "https://example.github.io/nepalbirdwatchingtours/?inquire&trip=gosaikunda-birding-trek"
+    },
+    {
+      "slug": "ilam-red-panda-trek",
+      "url": "https://example.github.io/nepalbirdwatchingtours/trips/ilam-red-panda-trek/",
+      "title": "Red Panda Trek",
+      "tagline": "Ten days in the bamboo cloud forest of eastern Nepal, searching for the red panda at dawn and dusk.",
+      "kind": "birding-trek",
+      "guideRole": "lead-guide",
+      "region": "Ilam, eastern Nepal",
+      "regionPage": "https://example.github.io/nepalbirdwatchingtours/regions/far-east/",
+      "days": 10,
+      "difficulty": "moderate",
+      "maxAltitudeM": 3300,
+      "bestMonths": [
+        "March",
+        "April",
+        "May",
+        "October",
+        "November",
+        "December"
+      ],
+      "birdSpecies": 68,
+      "keyBirds": [
+        {
+          "name": "Golden-throated Barbet",
+          "scientificName": "Psilopogon franklinii"
+        },
+        {
+          "name": "Satyr Tragopan",
+          "scientificName": "Tragopan satyra"
+        },
+        {
+          "name": "Scarlet Finch",
+          "scientificName": "Carpodacus sipahi"
+        },
+        {
+          "name": "Black-throated Parrotbill",
+          "scientificName": "Suthora nipalensis"
+        },
+        {
+          "name": "Hoary-throated Barwing",
+          "scientificName": "Actinodura nipalensis"
+        },
+        {
+          "name": "Fire-tailed Myzornis",
+          "scientificName": "Myzornis pyrrhoura"
+        },
+        {
+          "name": "Golden-breasted Fulvetta",
+          "scientificName": "Lioparus chrysotis"
+        },
+        {
+          "name": "Red-headed Bullfinch",
+          "scientificName": "Pyrrhula erythrocephala"
+        },
+        {
+          "name": "Blood Pheasant",
+          "scientificName": "Ithaginis cruentus"
+        },
+        {
+          "name": "Grandala",
+          "scientificName": "Grandala coelicolor"
+        }
+      ],
+      "inquiry": "https://example.github.io/nepalbirdwatchingtours/?inquire&trip=ilam-red-panda-trek"
+    },
+    {
+      "slug": "chitwan-wildlife-safari",
+      "url": "https://example.github.io/nepalbirdwatchingtours/trips/chitwan-wildlife-safari/",
+      "title": "Chitwan Jungle Birding and Wildlife Safari",
+      "tagline": "Rhinos at dawn, hornbills overhead and a river full of kingfishers, all from one comfortable base.",
+      "kind": "wildlife-safari",
+      "guideRole": "lead-guide",
+      "region": "Chitwan National Park",
+      "regionPage": "https://example.github.io/nepalbirdwatchingtours/regions/chitwan/",
+      "days": 4,
+      "difficulty": "easy",
+      "maxAltitudeM": 190,
+      "bestMonths": [
+        "October",
+        "November",
+        "December",
+        "January",
+        "February",
+        "March"
+      ],
+      "birdSpecies": 111,
+      "keyBirds": [
+        {
+          "name": "Ruddy Shelduck",
+          "scientificName": "Tadorna ferruginea"
+        },
+        {
+          "name": "Pied Kingfisher",
+          "scientificName": "Ceryle rudis"
+        },
+        {
+          "name": "Stork-billed Kingfisher",
+          "scientificName": "Pelargopsis capensis"
+        },
+        {
+          "name": "Black-necked Stork",
+          "scientificName": "Ephippiorhynchus asiaticus"
+        },
+        {
+          "name": "Lesser Adjutant",
+          "scientificName": "Leptoptilos javanicus"
+        },
+        {
+          "name": "Oriental Pied Hornbill",
+          "scientificName": "Anthracoceros albirostris"
+        },
+        {
+          "name": "Great Hornbill",
+          "scientificName": "Buceros bicornis"
+        },
+        {
+          "name": "Black Francolin",
+          "scientificName": "Francolinus francolinus"
+        },
+        {
+          "name": "Bengal Florican",
+          "scientificName": "Houbaropsis bengalensis"
+        },
+        {
+          "name": "Pheasant-tailed Jacana",
+          "scientificName": "Hydrophasianus chirurgus"
+        }
+      ],
+      "inquiry": "https://example.github.io/nepalbirdwatchingtours/?inquire&trip=chitwan-wildlife-safari"
+    },
+    {
+      "slug": "bardiya-wildlife-safari",
+      "url": "https://example.github.io/nepalbirdwatchingtours/trips/bardiya-wildlife-safari/",
+      "title": "Bardiya Wildlife Safari and Birdwatching",
+      "tagline": "Four full days in Bardiya's tiger country, timed around the best light at dawn and dusk.",
+      "kind": "wildlife-safari",
+      "guideRole": "lead-guide",
+      "region": "Bardiya National Park",
+      "regionPage": "https://example.github.io/nepalbirdwatchingtours/regions/bardia/",
+      "days": 9,
+      "difficulty": "easy",
+      "maxAltitudeM": 200,
+      "bestMonths": [
+        "February",
+        "March",
+        "April",
+        "May",
+        "October",
+        "November"
+      ],
+      "birdSpecies": 79,
+      "keyBirds": [
+        {
+          "name": "Bengal Florican",
+          "scientificName": "Houbaropsis bengalensis"
+        },
+        {
+          "name": "Sarus Crane",
+          "scientificName": "Antigone antigone"
+        },
+        {
+          "name": "River Tern",
+          "scientificName": "Sterna aurantia"
+        },
+        {
+          "name": "Ibisbill",
+          "scientificName": "Ibidorhyncha struthersii"
+        },
+        {
+          "name": "Woolly-necked Stork",
+          "scientificName": "Ciconia episcopus"
+        },
+        {
+          "name": "Great Slaty Woodpecker",
+          "scientificName": "Mulleripicus pulverulentus"
+        },
+        {
+          "name": "Oriental Pied Hornbill",
+          "scientificName": "Anthracoceros albirostris"
+        },
+        {
+          "name": "Great Hornbill",
+          "scientificName": "Buceros bicornis"
+        },
+        {
+          "name": "Red-headed Vulture",
+          "scientificName": "Sarcogyps calvus"
+        },
+        {
+          "name": "Brown Fish-Owl",
+          "scientificName": "Ketupa zeylonensis"
+        }
+      ],
+      "inquiry": "https://example.github.io/nepalbirdwatchingtours/?inquire&trip=bardiya-wildlife-safari"
+    },
+    {
+      "slug": "phulchowki-birding-day",
+      "url": "https://example.github.io/nepalbirdwatchingtours/trips/phulchowki-birding-day/",
+      "title": "Kathmandu Birding Day: Phulchowki & Godawari",
+      "tagline": "Kathmandu's best birding mountain in a single day: forested slopes at dawn, Godawari garden at midday.",
+      "kind": "day-tour",
+      "guideRole": "lead-guide",
+      "region": "Kathmandu Valley, Phulchowki and Godawari",
+      "regionPage": "https://example.github.io/nepalbirdwatchingtours/regions/kathmandu/",
+      "days": 1,
+      "difficulty": "easy",
+      "maxAltitudeM": 2782,
+      "bestMonths": [
+        "February",
+        "March",
+        "April",
+        "October",
+        "November"
+      ],
+      "birdSpecies": 81,
+      "keyBirds": [
+        {
+          "name": "Spiny Babbler",
+          "scientificName": "Turdoides nipalensis"
+        },
+        {
+          "name": "Himalayan Cutia",
+          "scientificName": "Cutia nipalensis"
+        },
+        {
+          "name": "Mrs. Gould's Sunbird",
+          "scientificName": "Aethopyga gouldiae"
+        },
+        {
+          "name": "Large Niltava",
+          "scientificName": "Niltava grandis"
+        },
+        {
+          "name": "Spotted Laughingthrush",
+          "scientificName": "Garrulax ocellatus"
+        },
+        {
+          "name": "Great Parrotbill",
+          "scientificName": "Conostoma aemodium"
+        },
+        {
+          "name": "Black Eagle",
+          "scientificName": "Ictinaetus malaiensis"
+        },
+        {
+          "name": "Little Forktail",
+          "scientificName": "Enicurus scouleri"
+        },
+        {
+          "name": "Red-headed Trogon",
+          "scientificName": "Harpactes erythrocephalus"
+        },
+        {
+          "name": "Himalayan Bluetail",
+          "scientificName": "Tarsiger rufilatus"
+        }
+      ],
+      "inquiry": "https://example.github.io/nepalbirdwatchingtours/?inquire&trip=phulchowki-birding-day"
+    }
+  ]
+}

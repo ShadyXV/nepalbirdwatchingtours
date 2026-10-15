@@ -1,0 +1,88 @@
+# Nepal Birdwatching Tours
+
+> Guided birdwatching tours in Nepal with Krishna Thapa: Himalayan treks, forest day tours and wildlife safaris.
+
+Krishna Thapa is a passionate nature guide with over 6 years of experience in birdwatching and wildlife guiding across Nepal. With extensive field knowledge of the country's key biodiversity areas, he has guided birders, wildlife enthusiasts, and photographers in search of Nepal's remarkable flora and fauna. His keen eye for wildlife and dedication to conservation make every excursion both educational and memorable.
+
+Every page is plain HTML that reads in full without JavaScript. Prices appear only on trips that show them; otherwise ask.
+
+To help someone ask Krishna Thapa about a trip, link them to any page with `?inquire` plus any of `trip=<trip slug>`, `place=<place id>`, `offering=<offering id>`, `from=<YYYY-MM-DD>`, `to=<YYYY-MM-DD>` and `party=<number of people>`, for example https://example.github.io/nepalbirdwatchingtours/?inquire&trip=annapurna-birding-trek&from=2027-04-05&to=2027-04-16&party=2. The page opens its inquiry form filled in; nothing is sent until they choose WhatsApp, email or Instagram themselves.
+
+## Trips
+
+- [Annapurna Sanctuary Birding Trek](https://example.github.io/nepalbirdwatchingtours/trips/annapurna-birding-trek/): Birding trek, 12 days, Annapurna Conservation Area. Up to 4,130 m, with 110 bird species recorded on the route. Best months: March to May and October to November. Key birds: Brown Dipper, Spotted Forktail, Himalayan Monal, Satyr Tragopan, Fire-tailed Sunbird, Lammergeier. (slug: `annapurna-birding-trek`)
+- [Mardi Himal Birdwatching Trek](https://example.github.io/nepalbirdwatchingtours/trips/mardi-himal-birding-trek/): Birding trek, 9 days, Annapurna Conservation Area. Up to 4,500 m, with 87 bird species recorded on the route. Best months: March to May and October to November. Key birds: Spiny Babbler, Himalayan Cutia, Mrs. Gould's Sunbird, Great Parrotbill, Satyr Tragopan, Fire-tailed Sunbird. (slug: `mardi-himal-birding-trek`)
+- [Langtang Birdwatching Trek](https://example.github.io/nepalbirdwatchingtours/trips/langtang-birding-trek/): Birding trek, 10 days, Langtang National Park. Up to 4,773 m, with 69 bird species recorded on the route. Best months: March to May and October to November. Key birds: Wallcreeper, Red-headed Trogon, Rufous-bellied Niltava, Satyr Tragopan, Himalayan Monal, Blood Pheasant. (slug: `langtang-birding-trek`)
+- [Gosaikunda Birdwatching Trek](https://example.github.io/nepalbirdwatchingtours/trips/gosaikunda-birding-trek/): Birding trek, 10 days, Langtang National Park. Up to 4,610 m, with 74 bird species recorded on the route. Best months: March to May and October to November. Key birds: Himalayan Monal, Blood Pheasant, Red-headed Bullfinch, Lammergeier, Snow Pigeon, Robin Accentor. (slug: `gosaikunda-birding-trek`)
+- [Red Panda Trek](https://example.github.io/nepalbirdwatchingtours/trips/ilam-red-panda-trek/): Birding trek, 10 days, Ilam, eastern Nepal. Up to 3,300 m, with 68 bird species recorded on the route. Best months: March to May and October to December. Key birds: Golden-throated Barbet, Satyr Tragopan, Scarlet Finch, Black-throated Parrotbill, Hoary-throated Barwing, Fire-tailed Myzornis. (slug: `ilam-red-panda-trek`)
+- [Chitwan Jungle Birding and Wildlife Safari](https://example.github.io/nepalbirdwatchingtours/trips/chitwan-wildlife-safari/): Wildlife safari, 4 days, Chitwan National Park. Up to 190 m, with 111 bird species recorded on the route. Best months: October to March. Key birds: Ruddy Shelduck, Pied Kingfisher, Stork-billed Kingfisher, Black-necked Stork, Lesser Adjutant, Oriental Pied Hornbill. (slug: `chitwan-wildlife-safari`)
+- [Bardiya Wildlife Safari and Birdwatching](https://example.github.io/nepalbirdwatchingtours/trips/bardiya-wildlife-safari/): Wildlife safari, 9 days, Bardiya National Park. Up to 200 m, with 79 bird species recorded on the route. Best months: February to May and October to November. Key birds: Bengal Florican, Sarus Crane, River Tern, Ibisbill, Woolly-necked Stork, Great Slaty Woodpecker. (slug: `bardiya-wildlife-safari`)
+- [Kathmandu Birding Day: Phulchowki & Godawari](https://example.github.io/nepalbirdwatchingtours/trips/phulchowki-birding-day/): Day tour, 1 day, Kathmandu Valley, Phulchowki and Godawari. Up to 2,782 m, with 81 bird species recorded on the route. Best months: February to April and October to November. Key birds: Spiny Babbler, Himalayan Cutia, Mrs. Gould's Sunbird, Large Niltava, Spotted Laughingthrush, Great Parrotbill. (slug: `phulchowki-birding-day`)
+
+## Regions
+
+- [Kathmandu Valley](https://example.github.io/nepalbirdwatchingtours/regions/kathmandu/): Forest birds and cloud forest on the edge of the city. One trip here, 1 day, with 81 birds recorded on its route. Best months: February to April and October to November.
+- [Annapurna](https://example.github.io/nepalbirdwatchingtours/regions/annapurna/): From subtropical forest to high passes above 5,000 metres. 2 trips here, 9 to 12 days, with 121 birds recorded on their routes. Best months: March to May and October to November.
+- [Langtang](https://example.github.io/nepalbirdwatchingtours/regions/langtang/): Red pandas, rhododendron forest and high alpine lakes. 2 trips here, 10 days, with 85 birds recorded on their routes. Best months: March to May and October to November.
+- [Chitwan National Park](https://example.github.io/nepalbirdwatchingtours/regions/chitwan/): Sal forest, grassland and river with rhinos, tigers and gharials. One trip here, 4 days, with 111 birds recorded on its route. Best months: October to March.
+- [Bardia National Park](https://example.github.io/nepalbirdwatchingtours/regions/bardia/): Lowland sal forest and grassland along the Karnali River. One trip here, 9 days, with 79 birds recorded on its route. Best months: February to May and October to November.
+- [Far East](https://example.github.io/nepalbirdwatchingtours/regions/far-east/): Red panda forest, tea hills and wetlands on the eastern plains. One trip here, 10 days, with 68 birds recorded on its route. Best months: March to May and October to December.
+
+## Beyond the set trips
+
+- [Custom day trips](https://example.github.io/nepalbirdwatchingtours/anywhere/#custom-day-trips): A morning in the hills, planned around you. (offering id: `custom-day-trips`)
+- [Crew support](https://example.github.io/nepalbirdwatchingtours/anywhere/#crew-support): A fixer who actually knows the birds. (offering id: `crew-support`)
+- [Naturalist for your trekking group](https://example.github.io/nepalbirdwatchingtours/anywhere/#trekking-group-naturalist): Your trek guide knows the trail. I know what is living along it. (offering id: `trekking-group-naturalist`)
+- [Trek photography](https://example.github.io/nepalbirdwatchingtours/anywhere/#trek-photography): Your trek, as the wild around you saw it. (offering id: `trek-photography`)
+
+## About Krishna and birding in Nepal
+
+- [Birdwatching tours in Nepal](https://example.github.io/nepalbirdwatchingtours/birding-in-nepal/): A guide to birdwatching in Nepal: over 870 species, the best birding destinations from Chitwan and Koshi Tappu to Phulchowki and Annapurna, sample itineraries, custom tours and the best time to visit.
+- [About Krishna Thapa](https://example.github.io/nepalbirdwatchingtours/about/): Birding the Himalaya with a local who loves every feather.
+- [All trips](https://example.github.io/nepalbirdwatchingtours/trips/): Every birding trek, day tour and wildlife safari with Krishna Thapa in Nepal: how long, how high, how many birds, and the best months to go.
+- [Reviews](https://example.github.io/nepalbirdwatchingtours/reviews/): What guests say about birding in Nepal with Krishna Thapa: treks, day tours and wildlife safaris.
+
+## Data
+
+- [Trips as JSON](https://example.github.io/nepalbirdwatchingtours/data/trips.json): every published trip with its facts, key birds and inquiry link
+- [Sitemap](https://example.github.io/nepalbirdwatchingtours/sitemap.xml)
+
+## Optional
+
+- [Rhododendrons, rosefinches and the fishtail at first light](https://example.github.io/nepalbirdwatchingtours/trip-reports/mardi-himal-rhododendrons-april-2026/): Nine days up the Mardi ridge in rhododendron season: minivets and laughingthrushes in the oak forest, a Himalayan Monal and choughs at High Camp, and Snow Pigeons below the base camp at sunrise.
+- [Forktails, sunbirds and a picnic by the stream](https://example.github.io/nepalbirdwatchingtours/trip-reports/phulchowki-march-2026/): A bright March day on Phulchowki with two first-time birders: rhododendrons in bloom, Mrs. Gould's Sunbird at the flowers, a Spotted Forktail at lunch and griffons over the summit.
+- [Gharials, a tiger at the reeds and a bee-eater by the lodge](https://example.github.io/nepalbirdwatchingtours/trip-reports/bardiya-tigers-gharials-february-2026/): Four safari days in Bardiya in February: a tiger at the reeds at dusk, gharials basking on a Karnali sandbar, a one-horned rhino in the floodplain and a green bee-eater at the lodge.
+- [Kathmandu](https://example.github.io/nepalbirdwatchingtours/places/kathmandu/): Kathmandu, 1,400 m, Nepal. (place id: `kathmandu`)
+- [Pokhara](https://example.github.io/nepalbirdwatchingtours/places/pokhara/): Pokhara, 820 m, Nepal. (place id: `pokhara`)
+- [Chitwan National Park](https://example.github.io/nepalbirdwatchingtours/places/chitwan-national-park/): Chitwan National Park, 150 m, Nepal. (place id: `chitwan-national-park`)
+- [Bardia National Park](https://example.github.io/nepalbirdwatchingtours/places/bardia-national-park/): Bardia National Park, 200 m, Nepal. (place id: `bardia-national-park`)
+- [Annapurna Conservation Area](https://example.github.io/nepalbirdwatchingtours/places/annapurna-conservation-area/): Annapurna Conservation Area, Nepal. (place id: `annapurna-conservation-area`)
+- [Shivapuri Nagarjun National Park](https://example.github.io/nepalbirdwatchingtours/places/shivapuri-nagarjun-national-park/): Shivapuri Nagarjun National Park, 2,732 m, Nepal. (place id: `shivapuri-nagarjun-national-park`)
+- [Langtang National Park](https://example.github.io/nepalbirdwatchingtours/places/langtang-national-park/): Langtang National Park, Nepal. (place id: `langtang-national-park`)
+- [Annapurna Himal](https://example.github.io/nepalbirdwatchingtours/places/annapurna-himal/): Annapurna Himal, Nepal. (place id: `annapurna-himal`)
+- [Langtang Himal](https://example.github.io/nepalbirdwatchingtours/places/langtang-himal/): Langtang Himal, Nepal. (place id: `langtang-himal`)
+- [Mahalangur Himal (Everest region)](https://example.github.io/nepalbirdwatchingtours/places/mahalangur-himal/): Mahalangur Himal (Everest region), Nepal. (place id: `mahalangur-himal`)
+- [Dhaulagiri Himal](https://example.github.io/nepalbirdwatchingtours/places/dhaulagiri-himal/): Dhaulagiri Himal, Nepal. (place id: `dhaulagiri-himal`)
+- [Mansiri Himal (Manaslu)](https://example.github.io/nepalbirdwatchingtours/places/mansiri-himal/): Mansiri Himal (Manaslu), Nepal. (place id: `mansiri-himal`)
+- [Kanchenjunga Himal](https://example.github.io/nepalbirdwatchingtours/places/kanchenjunga-himal/): Kanchenjunga Himal, Nepal. (place id: `kanchenjunga-himal`)
+- [Mount Everest](https://example.github.io/nepalbirdwatchingtours/places/everest/): Mount Everest, 8,849 m, Mahalangur Himal, Nepal. (place id: `everest`)
+- [Kanchenjunga](https://example.github.io/nepalbirdwatchingtours/places/kanchenjunga/): Kanchenjunga, 8,586 m, Kanchenjunga Himal, Nepal. (place id: `kanchenjunga`)
+- [Lhotse](https://example.github.io/nepalbirdwatchingtours/places/lhotse/): Lhotse, 8,516 m, Mahalangur Himal, Nepal. (place id: `lhotse`)
+- [Makalu](https://example.github.io/nepalbirdwatchingtours/places/makalu/): Makalu, 8,485 m, Mahalangur Himal, Nepal. (place id: `makalu`)
+- [Cho Oyu](https://example.github.io/nepalbirdwatchingtours/places/cho-oyu/): Cho Oyu, 8,188 m, Mahalangur Himal, Nepal. (place id: `cho-oyu`)
+- [Dhaulagiri I](https://example.github.io/nepalbirdwatchingtours/places/dhaulagiri-i/): Dhaulagiri I, 8,167 m, Dhaulagiri Himal, Nepal. (place id: `dhaulagiri-i`)
+- [Manaslu](https://example.github.io/nepalbirdwatchingtours/places/manaslu/): Manaslu, 8,163 m, Mansiri Himal, Nepal. (place id: `manaslu`)
+- [Annapurna I](https://example.github.io/nepalbirdwatchingtours/places/annapurna-i/): Annapurna I, 8,091 m, Annapurna Himal, Nepal. (place id: `annapurna-i`)
+- [Annapurna South](https://example.github.io/nepalbirdwatchingtours/places/annapurna-south/): Annapurna South, 7,219 m, Annapurna Himal, Nepal. (place id: `annapurna-south`)
+- [Hiunchuli](https://example.github.io/nepalbirdwatchingtours/places/hiunchuli/): Hiunchuli, 6,441 m, Annapurna Himal, Nepal. (place id: `hiunchuli`)
+- [Machhapuchhre](https://example.github.io/nepalbirdwatchingtours/places/machhapuchhre/): Machhapuchhre, 6,993 m, Annapurna Himal, Nepal. (place id: `machhapuchhre`)
+- [Langtang Lirung](https://example.github.io/nepalbirdwatchingtours/places/langtang-lirung/): Langtang Lirung, 7,227 m, Langtang Himal, Nepal. (place id: `langtang-lirung`)
+- [Phulchowki](https://example.github.io/nepalbirdwatchingtours/places/phulchowki/): Phulchowki, 2,782 m, Mahabharat Range, Nepal. (place id: `phulchowki`)
+- [Koshi Tappu Wildlife Reserve](https://example.github.io/nepalbirdwatchingtours/places/koshi-tappu-wildlife-reserve/): Koshi Tappu Wildlife Reserve, 75 m, Nepal. (place id: `koshi-tappu-wildlife-reserve`)
+- [Sandakpur Red Panda Forest, Ilam](https://example.github.io/nepalbirdwatchingtours/places/ilam-red-panda-forest/): Sandakpur Red Panda Forest, Ilam, 3,100 m, Nepal. (place id: `ilam-red-panda-forest`)
+- [Phewa Lake](https://example.github.io/nepalbirdwatchingtours/places/phewa-lake/): Phewa Lake, 742 m, Nepal. (place id: `phewa-lake`)
+- [Begnas Lake](https://example.github.io/nepalbirdwatchingtours/places/begnas-lake/): Begnas Lake, 650 m, Nepal. (place id: `begnas-lake`)
+- [Rara Lake](https://example.github.io/nepalbirdwatchingtours/places/rara-lake/): Rara Lake, 2,990 m, Nepal. (place id: `rara-lake`)
+- [Karnali River, Bardia](https://example.github.io/nepalbirdwatchingtours/places/karnali-river-bardia/): Karnali River, Bardia, 150 m, Nepal. (place id: `karnali-river-bardia`)
+- [Gosaikunda](https://example.github.io/nepalbirdwatchingtours/places/gosaikunda/): Gosaikunda, 4,380 m, Nepal. (place id: `gosaikunda`)
+- [Sarangkot](https://example.github.io/nepalbirdwatchingtours/places/sarangkot/): Sarangkot, 1,600 m, Nepal. (place id: `sarangkot`)
