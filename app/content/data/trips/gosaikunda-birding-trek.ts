@@ -1,0 +1,470 @@
+import type {
+  ImageAsset,
+  Likelihood,
+  LngLat,
+  Month,
+  Observation,
+  Sighting,
+  Trip,
+  VideoAsset,
+} from "~/content/types";
+
+/* Itinerary, highlights and inclusions are Krishna's own copy. Geography, altitudes and species are
+   real; photos, clips and stay details are stand-ins for his own. */
+
+const PH = {
+  plain: "/media/placeholder.svg",
+  forest: "/media/placeholder-forest.svg",
+  ridge: "/media/placeholder-ridge.svg",
+  snow: "/media/placeholder-snow.svg",
+} as const;
+
+const img = (src: string, alt: string, observation: Observation, focal?: [number, number]): ImageAsset => ({
+  kind: "image",
+  src,
+  alt,
+  observation,
+  ...(focal ? { focal } : {}),
+});
+
+const clip = (poster: string, alt: string, observation: Observation, durationSec: number): VideoAsset => ({
+  kind: "video",
+  sources: [{ host: "uploadthing", src: "https://example.invalid/placeholder.mp4" }],
+  poster,
+  alt,
+  observation,
+  durationSec,
+  ambient: true,
+});
+
+/** Same likelihood for a list of species ids. */
+const seen = (likelihood: Likelihood, ids: string[], months?: Month[]): Sighting[] =>
+  ids.map((speciesId) => ({ speciesId, likelihood, ...(months ? { months } : {}) }));
+
+const one = (speciesId: string, likelihood: Likelihood, months?: Month[], note?: string): Sighting => ({
+  speciesId,
+  likelihood,
+  ...(months ? { months } : {}),
+  ...(note ? { note } : {}),
+});
+
+
+const WINTER: Month[] = [11, 12, 1, 2, 3];
+
+/** Approximate line: Kathmandu to Dhunche by road, up through Sing Gompa and Lauribina to the
+    lakes, over the Laurebina Pass, down through Ghopte, Tharepati and Kutumsang, over the
+    Shivapuri ridge at Chisapani to Sundarijal, and the short drive back into Kathmandu. */
+const route: LngLat[] = [
+  [85.31230, 27.71540],
+  [85.28000, 27.76000],
+  [85.25000, 27.80000],
+  [85.17000, 27.88000],
+  [85.16000, 27.93000],
+  [85.19000, 27.98000],
+  [85.22000, 28.03000],
+  [85.26000, 28.08000],
+  [85.29920, 28.11140],
+  [85.32000, 28.10500],
+  [85.34450, 28.09550],
+  [85.36000, 28.09800],
+  [85.38000, 28.09600],
+  [85.40000, 28.08800],
+  [85.41350, 28.08300],
+  [85.42000, 28.09200],
+  [85.41350, 28.08300],
+  [85.43000, 28.07200],
+  [85.44480, 28.06310],
+  [85.46800, 28.04500],
+  [85.48660, 28.01840],
+  [85.49500, 27.99000],
+  [85.50390, 27.95560],
+  [85.49000, 27.92000],
+  [85.47330, 27.89330],
+  [85.44000, 27.85000],
+  [85.39600, 27.79700],
+  [85.41000, 27.78000],
+  [85.42530, 27.76550],
+  [85.37000, 27.73000],
+  [85.31230, 27.71540],
+];
+
+const kathmanduSightings: Sighting[] = [
+  ...seen("common", ["black-kite", "large-billed-crow", "common-myna", "oriental-magpie-robin", "red-vented-bulbul", "spotted-dove"]),
+  ...seen("likely", ["himalayan-bulbul", "eurasian-kestrel", "grey-wagtail"]),
+  one("egyptian-vulture", "possible"),
+];
+
+export const trip = {
+  slug: "gosaikunda-birding-trek",
+  title: "Gosaikunda Birdwatching Trek",
+  tagline: "Through pheasant forest to the sacred lakes at 4,380 m, and down a quiet trail back to Kathmandu.",
+  kind: "birding-trek",
+  guideRole: "lead-guide",
+  region: "Langtang National Park",
+  durationDays: 10,
+  difficulty: "challenging",
+  maxAltitudeM: 4610,
+  bestMonths: [3, 4, 5, 10, 11],
+  summary:
+    "Gosaikunda, a sacred high-altitude lake system at over 4,300 m, sits within Langtang National Park's rich forest and alpine zones. This 10-day trek combines the pilgrimage route to Gosaikunda with dedicated birding along the way.",
+  highlights: [
+    "Sacred alpine lakes at 4,300+ m, a major Hindu and Buddhist pilgrimage site",
+    "Forest belts rich in Himalayan pheasants and laughingthrushes",
+    "High-altitude birding for snow pigeons, choughs, and alpine accentors",
+    "Less crowded than Langtang Valley or Annapurna routes",
+  ],
+  cover: img(
+    PH.snow,
+    "Wide shot: Gosaikunda lake in still morning light, prayer flags on the shore and snow-streaked ridges behind",
+    { landmarkId: "gosaikunda", place: "Gosaikunda", altitudeM: 4380, date: "2025-10", note: "calm morning, 07:00" },
+    [0.5, 0.45],
+  ),
+  reel: [
+    clip(
+      PH.snow,
+      "Clip, 15 s: wind moving across the dark water of Gosaikunda, prayer flags flapping, Yellow-billed Choughs calling overhead",
+      { speciesIds: ["yellow-billed-chough"], landmarkId: "gosaikunda", place: "Gosaikunda", altitudeM: 4380, date: "2025-10", note: "midday wind on the lake" },
+      15,
+    ),
+    img(
+      PH.forest,
+      "Close, landscape crop: male Himalayan Monal in the rhododendron above Sing Gompa, iridescent back in first light",
+      { speciesIds: ["himalayan-monal"], place: "Sing Gompa, Langtang", altitudeM: 3400, date: "2026-04", note: "male on the slope, 06:50" },
+      [0.5, 0.45],
+    ),
+    img(
+      PH.ridge,
+      "Wide shot: the Langtang range and Langtang Lirung across the valley from the ridge at Lauribina, late afternoon",
+      { landmarkId: "langtang-lirung", place: "Lauribina, Langtang", altitudeM: 3910, date: "2025-10", note: "clear afternoon, 16:00" },
+      [0.5, 0.35],
+    ),
+    img(
+      PH.plain,
+      "Landscape: Alpine Accentor on a lichen-covered boulder by the lake shore, streaked flanks and yellow bill base",
+      { speciesIds: ["alpine-accentor"], place: "Gosaikunda", altitudeM: 4380, date: "2025-11", note: "feeding on the shore, 08:20" },
+      [0.5, 0.5],
+    ),
+    img(
+      PH.plain,
+      "Landscape: Krishna and guests crossing the Laurebina Pass among cairns and prayer flags, the lakes below",
+      { place: "Laurebina Pass", altitudeM: 4610, date: "2025-10", note: "on the pass, 09:30" },
+      [0.5, 0.5],
+    ),
+  ],
+  waypoints: [
+    {
+      id: "kathmandu",
+      name: "Kathmandu",
+      kind: "town",
+      coords: [85.3123, 27.7154],
+      altitudeM: 1400,
+      day: 1,
+      nights: 1,
+      stay: { kind: "hotel", note: "Hotel in Kathmandu" },
+      habitat: ["city gardens", "temple trees"],
+      summary: "Airport pickup, hotel check-in and the trip briefing.",
+      sightings: kathmanduSightings,
+      media: [
+        img(PH.plain, "Landscape: Black Kites circling over Kathmandu rooftops and temple spires in the late afternoon", { speciesIds: ["black-kite"], landmarkId: "kathmandu", place: "Kathmandu", altitudeM: 1400, date: "2025-10", note: "kites over the old town, 16:30" }),
+      ],
+    },
+    {
+      id: "dhunche",
+      name: "Dhunche",
+      kind: "town",
+      coords: [85.2992, 28.1114],
+      altitudeM: 1960,
+      day: 2,
+      nights: 1,
+      stay: { kind: "lodge", note: "Simple lodge in the Langtang park headquarters town" },
+      habitat: ["pine and broadleaf forest", "terraced fields", "river gorge"],
+      summary: "The drive to the trailhead area in the Langtang region, up the Trishuli valley to Dhunche.",
+      sightings: [
+        ...seen("common", ["himalayan-bulbul", "grey-treepie", "great-barbet", "oriental-white-eye", "black-throated-tit", "blue-whistling-thrush"]),
+        ...seen("likely", ["plumbeous-water-redstart", "verditer-flycatcher", "long-tailed-minivet", "slaty-headed-parakeet", "rufous-sibia", "himalayan-griffon"]),
+        ...seen("possible", ["kalij-pheasant", "himalayan-goral", "himalayan-langur"]),
+      ],
+      media: [
+        img(PH.ridge, "Wide shot: Dhunche on its hillside above the Trishuli gorge in the evening, terraced fields below", { landmarkId: "langtang-national-park", place: "Dhunche, Langtang", altitudeM: 1960, date: "2025-10", note: "evening light" }),
+      ],
+    },
+    {
+      id: "sing-gompa",
+      key: true,
+      name: "Chandanbari (Sing Gompa)",
+      kind: "village",
+      coords: [85.3445, 28.0955],
+      altitudeM: 3330,
+      day: 3,
+      nights: 1,
+      stay: { kind: "teahouse", note: "Teahouse by the old monastery" },
+      habitat: ["oak–rhododendron forest", "fir forest", "forest clearings"],
+      summary:
+        "We begin trekking through dense rhododendron and oak forest, prime habitat for laughingthrushes and pheasants, reaching Sing Gompa. The forest around the monastery is also known for red pandas.",
+      sightings: [
+        ...seen("common", ["grey-crested-tit", "rufous-vented-tit", "white-browed-fulvetta", "spotted-nutcracker", "stripe-throated-yuhina"]),
+        ...seen("likely", ["himalayan-monal", "spotted-laughingthrush", "hoary-throated-barwing", "darjeeling-woodpecker", "rufous-bellied-woodpecker", "collared-grosbeak", "white-collared-blackbird", "chestnut-crowned-laughingthrush"]),
+        ...seen("possible", ["blood-pheasant", "koklass-pheasant", "red-headed-bullfinch", "yellow-throated-marten"]),
+        one("red-panda", "possible", undefined, "Quiet mornings in the fir and bamboo near the monastery"),
+        one("himalayan-musk-deer", "rare"),
+        one("himalayan-black-bear", "rare"),
+        one("rhododendron-arboreum", "common", [3, 4]),
+        one("rhododendron-barbatum", "likely", [3, 4]),
+      ],
+      media: [
+        img(PH.forest, "Landscape: Spotted Laughingthrush in the bamboo below Sing Gompa, white-spotted chestnut plumage", { speciesIds: ["spotted-laughingthrush"], place: "Sing Gompa, Langtang", altitudeM: 3330, date: "2026-04", note: "in the understorey, 07:30" }),
+        img(PH.forest, "Wide shot: the small monastery at Sing Gompa with prayer flags among tall firs, mist in the trees", { place: "Sing Gompa, Langtang", altitudeM: 3330, date: "2025-10", note: "afternoon mist" }),
+      ],
+    },
+    {
+      id: "lauribina",
+      name: "Lauribina",
+      kind: "village",
+      coords: [85.38, 28.096],
+      altitudeM: 3910,
+      day: 4,
+      nights: 1,
+      stay: { kind: "teahouse", note: "Teahouse on the open ridge, with a wide mountain view" },
+      habitat: ["alpine shrubland", "rhododendron scrub", "open ridge"],
+      summary:
+        "We continue climbing through forest thinning into alpine shrubland, watching the habitat and bird community shift with altitude.",
+      sightings: [
+        ...seen("common", ["rufous-breasted-accentor", "white-browed-fulvetta", "large-billed-crow", "yellow-billed-chough"]),
+        ...seen("likely", ["himalayan-monal", "blood-pheasant", "dark-breasted-rosefinch", "himalayan-white-browed-rosefinch", "white-collared-blackbird", "lammergeier", "himalayan-griffon"]),
+        ...seen("possible", ["himalayan-tahr", "golden-eagle"]),
+        one("grandala", "possible", WINTER),
+        one("rhododendron-campanulatum", "likely", [4, 5]),
+        one("rhododendron-lepidotum", "possible", [5, 6]),
+      ],
+      media: [
+        img(PH.forest, "Landscape: Blood Pheasants picking through the rhododendron scrub below Lauribina, red-streaked faces", { speciesIds: ["blood-pheasant"], place: "Lauribina, Langtang", altitudeM: 3900, date: "2025-11", note: "small flock, 07:40" }),
+      ],
+    },
+    {
+      id: "gosaikunda",
+      key: true,
+      name: "Gosaikunda",
+      kind: "wetland",
+      coords: [85.4135, 28.083],
+      altitudeM: 4380,
+      day: 5,
+      nights: 2,
+      stay: { kind: "teahouse", note: "Basic lodge on the lake shore; two nights, cold" },
+      habitat: ["alpine lakes", "boulder fields", "alpine meadow"],
+      summary:
+        "We reach the sacred lakes of Gosaikunda, with time to explore the high-altitude terrain for alpine specialists.",
+      sightings: [
+        ...seen("common", ["yellow-billed-chough", "red-billed-chough"]),
+        ...seen("likely", ["alpine-accentor", "robin-accentor", "plain-mountain-finch", "snow-pigeon", "lammergeier"]),
+        ...seen("possible", ["himalayan-snowcock", "white-winged-redstart", "brown-dipper", "himalayan-tahr", "large-eared-pika"]),
+        one("grandala", "possible", WINTER, "Flocks of blue over the frozen shore"),
+        one("ruddy-shelduck", "possible", [10, 11, 3, 4], "On passage over the high lakes"),
+      ],
+      media: [
+        img(PH.snow, "Wide shot: the lakes of Gosaikunda from the trail above, the main lake dark blue and the shrine on its shore", { landmarkId: "gosaikunda", place: "Gosaikunda", altitudeM: 4380, date: "2025-10", note: "from the approach, 11:00" }),
+        img(PH.plain, "Landscape: Robin Accentor on a stone wall by the lake lodges, orange breast in clean mountain light", { speciesIds: ["robin-accentor"], place: "Gosaikunda", altitudeM: 4380, date: "2025-10", note: "by the lodges, 08:00" }),
+      ],
+    },
+    {
+      id: "gosaikunda-ridge",
+      name: "Ridge above Gosaikunda",
+      kind: "viewpoint",
+      coords: [85.42, 28.092],
+      altitudeM: 4600,
+      day: 6,
+      nights: 0,
+      habitat: ["scree", "alpine meadow", "rock ridge"],
+      summary:
+        "A day around the lake area, with the option of a higher viewpoint hike and birding for high-altitude species. It also helps with acclimatization before the pass.",
+      sightings: [
+        ...seen("likely", ["snow-pigeon", "alpine-accentor", "yellow-billed-chough", "lammergeier", "himalayan-griffon"]),
+        ...seen("possible", ["himalayan-snowcock", "golden-eagle", "wallcreeper", "large-eared-pika"]),
+        one("grandala", "possible", WINTER),
+      ],
+      media: [
+        img(PH.snow, "Wide shot: looking down on the chain of Gosaikunda lakes from the ridge, Langtang peaks on the horizon", { landmarkId: "langtang-himal", place: "Ridge above Gosaikunda", altitudeM: 4600, date: "2025-10", note: "clear morning, 09:00" }),
+      ],
+    },
+    {
+      id: "laurebina-pass",
+      key: true,
+      name: "Laurebina Pass",
+      kind: "pass",
+      coords: [85.43, 28.072],
+      altitudeM: 4610,
+      day: 7,
+      nights: 0,
+      habitat: ["scree", "alpine lakes", "rock"],
+      summary: "We cross the Laurebina Pass (4,610 m), the highest point of the trek, among cairns and small lakes.",
+      sightings: [
+        ...seen("likely", ["alpine-accentor", "robin-accentor", "snow-pigeon", "yellow-billed-chough", "red-billed-chough", "plain-mountain-finch", "lammergeier"]),
+        ...seen("possible", ["himalayan-snowcock", "white-winged-redstart", "large-eared-pika"]),
+      ],
+      media: [
+        img(PH.snow, "Wide shot: prayer flags and cairns on the Laurebina Pass under a deep blue sky, a small lake below", { place: "Laurebina Pass", altitudeM: 4610, date: "2025-10", note: "on the pass, 09:30" }),
+        img(PH.plain, "Landscape: a flock of Snow Pigeons wheeling over the scree below the pass", { speciesIds: ["snow-pigeon"], place: "Laurebina Pass", altitudeM: 4550, date: "2025-11", note: "flock in flight, 10:00" }),
+      ],
+    },
+    {
+      id: "ghopte",
+      name: "Ghopte",
+      kind: "camp",
+      coords: [85.468, 28.045],
+      altitudeM: 3430,
+      day: 7,
+      nights: 1,
+      stay: { kind: "teahouse", note: "Small, simple teahouse below an overhanging rock" },
+      habitat: ["rhododendron and fir forest", "alpine scrub"],
+      summary: "Then the descent toward Ghopte, a quieter, less-trekked stretch.",
+      sightings: [
+        ...seen("common", ["rufous-breasted-accentor", "white-browed-fulvetta", "spotted-nutcracker", "grey-crested-tit", "rufous-vented-tit"]),
+        ...seen("likely", ["himalayan-monal", "blood-pheasant", "white-collared-blackbird", "dark-breasted-rosefinch"]),
+        ...seen("possible", ["red-headed-bullfinch", "himalayan-tahr"]),
+        one("red-panda", "rare"),
+        one("himalayan-musk-deer", "rare"),
+        one("rhododendron-campanulatum", "likely", [4, 5]),
+      ],
+      media: [
+        img(PH.forest, "Landscape: the lone teahouse at Ghopte in rhododendron forest, smoke rising, evening cloud", { place: "Ghopte, Langtang", altitudeM: 3430, date: "2025-10", note: "evening, 17:00" }),
+      ],
+    },
+    {
+      id: "tharepati",
+      name: "Tharepati",
+      kind: "pass",
+      coords: [85.4866, 28.0184],
+      altitudeM: 3690,
+      day: 8,
+      nights: 0,
+      habitat: ["ridge-top fir forest", "rhododendron scrub"],
+      summary: "A short climb to the ridge at Tharepati, where the Helambu trail turns south.",
+      sightings: [
+        ...seen("likely", ["himalayan-monal", "blood-pheasant", "spotted-nutcracker", "yellow-billed-chough", "large-billed-crow", "lammergeier", "himalayan-griffon", "rufous-breasted-accentor"]),
+        one("rhododendron-campanulatum", "likely", [4, 5]),
+      ],
+      media: [
+        img(PH.ridge, "Wide shot: the long Helambu ridge running south from Tharepati, forest and cloud below", { place: "Tharepati, Helambu", altitudeM: 3690, date: "2025-10", note: "morning, 08:30" }),
+      ],
+    },
+    {
+      id: "kutumsang",
+      key: true,
+      name: "Kutumsang",
+      kind: "village",
+      coords: [85.5039, 27.9556],
+      altitudeM: 2470,
+      day: 8,
+      nights: 1,
+      stay: { kind: "teahouse", note: "Teahouse in a Tamang and Sherpa village on the ridge" },
+      habitat: ["oak–rhododendron forest", "mixed broadleaf forest", "village fields"],
+      summary:
+        "We continue descending through forest toward lower elevations, with strong birding in the mixed forest zone, to Kutumsang.",
+      sightings: [
+        ...seen("common", ["rufous-sibia", "whiskered-yuhina", "green-backed-tit", "blue-winged-minla", "great-barbet"]),
+        ...seen("likely", ["chestnut-crowned-laughingthrush", "striated-laughingthrush", "kalij-pheasant", "yellow-billed-blue-magpie", "mrs-goulds-sunbird", "scarlet-minivet", "himalayan-langur"]),
+        ...seen("possible", ["satyr-tragopan", "hill-partridge", "great-parrotbill", "barking-deer"]),
+        one("himalayan-cuckoo", "likely", [4, 5]),
+        one("rhododendron-arboreum", "common", [3, 4]),
+      ],
+      media: [
+        img(PH.forest, "Landscape: Mrs. Gould's Sunbird at a red rhododendron flower near Kutumsang, scarlet back catching the light", { speciesIds: ["mrs-goulds-sunbird", "rhododendron-arboreum"], place: "Kutumsang, Helambu", altitudeM: 2470, date: "2026-04", note: "male at flower, 07:50" }),
+      ],
+    },
+    {
+      id: "chisapani",
+      name: "Chisapani",
+      kind: "village",
+      coords: [85.396, 27.797],
+      altitudeM: 2215,
+      day: 9,
+      nights: 0,
+      habitat: ["oak forest", "Shivapuri ridge"],
+      summary: "Down the ridge and into the Shivapuri forest at Chisapani, the last hill before Kathmandu.",
+      sightings: [
+        ...seen("common", ["himalayan-bulbul", "rufous-sibia", "whiskered-yuhina", "black-throated-tit", "grey-hooded-warbler", "great-barbet"]),
+        ...seen("likely", ["kalij-pheasant", "white-throated-laughingthrush", "red-billed-blue-magpie", "black-eagle", "himalayan-griffon", "assamese-macaque"]),
+        one("spiny-babbler", "possible", undefined, "Singing from the scrub on the open slopes"),
+      ],
+      media: [
+        img(PH.forest, "Landscape: Red-billed Blue Magpie gliding across a clearing in the Shivapuri forest, long tail spread", { speciesIds: ["red-billed-blue-magpie"], landmarkId: "shivapuri-nagarjun-national-park", place: "Chisapani, Shivapuri", altitudeM: 2215, date: "2025-11", note: "in flight, 10:30" }),
+      ],
+    },
+    {
+      id: "sundarijal",
+      name: "Sundarijal",
+      kind: "town",
+      coords: [85.4253, 27.7655],
+      altitudeM: 1460,
+      day: 9,
+      nights: 0,
+      stay: { kind: "none", note: "Drive back into Kathmandu (about an hour)" },
+      habitat: ["stream", "broadleaf forest", "village"],
+      summary: "The final descent to the roadhead at Sundarijal, and the drive back to the city.",
+      sightings: [
+        ...seen("common", ["plumbeous-water-redstart", "blue-whistling-thrush", "himalayan-bulbul", "red-vented-bulbul", "grey-wagtail", "oriental-magpie-robin"]),
+        ...seen("likely", ["spotted-forktail", "little-forktail", "great-barbet", "verditer-flycatcher"]),
+        one("white-capped-redstart", "likely", WINTER),
+        one("brown-dipper", "possible"),
+      ],
+      media: [
+        img(PH.forest, "Landscape: Spotted Forktail on a wet boulder in the stream at Sundarijal, white spangles bright in shade", { speciesIds: ["spotted-forktail"], place: "Sundarijal", altitudeM: 1460, date: "2025-11", note: "at the stream, 14:00" }),
+      ],
+    },
+    {
+      id: "kathmandu-return",
+      name: "Kathmandu",
+      kind: "town",
+      coords: [85.3123, 27.7154],
+      altitudeM: 1400,
+      day: 9,
+      nights: 1,
+      stay: { kind: "hotel", note: "Hotel in Kathmandu" },
+      habitat: ["city gardens"],
+      summary: "Back in Kathmandu for the night.",
+      sightings: kathmanduSightings,
+      media: [
+        img(PH.plain, "Landscape: Kathmandu rooftops at dusk from a hotel terrace, kites settling to roost", { speciesIds: ["black-kite"], landmarkId: "kathmandu", place: "Kathmandu", altitudeM: 1400, date: "2025-10", note: "dusk, 17:40" }),
+      ],
+    },
+    {
+      id: "kathmandu-departure",
+      name: "Kathmandu",
+      kind: "town",
+      coords: [85.3123, 27.7154],
+      altitudeM: 1400,
+      day: 10,
+      nights: 0,
+      stay: { kind: "none", note: "Departure transfer to the airport" },
+      habitat: ["city gardens"],
+      summary: "Final breakfast and the departure transfer.",
+      sightings: kathmanduSightings,
+      media: [
+        img(PH.plain, "Landscape: Oriental Magpie-Robin singing from a hotel garden wall in Kathmandu in the early morning", { speciesIds: ["oriental-magpie-robin"], place: "Kathmandu", altitudeM: 1400, date: "2025-10", note: "morning song, 07:00" }),
+      ],
+    },
+  ],
+  route,
+  landmarkIds: [
+    "langtang-national-park",
+    "gosaikunda",
+    "langtang-himal",
+    "langtang-lirung",
+    "manaslu",
+    "shivapuri-nagarjun-national-park",
+    "kathmandu",
+  ],
+  reviewIds: [],
+  includes: [
+    "Kathmandu–trailhead transport",
+    "Teahouse accommodation during trek",
+    "All meals during the trek",
+    "Langtang National Park permit and TIMS card",
+    "Expert trekking and birding guide, porter support",
+  ],
+  excludes: [
+    "International flights and visa",
+    "Personal trekking gear (warm layers essential above 4,000 m)",
+    "Tips and personal expenses",
+  ],
+  status: "published",
+} satisfies Trip;

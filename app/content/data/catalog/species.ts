@@ -19,6 +19,7 @@ export const species = [
   { id: "swamp-francolin", group: "bird", commonName: "Swamp Francolin", scientificName: "Francolinus gularis", note: "A grassland specialist with a loud, ringing call from tall wet grass." },
   { id: "black-francolin", group: "bird", commonName: "Black Francolin", scientificName: "Francolinus francolinus", note: "Calls from the tops of mounds at dawn, a real sound of the Terai." },
   { id: "bengal-florican", group: "bird", commonName: "Bengal Florican", scientificName: "Houbaropsis bengalensis", localName: "Khar Mujur", note: "The male's leaping display over the spring grassland is one of the great shows of Nepal birding." },
+  { id: "sarus-crane", group: "bird", commonName: "Sarus Crane", scientificName: "Antigone antigone", localName: "Sarus", note: "The tallest flying bird on earth, a grey giant with a red head, trumpeting over the wet fields." },
 
   /* ----------------------------------------------------------------- raptors */
   { id: "himalayan-griffon", group: "bird", commonName: "Himalayan Griffon", scientificName: "Gyps himalayensis", note: "Enormous, pale and unhurried, riding the mountain thermals above the valley." },
@@ -36,6 +37,8 @@ export const species = [
   { id: "greater-spotted-eagle", group: "bird", commonName: "Greater Spotted Eagle", scientificName: "Clanga clanga", note: "A dark winter eagle that quarters the grassland and wetland edges." },
   { id: "pied-harrier", group: "bird", commonName: "Pied Harrier", scientificName: "Circus melanoleucos", note: "A black-and-white winter harrier floating low over the tall grass." },
   { id: "shikra", group: "bird", commonName: "Shikra", scientificName: "Accipiter badius", note: "A fast, neat little hawk that bursts out of village trees." },
+  { id: "red-headed-vulture", group: "bird", commonName: "Red-headed Vulture", scientificName: "Sarcogyps calvus", note: "A black vulture with a scarlet head, rare now and a real thrill above the sal forest." },
+  { id: "changeable-hawk-eagle", group: "bird", commonName: "Changeable Hawk-Eagle", scientificName: "Nisaetus cirrhatus", note: "A slim, crested forest eagle watching from a bare branch at the forest edge." },
 
   /* ------------------------------------------------------ waterbirds, waders */
   { id: "little-cormorant", group: "bird", commonName: "Little Cormorant", scientificName: "Microcarbo niger", note: "Small, glossy and always drying its wings on a snag." },
@@ -108,6 +111,7 @@ export const species = [
   { id: "slaty-headed-parakeet", group: "bird", commonName: "Slaty-headed Parakeet", scientificName: "Psittacula himalayana", note: "Noisy flocks racing between the hillside trees." },
   { id: "rose-ringed-parakeet", group: "bird", commonName: "Rose-ringed Parakeet", scientificName: "Psittacula krameri", note: "Green flashes and screeches across the grassland." },
   { id: "red-breasted-parakeet", group: "bird", commonName: "Red-breasted Parakeet", scientificName: "Psittacula alexandri", note: "A pink-breasted parakeet with a rich, ringing call." },
+  { id: "indian-grey-hornbill", group: "bird", commonName: "Indian Grey Hornbill", scientificName: "Ocyceros birostris", note: "A modest grey hornbill with a big curved bill, flying in loose pairs over the Terai villages." },
 
   /* ------------------------------------------------ barbets, woodpeckers */
   { id: "great-barbet", group: "bird", commonName: "Great Barbet", scientificName: "Psilopogon virens", note: "Its loud pi-ooo call is the sound of the Himalayan forest." },
@@ -122,6 +126,8 @@ export const species = [
   { id: "lesser-flameback", group: "bird", commonName: "Lesser Flameback", scientificName: "Dinopium benghalense", note: "Golden back flashing as it works up a trunk." },
   { id: "greater-flameback", group: "bird", commonName: "Greater Flameback", scientificName: "Chrysocolaptes guttacristatus", note: "A big, golden-backed woodpecker with a loud rattling call." },
   { id: "grey-capped-pygmy-woodpecker", group: "bird", commonName: "Grey-capped Pygmy Woodpecker", scientificName: "Yungipicus canicapillus", note: "Tiny and quick, hanging on the finest twigs." },
+  { id: "darjeeling-woodpecker", group: "bird", commonName: "Darjeeling Woodpecker", scientificName: "Dendrocopos darjellensis", note: "A pied woodpecker with a golden neck, drumming in the mossy high forest." },
+  { id: "great-slaty-woodpecker", group: "bird", commonName: "Great Slaty Woodpecker", scientificName: "Mulleripicus pulverulentus", note: "The world's biggest woodpecker, travelling through the sal in noisy family groups." },
 
   /* -------------------------------------------------------- perching birds */
   { id: "indian-pitta", group: "bird", commonName: "Indian Pitta", scientificName: "Pitta brachyura", note: "A little jewel hopping on the forest floor, with a call that sounds like wheat-to-wheat." },
@@ -246,6 +252,14 @@ export const species = [
   { id: "common-myna", group: "bird", commonName: "Common Myna", scientificName: "Acridotheres tristis", note: "Always up to something, never boring." },
   { id: "hill-myna", group: "bird", commonName: "Hill Myna", scientificName: "Gracula religiosa", note: "A glossy talker with golden wattles, usually high in a flowering tree." },
   { id: "red-headed-trogon", group: "bird", commonName: "Red-headed Trogon", scientificName: "Harpactes erythrocephalus", note: "A crimson-breasted trogon sitting very still in the shadows of the forest." },
+  { id: "spiny-babbler", group: "bird", commonName: "Spiny Babbler", scientificName: "Turdoides nipalensis", localName: "Kande Bhyakur", note: "Nepal's only endemic bird, a streaky skulker of the scrub that sings beautifully from the top of a bush." },
+  { id: "black-throated-parrotbill", group: "bird", commonName: "Black-throated Parrotbill", scientificName: "Suthora nipalensis", note: "A tiny orange-and-black parrotbill that whirrs through the bamboo in busy little parties." },
+  { id: "fire-tailed-myzornis", group: "bird", commonName: "Fire-tailed Myzornis", scientificName: "Myzornis pyrrhoura", note: "A small emerald bird with a flame-red tail, sipping at rhododendron flowers in the cloud forest." },
+  { id: "scarlet-finch", group: "bird", commonName: "Scarlet Finch", scientificName: "Carpodacus sipahi", note: "A brilliant scarlet male in a dark forest is something you never forget." },
+  { id: "red-headed-bullfinch", group: "bird", commonName: "Red-headed Bullfinch", scientificName: "Pyrrhula erythrocephala", note: "A soft-voiced bullfinch with an orange-red head, feeding quietly in the rhododendron." },
+  { id: "grey-backed-shrike", group: "bird", commonName: "Grey-backed Shrike", scientificName: "Lanius tephronotus", note: "Watching from a fence post above the high fields, black mask and rusty flanks." },
+  { id: "robin-accentor", group: "bird", commonName: "Robin Accentor", scientificName: "Prunella rubeculoides", note: "A neat grey-headed accentor with a robin-red breast, at home around the high lakes and yak huts." },
+  { id: "himalayan-white-browed-rosefinch", group: "bird", commonName: "Himalayan White-browed Rosefinch", scientificName: "Carpodacus thura", note: "A pink rosefinch with a bold white brow, feeding in the juniper above the tree line." },
 
   /* ----------------------------------------------------------------- mammals */
   { id: "greater-one-horned-rhinoceros", group: "mammal", commonName: "Greater One-horned Rhinoceros", scientificName: "Rhinoceros unicornis", localName: "Gaida", note: "Armoured, prehistoric and wonderfully calm, the heart of Chitwan." },
@@ -271,6 +285,11 @@ export const species = [
   { id: "ganges-river-dolphin", group: "mammal", commonName: "Ganges River Dolphin", scientificName: "Platanista gangetica", localName: "Susu", note: "A blind, whistling river dolphin whose quick roll at the surface is a real moment on a big river." },
   { id: "red-panda", group: "mammal", commonName: "Red Panda", scientificName: "Ailurus fulgens", localName: "Habre", note: "A gentle, russet treetop wanderer of the bamboo and rhododendron forest." },
   { id: "himalayan-black-bear", group: "mammal", commonName: "Himalayan Black Bear", scientificName: "Ursus thibetanus", note: "Fresh claw marks on an oak are a wonder to find." },
+  { id: "himalayan-goral", group: "mammal", commonName: "Himalayan Goral", scientificName: "Naemorhedus goral", localName: "Ghoral", note: "A grey mountain goat standing perfectly still on a grassy cliff, until you blink." },
+  { id: "himalayan-serow", group: "mammal", commonName: "Himalayan Serow", scientificName: "Capricornis thar", localName: "Thar", note: "A shaggy, long-eared goat-antelope of the steep forest, seen once in a long while." },
+  { id: "himalayan-musk-deer", group: "mammal", commonName: "Himalayan Musk Deer", scientificName: "Moschus leucogaster", localName: "Kasturi", note: "A small, shy deer with tusks instead of antlers, hiding in the high rhododendron." },
+  { id: "swamp-deer", group: "mammal", commonName: "Swamp Deer", scientificName: "Rucervus duvaucelii", localName: "Barasingha", note: "The many-antlered deer of the wet grassland, feeding in herds in the early light." },
+  { id: "nilgai", group: "mammal", commonName: "Nilgai", scientificName: "Boselaphus tragocamelus", localName: "Nilgai", note: "Asia's biggest antelope, the blue-grey bulls stepping out at the grassland edge." },
 
   /* ----------------------------------------------------------------- reptiles */
   { id: "gharial", group: "reptile", commonName: "Gharial", scientificName: "Gavialis gangeticus", note: "A long-snouted, fish-eating river crocodile that basks on the sandbars." },
@@ -298,4 +317,5 @@ export const species = [
   { id: "sal", group: "plant", commonName: "Sal", scientificName: "Shorea robusta", localName: "Sal", note: "Towering sal trees make the great shady forest of the Terai." },
   { id: "silk-cotton-tree", group: "plant", commonName: "Silk-cotton Tree", scientificName: "Bombax ceiba", localName: "Simal", note: "Bare branches, huge scarlet flowers, and a crowd of birds drinking nectar." },
   { id: "kans-grass", group: "plant", commonName: "Kans Grass", scientificName: "Saccharum spontaneum", localName: "Kaans", note: "Tall silver-plumed grass that hides everything from rhinos to rails." },
+  { id: "maling-bamboo", group: "plant", commonName: "Maling Bamboo", scientificName: "Yushania maling", localName: "Malingo", note: "The dense high bamboo that red pandas live on, feeding on its leaves through the winter." },
 ] satisfies Species[];

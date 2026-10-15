@@ -42,7 +42,7 @@ export const landmarks = [
       ...seen("common", ["black-kite", "large-billed-crow", "common-myna", "oriental-magpie-robin", "red-vented-bulbul", "spotted-dove"]),
       ...seen("likely", ["himalayan-bulbul", "eurasian-kestrel", "egyptian-vulture", "grey-wagtail"]),
     ],
-    nearbyTripSlugs: ["phulchowki-birding-day"],
+    nearbyTripSlugs: ["phulchowki-birding-day", "gosaikunda-birding-trek"],
   },
   {
     id: "pokhara",
@@ -60,7 +60,7 @@ export const landmarks = [
       ...seen("common", ["black-kite", "little-cormorant", "indian-pond-heron", "red-vented-bulbul", "white-throated-kingfisher"]),
       ...seen("likely", ["himalayan-griffon", "pied-kingfisher", "himalayan-bulbul", "oriental-magpie-robin"]),
     ],
-    nearbyTripSlugs: ["annapurna-birding-trek"],
+    nearbyTripSlugs: ["annapurna-birding-trek", "mardi-himal-birding-trek"],
   },
 
   /* ------------------------------------------------------------------- parks */
@@ -104,6 +104,7 @@ export const landmarks = [
       ...seen("possible", ["asian-elephant", "great-hornbill", "black-necked-stork", "lesser-adjutant", "ganges-river-dolphin", "smooth-coated-otter"]),
       one("bengal-tiger", "rare"),
     ],
+    nearbyTripSlugs: ["bardiya-wildlife-safari"],
   },
   {
     id: "annapurna-conservation-area",
@@ -121,7 +122,7 @@ export const landmarks = [
       ...seen("possible", ["satyr-tragopan", "snow-pigeon", "himalayan-tahr", "blue-sheep", "yellow-throated-marten"]),
       one("rhododendron-arboreum", "common", [3, 4]),
     ],
-    nearbyTripSlugs: ["annapurna-birding-trek"],
+    nearbyTripSlugs: ["annapurna-birding-trek", "mardi-himal-birding-trek"],
   },
   {
     id: "shivapuri-nagarjun-national-park",
@@ -140,7 +141,7 @@ export const landmarks = [
       ...seen("possible", ["mountain-hawk-eagle", "yellow-throated-marten", "barking-deer", "himalayan-black-bear"]),
       one("rhododendron-arboreum", "common", [3, 4]),
     ],
-    nearbyTripSlugs: ["phulchowki-birding-day"],
+    nearbyTripSlugs: ["phulchowki-birding-day", "gosaikunda-birding-trek"],
   },
   {
     id: "langtang-national-park",
@@ -158,6 +159,7 @@ export const landmarks = [
       ...seen("possible", ["blood-pheasant", "lammergeier", "himalayan-tahr", "himalayan-black-bear", "red-panda"]),
       one("rhododendron-campanulatum", "possible", [4, 5]),
     ],
+    nearbyTripSlugs: ["langtang-birding-trek", "gosaikunda-birding-trek"],
   },
 
   /* ------------------------------------------------------------------ ranges */
@@ -176,7 +178,7 @@ export const landmarks = [
       ...seen("likely", ["lammergeier", "himalayan-griffon", "himalayan-monal", "snow-pigeon"]),
       ...seen("possible", ["golden-eagle", "blue-sheep", "himalayan-tahr", "alpine-accentor"]),
     ],
-    nearbyTripSlugs: ["annapurna-birding-trek"],
+    nearbyTripSlugs: ["annapurna-birding-trek", "mardi-himal-birding-trek"],
   },
   {
     id: "langtang-himal",
@@ -193,7 +195,7 @@ export const landmarks = [
       ...seen("likely", ["lammergeier", "himalayan-monal", "yellow-billed-chough"]),
       ...seen("possible", ["blood-pheasant", "red-panda", "himalayan-tahr", "golden-eagle", "plain-mountain-finch"]),
     ],
-    nearbyTripSlugs: ["phulchowki-birding-day"],
+    nearbyTripSlugs: ["phulchowki-birding-day", "langtang-birding-trek", "gosaikunda-birding-trek"],
   },
   {
     id: "mahalangur-himal",
@@ -260,6 +262,7 @@ export const landmarks = [
       ...seen("possible", ["satyr-tragopan", "blood-pheasant", "red-panda", "blue-sheep", "himalayan-tahr"]),
       one("rhododendron-arboreum", "common", [3, 4]),
     ],
+    nearbyTripSlugs: ["ilam-red-panda-trek"],
   },
 
   /* ------------------------------------------------------------------- peaks */
@@ -290,6 +293,7 @@ export const landmarks = [
       shot(PH.snow, "Wide shot: Kanchenjunga's five summits above cloud at sunrise, taken from the Kanchenjunga trek", { landmarkId: "kanchenjunga", place: "Kanchenjunga region", altitudeM: 4600, date: "2025-04", note: "sunrise" }),
       shot(PH.ridge, "Landscape: Kanchenjunga from Pangpema base camp in evening light, glacier in the foreground", { landmarkId: "kanchenjunga", place: "Pangpema, Kanchenjunga", altitudeM: 5140, date: "2025-04", note: "evening, glacier foreground" }),
     ],
+    nearbyTripSlugs: ["ilam-red-panda-trek"],
   },
   {
     id: "lhotse",
@@ -361,6 +365,7 @@ export const landmarks = [
       shot(PH.snow, "Wide shot: Manaslu at sunrise from Samagaon, golden light on the summit", { landmarkId: "manaslu", place: "Samagaon, Manaslu", altitudeM: 3530, date: "2025-10", note: "sunrise, 06:10" }),
       shot(PH.ridge, "Landscape: the Budhi Gandaki valley with Manaslu in the distance and a line of prayer flags", { landmarkId: "manaslu", place: "Budhi Gandaki valley", altitudeM: 3000, date: "2025-10", note: "afternoon, flags" }),
     ],
+    nearbyTripSlugs: ["gosaikunda-birding-trek"],
   },
   {
     id: "annapurna-i",
@@ -375,7 +380,7 @@ export const landmarks = [
       shot(PH.snow, "Wide shot: Annapurna I's south face at dawn from Annapurna Base Camp, golden light, prayer flags in the foreground", { landmarkId: "annapurna-i", place: "Annapurna Base Camp", altitudeM: 4130, date: "2025-11", note: "clear dawn, 06:45" }),
       shot(PH.ridge, "Landscape: Annapurna I from Poon Hill with the mist below, the pale shape at the edge of the range", { landmarkId: "annapurna-i", place: "Poon Hill, Annapurna", altitudeM: 3210, date: "2025-04", note: "dawn, distant" }),
     ],
-    nearbyTripSlugs: ["annapurna-birding-trek"],
+    nearbyTripSlugs: ["annapurna-birding-trek", "mardi-himal-birding-trek"],
   },
   {
     id: "annapurna-south",
@@ -390,7 +395,7 @@ export const landmarks = [
       shot(PH.snow, "Wide shot: Annapurna South catching the first light from Poon Hill, a mist-filled valley below", { landmarkId: "annapurna-south", place: "Poon Hill, Annapurna", altitudeM: 3210, date: "2025-04", note: "alpenglow, 06:00" }),
       shot(PH.ridge, "Landscape: Annapurna South above the stone steps of Chhomrong at midday", { landmarkId: "annapurna-south", place: "Chhomrong, Annapurna", altitudeM: 2170, date: "2025-04", note: "midday, terraces" }),
     ],
-    nearbyTripSlugs: ["annapurna-birding-trek"],
+    nearbyTripSlugs: ["annapurna-birding-trek", "mardi-himal-birding-trek"],
   },
   {
     id: "hiunchuli",
@@ -405,7 +410,7 @@ export const landmarks = [
       shot(PH.snow, "Wide shot: Hiunchuli in cloud at sunrise, above the Modi Khola gorge", { landmarkId: "hiunchuli", place: "Modi Khola gorge, Annapurna", altitudeM: 2900, date: "2025-11", note: "cloud lifting at sunrise" }),
       shot(PH.ridge, "Landscape: Hiunchuli seen from the Deurali slope in clear afternoon light", { landmarkId: "hiunchuli", place: "Deurali, Annapurna", altitudeM: 3230, date: "2025-04", note: "afternoon light" }),
     ],
-    nearbyTripSlugs: ["annapurna-birding-trek"],
+    nearbyTripSlugs: ["annapurna-birding-trek", "mardi-himal-birding-trek"],
   },
   {
     id: "machhapuchhre",
@@ -420,7 +425,7 @@ export const landmarks = [
       shot(PH.snow, "Wide shot: Machhapuchhre at dawn from Tadapani, its twin summit tilted above forested ridges", { landmarkId: "machhapuchhre", place: "Tadapani, Annapurna", altitudeM: 2630, date: "2025-04", note: "dawn, 06:00" }),
       shot(PH.ridge, "Landscape: Machhapuchhre reflected in Phewa Lake from Lakeside at sunrise", { landmarkId: "machhapuchhre", place: "Phewa Lake, Pokhara", altitudeM: 800, date: "2025-11", note: "sunrise reflection" }),
     ],
-    nearbyTripSlugs: ["annapurna-birding-trek"],
+    nearbyTripSlugs: ["annapurna-birding-trek", "mardi-himal-birding-trek"],
   },
   {
     id: "langtang-lirung",
@@ -435,6 +440,7 @@ export const landmarks = [
       shot(PH.snow, "Wide shot: Langtang Lirung at sunrise from Kyanjin Gompa, yak pastures in the foreground", { landmarkId: "langtang-lirung", place: "Kyanjin Gompa, Langtang", altitudeM: 3870, date: "2025-10", note: "sunrise, clear" }),
       shot(PH.ridge, "Landscape: Langtang Lirung above the oak-and-rhododendron forest, from the trail near Lama Hotel", { landmarkId: "langtang-lirung", place: "Lama Hotel, Langtang", altitudeM: 2470, date: "2025-10", note: "morning" }),
     ],
+    nearbyTripSlugs: ["langtang-birding-trek", "gosaikunda-birding-trek"],
   },
   {
     id: "phulchowki",
@@ -476,6 +482,26 @@ export const landmarks = [
     ],
   },
   {
+    id: "ilam-red-panda-forest",
+    name: "Sandakpur Red Panda Forest, Ilam",
+    kind: "poi",
+    coords: [87.995, 27.094],
+    elevationM: 3100,
+    labelTier: 2,
+    blurb: "Mossy bamboo and rhododendron forest on the ridge above Ilam's tea hills, among the best red panda habitat left in Nepal, with Kanchenjunga on the skyline.",
+    media: [
+      shot(PH.forest, "Wide shot: bamboo and rhododendron forest in cloud on the Sandakpur ridge, a narrow trail through the moss", { landmarkId: "ilam-red-panda-forest", place: "Sandakpur ridge, Ilam", altitudeM: 3100, date: "2025-11", note: "cloud forest, morning" }),
+      shot(PH.forest, "Landscape: Red Panda curled on a mossy branch above the bamboo, tail wrapped around its body", { speciesIds: ["red-panda"], landmarkId: "ilam-red-panda-forest", place: "Sandakpur ridge, Ilam", altitudeM: 3100, date: "2025-11", note: "resting, 08:00" }),
+    ],
+    sightings: [
+      ...seen("likely", ["black-faced-laughingthrush", "black-throated-parrotbill", "golden-breasted-fulvetta", "red-headed-bullfinch", "white-browed-fulvetta"]),
+      ...seen("possible", ["red-panda", "satyr-tragopan", "fire-tailed-myzornis", "scarlet-finch", "himalayan-black-bear"]),
+      one("maling-bamboo", "common"),
+      one("rhododendron-arboreum", "common", [3, 4]),
+    ],
+    nearbyTripSlugs: ["ilam-red-panda-trek"],
+  },
+  {
     id: "phewa-lake",
     name: "Phewa Lake",
     kind: "poi",
@@ -491,7 +517,7 @@ export const landmarks = [
       ...seen("common", ["little-cormorant", "indian-pond-heron", "cattle-egret", "white-throated-kingfisher", "black-kite"]),
       ...seen("likely", ["pied-kingfisher", "common-kingfisher", "little-egret", "red-wattled-lapwing", "great-cormorant"]),
     ],
-    nearbyTripSlugs: ["annapurna-birding-trek"],
+    nearbyTripSlugs: ["annapurna-birding-trek", "mardi-himal-birding-trek"],
   },
   {
     id: "begnas-lake",
@@ -546,6 +572,7 @@ export const landmarks = [
       ...seen("possible", ["ganges-river-dolphin", "smooth-coated-otter", "ibisbill", "asian-elephant"]),
       one("ruddy-shelduck", "likely", [11, 12, 1, 2]),
     ],
+    nearbyTripSlugs: ["bardiya-wildlife-safari"],
   },
   {
     id: "gosaikunda",
@@ -564,6 +591,7 @@ export const landmarks = [
       ...seen("possible", ["himalayan-monal", "blood-pheasant", "himalayan-snowcock", "grandala", "himalayan-tahr", "blue-sheep"]),
       one("rhododendron-lepidotum", "possible", [5, 6]),
     ],
+    nearbyTripSlugs: ["gosaikunda-birding-trek"],
   },
   {
     id: "sarangkot",
