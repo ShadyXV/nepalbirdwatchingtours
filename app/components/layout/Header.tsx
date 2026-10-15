@@ -4,6 +4,7 @@ import { t } from "~/i18n";
 import { SITE_NAME } from "~/lib/site";
 import { useInquiry } from "../inquiry";
 import { Button } from "../ui/Button";
+import { Logo } from "../ui/Logo";
 
 const links = [
   { to: "/trips", label: "nav.trips" },
@@ -32,10 +33,10 @@ export function Header() {
       <div className="flex h-header items-center justify-between gap-3 px-gutter sm:px-gutter-lg">
         <Link
           to="/"
-          className="min-w-0 font-display text-h3 uppercase leading-none tracking-[0.02em]"
-          aria-label={`${SITE_NAME}: ${t("nav.home")}`}
+          className="-ml-1 inline-flex min-h-tap min-w-tap shrink-0 items-center justify-center px-1 text-fg hover:text-accent"
         >
-          {SITE_NAME}
+          <Logo className="h-logo md:h-logo-lg" />
+          <span className="sr-only">{`${SITE_NAME}: ${t("nav.home")}`}</span>
         </Link>
 
         <div className="flex shrink-0 items-center gap-2 md:gap-5 lg:gap-8">

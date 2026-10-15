@@ -4,6 +4,7 @@ import { t } from "~/i18n";
 import { instagramUrl, mailtoUrl, whatsappUrl } from "../inquiry/channels";
 import { useInquiry } from "../inquiry";
 import { Button } from "../ui/Button";
+import { Logo } from "../ui/Logo";
 
 const link = "inline-flex min-h-tap items-center transition-colors duration-(--duration-micro) hover:text-accent";
 
@@ -14,6 +15,7 @@ export function Footer() {
     <footer className="border-t border-border bg-bg-raised px-gutter pb-10 pt-10 sm:px-gutter-lg">
       <div className="mx-auto flex max-w-5xl flex-col gap-8 md:flex-row md:justify-between">
         <div>
+          <Logo className="mb-3 h-logo-footer" />
           <p className="font-display text-h3 uppercase">{guide.brand}</p>
           <p className="mt-1 not-italic text-small text-fg-muted">{guide.name}</p>
         </div>

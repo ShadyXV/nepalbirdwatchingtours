@@ -173,6 +173,22 @@ pale `snow` lines on transparent. `TerrainBackdrop` (`components/ui`) lays it ov
 backgrounds and transitional screens; today the map's loading fallback. Tokens: `--texture-opacity`, `--texture-size`.
 Regenerate with `node scripts/textures/contours.mjs [seed]` (density, line count, stroke are constants at its top).
 
+## 3d. Logo
+
+The mark: a monal in flight over angular peaks, with diamond cut-outs in the wing and an eye. No wordmark;
+the site name sits beside it only as visually hidden text (header) or as plain display type (footer).
+
+- **File:** `app/design/brand/logo.svg`: one `currentColor` path, its holes are real holes. Traced from the
+  owner's raster `app/design/brand/logo-source.png` (not served) with potrace (blur 1.2px, threshold 50%,
+  crop to the artwork, `potrace -s -t 40 -a 0.8 -O 0.6 -u 1`, flipped to y-down, no transforms). Use it through
+  `<Logo>` (`components/ui`), which fills it with the current text colour.
+- **Colour:** `fg` (snow) on night, `accent` on hover when it links. One flat colour; never the black of the
+  source, never outlined, shadowed or recoloured per part.
+- **Size:** set by height (`--spacing-logo*` tokens): 40px header on phones, 44px from `md`, 56px in the footer.
+  **Minimum 28px tall**; below that the wing diamonds close up, so favicons need a simplified mark.
+- **Clear space:** at least a quarter of its height on every side, free of text and other marks (the header's
+  56px bar gives it ~6px top and bottom, which is the tight limit). Its link keeps a 44px tap target.
+
 ## 4. Layout and motion
 
 ### 4.1 Layout
