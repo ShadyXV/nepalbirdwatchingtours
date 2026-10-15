@@ -112,8 +112,9 @@ function GuideIntro() {
 /**
  * What we offer: led tours, day tours, a birding specialist on treks, as one continuous strip.
  * Each photo runs to the window edge on its side (alternating) and dissolves into the page on its
- * inner edge, top and bottom, the same way the contact band below melts into the page; the blocks
- * overlap where they fade, so the photos hand over to one another with no hard gaps.
+ * inner edge, top and bottom, the same way the contact band below melts into the page. The blocks
+ * keep a little dark space between them (owner: overlapping photos looked crowded), so each photo
+ * fades out fully before the next fades in, with no hard edges.
  * Desktop: the photo takes the larger share, the text sits beside it on the page column's edge.
  * Phones: the photo spans the full width and fades down into its text.
  */
@@ -123,9 +124,9 @@ function Ways() {
       <div className={column}>
         <SectionTitle id="home-ways">{t("home.servicesHeading")}</SectionTitle>
       </div>
-      <ul className="mt-8 flex flex-col gap-14 sm:gap-16 lg:mt-2 lg:gap-0">
+      <ul className="mt-8 flex flex-col gap-14 sm:gap-16 lg:mt-2 lg:gap-10">
         {homeWays.map((way, i) => (
-          <li key={way.id} className={i > 0 ? "lg:-mt-20" : undefined}>
+          <li key={way.id}>
             <WayBlock way={way} flipped={i % 2 === 1} />
           </li>
         ))}
@@ -185,13 +186,13 @@ function WayBlock({ way, flipped }: { way: HomeWay; flipped: boolean }) {
 
 /**
  * Full-width photo band with a way to reach Krishna; opens the inquiry drawer. Fades into the page
- * at the bottom (into the reviews) and, by a mask on the photo, at the top, where it overlaps the
- * last service photo's fade so the two crossfade.
+ * at the bottom (into the reviews) and, by a mask on the photo, at the top, a little below the last
+ * service photo's fade.
  */
 function ContactBand() {
   const { openInquiry } = useInquiry();
   return (
-    <section aria-labelledby="home-contact" className="relative isolate mt-6 overflow-hidden lg:-mt-16">
+    <section aria-labelledby="home-contact" className="relative isolate mt-14 overflow-hidden sm:mt-16 lg:mt-10">
       <BandMedia asset={contactBanner} />
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-linear-to-t from-bg via-scrim to-transparent" />
       <div className={`${column} flex min-h-[28rem] flex-col justify-end py-12 md:min-h-[36rem] md:items-start md:py-16`}>
