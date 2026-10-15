@@ -194,7 +194,7 @@ function ContactBand() {
   return (
     <section aria-labelledby="home-contact" className="relative isolate mt-20 overflow-hidden sm:mt-24">
       <BandMedia asset={contactBanner} />
-      <div aria-hidden="true" className="absolute inset-x-0 top-0 -z-10 h-[30%] bg-linear-to-b from-bg to-transparent" />
+      <div aria-hidden="true" className="absolute inset-x-0 top-0 -z-10 h-[37.5%] bg-linear-to-b from-bg to-transparent" />
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-linear-to-t from-bg via-scrim to-transparent" />
       <div className={`${column} flex min-h-[28rem] flex-col justify-end py-12 md:min-h-[36rem] md:items-start md:py-16`}>
         <SectionTitle id="home-contact">{t("home.contact.heading")}</SectionTitle>
@@ -220,7 +220,7 @@ function BandMedia({ asset }: { asset: MediaAsset }) {
       alt={asset.alt}
       loading="lazy"
       decoding="async"
-      className="absolute inset-0 -z-20 size-full object-cover mask-t-from-85%"
+      className="absolute inset-0 -z-20 size-full object-cover mask-t-from-81%"
       style={focal ? { objectPosition: `${focal[0] * 100}% ${focal[1] * 100}%` } : undefined}
     />
   );
