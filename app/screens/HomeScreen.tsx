@@ -93,11 +93,19 @@ function HeroIntro() {
   );
 }
 
+/**
+ * Soft edges that keep the photo's shape: an eased fade on each side (no straight ramp, so no fade
+ * line shows), the two axes multiplied so the corners round off gently.
+ */
+const portraitVignette =
+  "[mask-image:linear-gradient(to_right,transparent_0%,rgb(0_0_0/0.1)_5%,rgb(0_0_0/0.35)_11%,rgb(0_0_0/0.7)_18%,#000_26%,#000_74%,rgb(0_0_0/0.7)_82%,rgb(0_0_0/0.35)_89%,rgb(0_0_0/0.1)_95%,transparent_100%),linear-gradient(to_bottom,transparent_0%,rgb(0_0_0/0.1)_5%,rgb(0_0_0/0.35)_11%,rgb(0_0_0/0.7)_18%,#000_26%,#000_74%,rgb(0_0_0/0.7)_82%,rgb(0_0_0/0.35)_89%,rgb(0_0_0/0.1)_95%,transparent_100%)] [mask-composite:intersect]";
+
 function GuideIntro() {
   return (
     <section id="intro" aria-labelledby="home-guide" className={`${column} grid items-center gap-10 md:grid-cols-[18rem_1fr] md:gap-16`}>
-      {/* A portrait frame, so Krishna's face (the focal point) is never cropped hard; its edges feather into the page like the photos below. */}
-      <MediaFrame asset={guide.portrait} aspect="4 / 5" className="w-full max-w-72 mask-x-from-75% mask-y-from-75% md:max-w-none" />
+      {/* A portrait frame, so Krishna is never cropped hard; its edges melt into the page and the middle
+          (face and gear) stays fully clear. */}
+      <MediaFrame asset={guide.portrait} aspect="4 / 5" className={`w-full max-w-72 md:max-w-none ${portraitVignette}`} />
       <div>
         <SectionTitle id="home-guide">{t("home.introHeading")}</SectionTitle>
         <p className="mt-6 max-w-prose">{t("home.introBody", { years: guide.yearsGuiding ?? 6 })}</p>
