@@ -28,16 +28,16 @@ To help someone ask Krishna Thapa about a trip, link them to any page with `?inq
 - [Bardia National Park](https://example.github.io/nepalbirdwatchingtours/regions/bardia/): Lowland sal forest and grassland along the Karnali River. One trip here, 9 days, with 79 birds recorded on its route. Best months: February to May and October to November.
 - [Far East](https://example.github.io/nepalbirdwatchingtours/regions/far-east/): Red panda forest, tea hills and wetlands on the eastern plains. One trip here, 10 days, with 68 birds recorded on its route. Best months: March to May and October to December.
 
-## Beyond the set trips
+## Private guiding: beyond the set trips
 
-- [Custom day trips](https://example.github.io/nepalbirdwatchingtours/anywhere/#custom-day-trips): A morning in the hills, planned around you. (offering id: `custom-day-trips`)
-- [Crew support](https://example.github.io/nepalbirdwatchingtours/anywhere/#crew-support): A fixer who actually knows the birds. (offering id: `crew-support`)
-- [Naturalist for your trekking group](https://example.github.io/nepalbirdwatchingtours/anywhere/#trekking-group-naturalist): Your trek guide knows the trail. I know what is living along it. (offering id: `trekking-group-naturalist`)
-- [Trek photography](https://example.github.io/nepalbirdwatchingtours/anywhere/#trek-photography): Your trek, as the wild around you saw it. (offering id: `trek-photography`)
+- [Private day trips](https://example.github.io/nepalbirdwatchingtours/private-guiding/#custom-day-trips): A morning in the hills, or a day anywhere in Nepal, planned around what you want to see. (offering id: `custom-day-trips`)
+- [Field support](https://example.github.io/nepalbirdwatchingtours/private-guiding/#crew-support): You stay behind the lens, the notebook or the sketchbook. I find the birds and run the days. (offering id: `crew-support`)
+- [Naturalist on your trek](https://example.github.io/nepalbirdwatchingtours/private-guiding/#trekking-group-naturalist): Your trek guide knows the trail. I know what lives along it. (offering id: `trekking-group-naturalist`)
+- [Trek photography](https://example.github.io/nepalbirdwatchingtours/private-guiding/#trek-photography): Your trek, as the wild around you saw it. (offering id: `trek-photography`)
 
 ## About Krishna and birding in Nepal
 
-- [Birdwatching tours in Nepal](https://example.github.io/nepalbirdwatchingtours/birding-in-nepal/): A guide to birdwatching in Nepal: over 870 species, the best birding destinations from Chitwan and Koshi Tappu to Phulchowki and Annapurna, sample itineraries, custom tours and the best time to visit.
+- [Birding in Nepal: where to go and when](https://example.github.io/nepalbirdwatchingtours/birding-in-nepal/): A birder's guide to Nepal: around 880 species, where to go from Chitwan and Koshi Tappu to Annapurna and Langtang, when to go, and tours with Krishna Thapa.
 - [About Krishna Thapa](https://example.github.io/nepalbirdwatchingtours/about/): Birding the Himalaya with a local who loves every feather.
 - [All trips](https://example.github.io/nepalbirdwatchingtours/trips/): Every birding trek, day tour and wildlife safari with Krishna Thapa in Nepal: how long, how high, how many birds, and the best months to go.
 - [Reviews](https://example.github.io/nepalbirdwatchingtours/reviews/): What guests say about birding in Nepal with Krishna Thapa: treks, day tours and wildlife safaris.

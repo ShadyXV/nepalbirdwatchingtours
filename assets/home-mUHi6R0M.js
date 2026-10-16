@@ -1,1 +1,0 @@
-import{N as e,t}from"./jsx-runtime-kvQkVZdm.js";import{S as n,d as r,i,r as a}from"./schema-Trf5QmA_.js";import{P as o}from"./ui-DQhT29po.js";import{n as s}from"./meta-BeQyy0LU.js";var c=t();function l(){return s({title:o(`home.metaTitle`),description:o(`site.description`),path:`/`,schema:[r(),a(),i()]})}var u=e(function(){return(0,c.jsx)(n,{})});export{u as default,l as meta};

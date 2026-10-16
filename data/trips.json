@@ -17,7 +17,7 @@
       "inquire": "Required, no value: opens the inquiry form on any page.",
       "trip": "A trip's slug, from the list below.",
       "place": "A place id, as in /places/<id>/.",
-      "offering": "One of the ways to travel on /anywhere/, by its id.",
+      "offering": "One of the ways to travel with Krishna on /private-guiding/, by its id.",
       "from": "First day, YYYY-MM-DD.",
       "to": "Last day, YYYY-MM-DD.",
       "party": "Number of people."
